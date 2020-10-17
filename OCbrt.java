@@ -1,6 +1,4 @@
-import num.Arbitrary;
-import java.math.BigDecimal;
-import java.math.MathContext;
+package oroots;
 
 public class OCbrt {
 	private final static int DOUBLE_EXP_MASK_1 = 0b10000000000;
