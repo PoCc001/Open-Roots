@@ -1,3 +1,5 @@
+package oroots;
+
 public class OSqrt {
 	private final static int DOUBLE_EXP_MASK_1 = 0b10000000000;
 	private final static int DOUBLE_EXP_MASK_2 = 0b1111111111;
