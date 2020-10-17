@@ -1,10 +1,8 @@
 package oroots;
 
-public class OCbrt {
-	private final static int DOUBLE_EXP_MASK_1 = 0b10000000000;
-	private final static int DOUBLE_EXP_MASK_2 = 0b1111111111;
-	private final static long DOUBLE_MANTISSA_MASK = 0b1111111111111111111111111111111111111111111111111111L;
-	
+import static oroots.Masks;
+
+public class OCbrt {	
 	public static double cbrt (final double a) {
 		if (a == Double.POSITIVE_INFINITY || a == Double.NEGATIVE_INFINITY || a != a || a == 1.0 || a == 0.0 || a == -1.0) {
 			return a;
