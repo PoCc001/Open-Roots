@@ -85,7 +85,7 @@ public class ORoots {
 			guess = power(absA, -1.0 / (double)(mn));
 		}
 		
-		for (int i = 0; i < 20; i++) {
+		for (int i = 0; i < 4; i++) {
 			guess = ((mn + 1) * guess - (absA * (intPower(guess, mn + 1)))) / mn;
 		}
 		
@@ -156,7 +156,7 @@ public class ORoots {
 		double sum = 1.0;
 		double term = 1.0;
 		double k = 1.0;
-		while (term > 1E-17 || term < -1E-17) {
+		while (term > 1E-10 || term < -1E-10) {
 			term *= a;
 			term /= k;
 			sum += term;
@@ -183,7 +183,7 @@ public class ORoots {
 		double sum = (a - 1.0) / (a + 1.0);
 		double term = sum;
 		double j = 1.0;
-		for (int i = 0; i < 50; i++) {
+		for (int i = 0; i < 25; i++) {
 			term *= j * (a - 1.0) * (a - 1.0);
 			j += 2.0;
 			term /= (j * (a + 1.0) * (a + 1.0));
