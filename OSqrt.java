@@ -44,7 +44,7 @@ public class OSqrt {
 	   
 	   double guess = Double.longBitsToDouble((long)(exponent) << 52);
 	   
-	   for (int i = 0; i < 5; i++) {
+	   for (int i = 0; i <= 5; i++) {
 			guess = (guess + (a / guess)) / 2;
 	   }
 	   
