@@ -51,7 +51,7 @@ int main() {
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = sqrt(root_array_oroots[i]);
+			root_array_std[i] = sqrt(root_array_std[i]);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -85,7 +85,7 @@ int main() {
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = cbrt(root_array_oroots[i]);
+			root_array_std[i] = cbrt(root_array_std[i]);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -139,7 +139,7 @@ int main() {
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = pow(root_array_oroots[i], exponent);
+			root_array_std[i] = pow(root_array_std[i], exponent);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
