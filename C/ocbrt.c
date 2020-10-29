@@ -1,5 +1,5 @@
 /**
-* Copyright Johannes Kloimböck 2020.
+* Copyright Johannes KloimbÃ¶ck 2020.
 * Distributed under the Boost Software License, Version 1.0.
 * (See accompanying file LICENSE or copy at
 * https://www.boost.org/LICENSE_1_0.txt)
@@ -41,7 +41,7 @@ double ccbrt(const double a) {
 	double_ull guess;
 	guess.ull = (unsigned long long)(exponent) << 52;
 
-	for (int i = 0; i < 15; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		guess.d = (2.0 * guess.d + (a / (guess.d * guess.d))) / 3.0;
 	}
 
