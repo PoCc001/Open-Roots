@@ -202,10 +202,10 @@ double croot(double a, int n) {
 		return 1.0 / a;
 	}
 	else if (n == 2) {
-		csqrt(a);
+		return csqrt(a);
 	}
 	else if (n == 3) {
-		ccbrt(a);
+		return ccbrt(a);
 	}
 	else if (n > 0) {
 		double r;
