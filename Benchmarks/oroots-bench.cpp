@@ -1,14 +1,9 @@
-/**
-* Copyright Johannes Kloimböck 2020.
-* Distributed under the Boost Software License, Version 1.0.
-* (See accompanying file LICENSE or copy at
-* https://www.boost.org/LICENSE_1_0.txt)
-*/
-
 #include "oroots.hpp"
 #include <iostream>
 #include <chrono>
 #include <cmath>
+
+#pragma warning(disable : 4996)
 
 constexpr unsigned int array_length = 10000;
 
@@ -28,12 +23,13 @@ int main() {
 		return EXIT_SUCCESS;
 	}
 
+	double rand_array[array_length];
 	double root_array_oroots[array_length];
 	double root_array_std[array_length];
 	printf("\n");
 	std::cout << "Generating random numbers..." << std::endl;
 	for (unsigned int i = 0; i < array_length; ++i) {
-		root_array_oroots[i] = root_array_std[i] = rand();
+		rand_array[i] = rand();
 	}
 	std::cout << "Finished with generating random numbers!" << std::endl;
 	printf("\n");
@@ -44,14 +40,14 @@ int main() {
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = cppsqrt(root_array_oroots[i]);
+			root_array_oroots[i] = cppsqrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_std[i] = sqrt(root_array_std[i]);
+			root_array_std[i] = sqrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -78,14 +74,14 @@ int main() {
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = cppcbrt(root_array_oroots[i]);
+			root_array_oroots[i] = cppcbrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_std[i] = cbrt(root_array_std[i]);
+			root_array_std[i] = cbrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -130,7 +126,7 @@ int main() {
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = cpproot(root_array_oroots[i], degree);
+			root_array_oroots[i] = cpproot(rand_array[i], degree);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -139,7 +135,7 @@ int main() {
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_std[i] = pow(root_array_std[i], exponent);
+			root_array_std[i] = pow(rand_array[i], exponent);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -163,9 +159,30 @@ int main() {
 	else {
 		std::cout << "Wrong input!" << std::endl;
 		std::cout << "Aborting..." << std::endl;
+		system("PAUSE");
+		return EXIT_SUCCESS;
 	}
 
 	printf("\n");
+
+	std::cout << "Writing roots and other info to file \"oroots-bench.txt\"" << std::endl;
+	FILE *oroots_bench_txt = fopen("oroots-bench.txt", "w");
+	fprintf(oroots_bench_txt, "input\t\t|\t\tstd\t\t|\t\toroots\t\t|\tdifference (bits)\n");
+	long long diff_array[array_length];
+	double_ull std;
+	double_ull oroots;
+	for (unsigned int i = 0; i < array_length; ++i) {
+		std.d = root_array_std[i];
+		oroots.d = root_array_oroots[i];
+		diff_array[i] = (long long)(std.ull) - (long long)(oroots.ull);
+	}
+
+	for (unsigned int i = 0; i < array_length; ++i) {
+		fprintf(oroots_bench_txt, "sqrt(%3.1f):\t|\t%3.16f\t|\t%3.16f\t|\t%lli\n", rand_array[i], root_array_std[i], root_array_oroots[i], diff_array[i]);
+	}
+
+	printf("\n");
+	fclose(oroots_bench_txt);
 
 	system("PAUSE");
 	return EXIT_SUCCESS;

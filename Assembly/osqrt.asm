@@ -5,7 +5,7 @@
 ; https://www.boost.org/LICENSE_1_0.txt)
 ;
 
-; Assemble with MASM (Macro Assembler) on a Windows PC with an Intel or AMD 64-Bit processor.
+; Assemble with MASM (Macro Assembler) on a Windows PC with an Intel 64-Bit processor.
 
 .data
 
@@ -115,9 +115,9 @@ modified_exp:
 
 	movsd xmm2, xmm0	;square the guess value and compare it to the input value
 	mulsd xmm2, xmm2
-	ucomisd xmm2, xmm1
-	jns greater			;assume that the guess is only one ulp away from the actual result
-	jmp smaller
+	ucomisd xmm2, xmm1	;compare the square of the guess with the input value
+	jpe greater			;assume that the guess is only one ulp away from the actual result
+	jc smaller
 
 greater:
 	movq r8, xmm0
@@ -130,8 +130,6 @@ smaller:
 	inc r8								;subtract one ulp
 	mov GUESS, r8
 	movsd xmm0, mmword ptr [GUESS]		;set return value
-
-
 
 	ret					;end the procedure
 asmsqrt endp
