@@ -16,30 +16,30 @@ GUESS qword ?
 
 osqrt proc
 start:
-	mov r15, 1024			;move DOUBLE_EXPONENT_MASK1 into r15 for performance reasons
+	mov r13, 1024			;move DOUBLE_EXPONENT_MASK1 into r13 for performance reasons
 	movq rcx, xmm0
 	mov rax, rcx			;copy argument into rax
 	shr rax, 52				;get exponent by right-shifting
 	jz subnormal_number
 	mov rdx, rcx			;copy argument into rdx for use in subnormal_number
 	mov r8, rax				;copy exponent into r8
-	and rax, r15			;check if the input value is greater than two
+	and rax, r13			;check if the input value is greater than two
 	jnz greater_than_two	;conditional jump
 	jmp smaller_than_two
 
 greater_than_two:		; if the input value is greater than two do the following instructions
 	and r8, 1023		;remove last bit of the exponent
 	shr r8, 1			;divide exponent by two
-	or r8, r15			;insert last bit of the exponent again
+	or r8, r13			;insert last bit of the exponent again
 	jmp modified_exp	;go on
 
 smaller_than_two:
 	mov r9, r8			;copy exponent
-	sub r9, r15			;effectively subtract the (copied) exponent from DOUBLE_EXPONENT_MASK_1
+	sub r9, r13			;effectively subtract the (copied) exponent from DOUBLE_EXPONENT_MASK_1
 	not r9				;see following 2 instructions
 	inc r9
 	shr r9, 1			;divide copied exponent by 2
-	sub r9, r15			;effectively subtract the (copied) exponent from DOUBLE_EXPONENT_MASK_1
+	sub r9, r13			;effectively subtract the (copied) exponent from DOUBLE_EXPONENT_MASK_1
 	not r9				;see following 2 instructions
 	inc r9
 	mov r8, r9			;r8 should hold the exponent
