@@ -21,4 +21,9 @@ Include the oroots.hpp file which can be found in the "C" directory. The functio
 The first two take a double variable as an input. The third one takes a double and an int.
 The square root and the cube root can also be computed by calling cpproot(x, 2) or cpproot(x, 3) respectively.
 
+### x86/64 Assembly
+Call the procedure osqrt found in the file "osqrt.asm" in the "Assembly" directory. The floating point argument has to be
+stored in the xmm0 register. The result will be moved into the same register. "osqrt.asm" should be assembled using the
+Macro Assembler (MASM). It can also be used with C/C++ projects in Visual Studio.
+
 **Note:** x is a variable of the primitive datatype double.
