@@ -11,13 +11,15 @@
 
 INPUT qword ?
 GUESS qword ?
+HALF_DOUBLE mmword 0.5
 
 .code
 
 osqrt proc
 start:
 	mov r13, 1024			;move DOUBLE_EXPONENT_MASK1 into r13 for performance reasons
-	movq rcx, xmm0
+	movq rcx, xmm0			;move input to rcx to enable bit manipulation on it
+	movsd xmm3, mmword ptr [HALF_DOUBLE]	;move HALF_DOUBLE into xmm3 for performance reasons
 	mov rax, rcx			;copy argument into rax
 	shr rax, 52				;get exponent by right-shifting
 	jz subnormal_number
@@ -27,7 +29,7 @@ start:
 	jnz greater_than_two	;conditional jump
 	jmp smaller_than_two
 
-greater_than_two:		; if the input value is greater than two do the following instructions
+greater_than_two:		;if the input value is greater than two do the following instructions
 	and r8, 1023		;remove last bit of the exponent
 	shr r8, 1			;divide exponent by two
 	or r8, r13			;insert last bit of the exponent again
@@ -65,53 +67,35 @@ modified_exp:
 	movsd xmm1, mmword ptr [INPUT]
 	mov r11, 10000000000000H
 
-	movsd xmm2, xmm1					;do Newton's iterations #1
+	movsd xmm2, xmm1				;do Newton's iterations #1
 	divsd xmm2, xmm0
 	addsd xmm0, xmm2
-	movq r8, xmm0						;convert number bit by bit into an integer
-	sub r8, r11							;divide floating point number by two
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]		;convert back to floating point numbers
+	mulsd xmm0, xmm3
 
-	movsd xmm2, xmm1					;do Newton's iterations #2
+	movsd xmm2, xmm1				;do Newton's iterations #2
 	divsd xmm2, xmm0
 	addsd xmm0, xmm2
-	movq r8, xmm0
-	sub r8, r11
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]
+	mulsd xmm0, xmm3
 
-	movsd xmm2, xmm1					;do Newton's iterations #3
+	movsd xmm2, xmm1				;do Newton's iterations #3
 	divsd xmm2, xmm0
 	addsd xmm0, xmm2
-	movq r8, xmm0
-	sub r8, r11
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]
+	mulsd xmm0, xmm3
 
-	movsd xmm2, xmm1	;do Newton's iterations #4
+	movsd xmm2, xmm1				;do Newton's iterations #4
 	divsd xmm2, xmm0
 	addsd xmm0, xmm2
-	movq r8, xmm0
-	sub r8, r11
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]
+	mulsd xmm0, xmm3
 
-	movsd xmm2, xmm1	;do Newton's iterations #5
+	movsd xmm2, xmm1				;do Newton's iterations #5
 	divsd xmm2, xmm0
 	addsd xmm0, xmm2
-	movq r8, xmm0
-	sub r8, r11
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]
+	mulsd xmm0, xmm3
 
-	movsd xmm2, xmm1	;do Newton's iterations #6
+	movsd xmm2, xmm1				;do Newton's iterations #6
 	divsd xmm2, xmm0
 	addsd xmm0, xmm2
-	movq r8, xmm0
-	sub r8, r11
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]
+	mulsd xmm0, xmm3
 
 	movsd xmm2, xmm0	;square the guess value and compare it to the input value
 	mulsd xmm2, xmm2
