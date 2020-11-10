@@ -11,12 +11,19 @@
 
 INPUT qword ?
 GUESS qword ?
-HALF_DOUBLE mmword 0.5
+HALF_DOUBLE mmword +0.5
+ZERO_DOUBLE mmword +0.0
 
 .code
 
-osqrt proc
+asmsqrt proc
 start:
+	ucomisd xmm0, mmword ptr [ZERO_DOUBLE]	;check the sign of the input
+	jz zero
+	jnc positive
+	jmp not_positive
+
+positive:
 	mov r13, 1024			;move DOUBLE_EXPONENT_MASK1 into r13 for performance reasons
 	movq rcx, xmm0			;move input to rcx to enable bit manipulation on it
 	movsd xmm3, mmword ptr [HALF_DOUBLE]	;move HALF_DOUBLE into xmm3 for performance reasons
@@ -100,20 +107,36 @@ modified_exp:
 	movsd xmm2, xmm0	;square the guess value and compare it to the input value
 	mulsd xmm2, xmm2
 	ucomisd xmm2, xmm1	;compare the square of the guess with the input value
-	jpe greater			;assume that the guess is only one ulp away from the actual result
+	jz zero
+	jnc greater			;assume that the guess is only one ulp away from the actual result
 	jc smaller
+	ret
 
 greater:
 	movq r8, xmm0
 	dec r8								;subtract one ulp
 	mov GUESS, r8
 	movsd xmm0, mmword ptr [GUESS]		;set return value
+	ret
 
 smaller:
 	movq r8, xmm0
 	inc r8								;subtract one ulp
 	mov GUESS, r8
 	movsd xmm0, mmword ptr [GUESS]		;set return value
+	ret
+
+not_positive:		;if the input is negative, insert NaN into xmm0, else return 0.0
+	xor r8, r8		;make the value in rax 0
+	inc r8			;build the NaN value
+	shl r8, 63
+	not r8
+	mov GUESS, r8
+	movsd xmm0, mmword ptr [GUESS]
+	ret
+
+zero:
+	
 
 	ret					;end the procedure
 asmsqrt endp
