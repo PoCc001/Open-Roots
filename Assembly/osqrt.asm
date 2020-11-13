@@ -45,12 +45,10 @@ greater_than_two:		;if the input value is greater than two do the following inst
 smaller_than_two:
 	mov r9, r8			;copy exponent
 	sub r9, r13			;effectively subtract the (copied) exponent from DOUBLE_EXPONENT_MASK_1
-	not r9				;see following 2 instructions
-	inc r9
+	neg r9
 	shr r9, 1			;divide copied exponent by 2
 	sub r9, r13			;effectively subtract the (copied) exponent from DOUBLE_EXPONENT_MASK_1
-	not r9				;see following 2 instructions
-	inc r9
+	neg r9
 	mov r8, r9			;r8 should hold the exponent
 	and r11, r11
 	jz subnormal_number
