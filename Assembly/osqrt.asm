@@ -74,7 +74,6 @@ modified_exp:
 	shl r8, 52						;construct the first guess of the square root
 	movq xmm0, r8					;move numbers into floating point registers
 	movq xmm1, rcx
-	mov r11, 10000000000000H
 
 	movsd xmm2, xmm1				;do Newton's iterations #1
 	divsd xmm2, xmm0
