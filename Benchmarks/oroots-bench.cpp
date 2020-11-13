@@ -181,8 +181,22 @@ int main() {
 		fprintf(oroots_bench_txt, "sqrt(%3.1f):\t|\t%3.16f\t|\t%3.16f\t|\t%lli\n", rand_array[i], root_array_std[i], root_array_oroots[i], diff_array[i]);
 	}
 
-	printf("\n");
 	fclose(oroots_bench_txt);
+
+	unsigned int counter = 0;
+
+	for (unsigned int i = 0; i < array_length; ++i) {
+		if (diff_array[i] != 0) {
+			counter++;
+		}
+	}
+
+	double ratio = 100.0 * counter / array_length;
+
+	std::cout << ratio << "% of computed roots don't exactly match." << std::endl;
+
+	printf("\n");
+
 
 	system("PAUSE");
 	return EXIT_SUCCESS;
