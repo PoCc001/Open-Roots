@@ -9,16 +9,15 @@
 
 .data
 
-INPUT qword ?
-GUESS qword ?
 HALF_DOUBLE mmword +0.5
-ZERO_DOUBLE mmword +0.0
 
 .code
 
 asmsqrt proc
 start:
-	ucomisd xmm0, mmword ptr [ZERO_DOUBLE]	;check the sign of the input
+	xor rax, rax
+	movq xmm1, rax
+	ucomisd xmm0, xmm1		;check the sign of the input
 	jz zero
 	jnc positive
 	jmp not_positive
@@ -28,8 +27,9 @@ positive:
 	movq rcx, xmm0			;move input to rcx to enable bit manipulation on it
 	movsd xmm3, mmword ptr [HALF_DOUBLE]	;move HALF_DOUBLE into xmm3 for performance reasons
 	mov rax, rcx			;copy argument into rax
+	xor r12, r12
 	shr rax, 52				;get exponent by right-shifting
-	jz subnormal_number
+	cmovz r11, r12
 	mov rdx, rcx			;copy argument into rdx for use in subnormal_number
 	mov r8, rax				;copy exponent into r8
 	and rax, r13			;check if the input value is greater than two
@@ -52,6 +52,8 @@ smaller_than_two:
 	not r9				;see following 2 instructions
 	inc r9
 	mov r8, r9			;r8 should hold the exponent
+	and r11, r11
+	jz subnormal_number
 	jmp modified_exp	;go on
 
 subnormal_number:
@@ -64,14 +66,14 @@ subnormal_number:
 	sub r10, r11					;subtract 11 (A in hexadecimal) from the leading-zeros-count
 	shr r10, 1						;divide this number by 2
 	sub r8, r10						;subtract it from the exponent
+	shr r12, 42
+	and r8, r12
 	jmp modified_exp				;go on
 
 modified_exp:
 	shl r8, 52						;construct the first guess of the square root
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]	;move numbers into floating point registers
-	mov INPUT, rcx
-	movsd xmm1, mmword ptr [INPUT]
+	movq xmm0, r8					;move numbers into floating point registers
+	movq xmm1, rcx
 	mov r11, 10000000000000H
 
 	movsd xmm2, xmm1				;do Newton's iterations #1
@@ -106,38 +108,36 @@ modified_exp:
 
 	movsd xmm2, xmm0	;square the guess value and compare it to the input value
 	mulsd xmm2, xmm2
+
+	xor r9, r9			;set up the sign of the ulp to add to the guess
+	mov r10, r9
+	inc r10
+	mov r11, r9
+	not r11
+
 	ucomisd xmm2, xmm1	;compare the square of the guess with the input value
-	jz zero
-	jnc greater			;assume that the guess is only one ulp away from the actual result
-	jc smaller
-	ret
 
-greater:
-	movq r8, xmm0
-	dec r8								;subtract one ulp
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]		;set return value
-	ret
+	cmovnc r12, r11
+	cmovc r12, r10
+	cmovz r12, r9
 
-smaller:
 	movq r8, xmm0
-	inc r8								;subtract one ulp
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]		;set return value
-	ret
+
+	add r8, r12			;correct the guess
+
+	movq xmm0, r8
+	ret				;end the procedure
 
 not_positive:		;if the input is negative, insert NaN into xmm0, else return 0.0
 	xor r8, r8		;make the value in rax 0
 	inc r8			;build the NaN value
 	shl r8, 63
 	not r8
-	mov GUESS, r8
-	movsd xmm0, mmword ptr [GUESS]
-	ret
+	movq xmm0, r8
+	ret					;end the procedure
 
 zero:
 	
-
 	ret					;end the procedure
 asmsqrt endp
 
