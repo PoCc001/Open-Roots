@@ -50,35 +50,16 @@ public class OSqrt {
 	   
 	   long longGuess;
 	   
-	   while ((guess * guess) > a) {
+	   if ((guess * guess) > a) {
 		   longGuess = Double.doubleToRawLongBits(guess);
 		   longGuess--;
 		   guess = Double.longBitsToDouble(longGuess);
 	   }
 	   
-	   while ((guess * guess) < a) {
+	   if ((guess * guess) < a) {
 		   longGuess = Double.doubleToRawLongBits(guess);
 		   longGuess++;
 		   guess = Double.longBitsToDouble(longGuess);
-	   }
-	   
-	   double guessLarger = guess;
-	   
-	   double sqr = guess * guess;
-	   
-	   if (sqr > a) {
-		   longGuess = Double.doubleToRawLongBits(guess);
-		   longGuess--;
-		   guess = Double.longBitsToDouble(longGuess);
-	   } else if (sqr == a) {
-		   return guess;
-	   }
-	   
-	   double difference1 = a - (guess * guess);
-	   double difference2 = (guessLarger * guessLarger) - a;
-	   
-	   if (difference1 > difference2) {
-		   guess = guessLarger;
 	   }
 	   
 	   return guess;

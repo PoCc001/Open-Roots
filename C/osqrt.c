@@ -55,30 +55,12 @@ double csqrt(const double a) {
 		guess.ull -= 0x10000000000000ULL;
 	}
 
-	while ((guess.d * guess.d) > a) {
+	if ((guess.d * guess.d) > a) {
 		--guess.ull;
 	}
 
-	while ((guess.d * guess.d) < a) {
+	if ((guess.d * guess.d) < a) {
 		++guess.ull;
-	}
-
-	double guess_larger = guess.d;
-
-	double sqr = guess.d * guess.d;
-
-	if (sqr > a) {
-		--guess.ull;
-	}
-	else if (sqr == a) {
-		return guess.d;
-	}
-
-	double difference1 = a - (guess.d * guess.d);
-	double difference2 = (guess_larger * guess_larger) - a;
-
-	if (difference1 > difference2) {
-		guess.d = guess_larger;
 	}
 
 	return guess.d;
