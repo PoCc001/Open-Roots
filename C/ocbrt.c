@@ -45,30 +45,12 @@ double ccbrt(const double a) {
 		guess.d = (2.0 * guess.d + (a / (guess.d * guess.d))) / 3.0;
 	}
 
-	while ((guess.d * guess.d * guess.d) > a) {
+	if ((guess.d * guess.d * guess.d) > a) {
 		--guess.ull;
 	}
 
-	while ((guess.d * guess.d * guess.d) < a) {
+	if ((guess.d * guess.d * guess.d) < a) {
 		++guess.ull;
-	}
-
-	double guess_larger = guess.d;
-
-	double cube = guess.d * guess.d * guess.d;
-
-	if (cube > a) {
-		--guess.ull;
-	}
-	else if (cube == a) {
-		return guess.d;
-	}
-
-	double difference1 = a - (guess.d * guess.d * guess.d);
-	double difference2 = (guess_larger * guess_larger * guess_larger) - a;
-
-	if (difference1 > difference2) {
-		guess.d = guess_larger;
 	}
 
 	return guess.d;
