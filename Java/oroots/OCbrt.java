@@ -50,39 +50,16 @@ public class OCbrt {
 		
 		long longGuess;
 		
-		while ((guess * guess * guess) > absA) {
+		if ((guess * guess * guess) > absA) {
 			longGuess = Double.doubleToRawLongBits(guess);
 			longGuess--;
 			guess = Double.longBitsToDouble(longGuess);
 		}
 		
-		while ((guess * guess * guess) < absA) {
+		if ((guess * guess * guess) < absA) {
 			longGuess = Double.doubleToRawLongBits(guess);
 			longGuess++;
 			guess = Double.longBitsToDouble(longGuess);
-		}
-		
-		double guessLarger = guess;
-		
-		double cube = guess * guess * guess;
-		
-		if (cube > absA) {
-			longGuess = Double.doubleToRawLongBits(guess);
-			longGuess--;
-			guess = Double.longBitsToDouble(longGuess);
-		} else if (cube == absA) {
-			if (negative) {
-				guess = -guess;
-			}
-			
-			return guess;
-		}
-		
-		double difference1 = absA - (guess * guess * guess);
-		double difference2 = (guessLarger * guessLarger * guessLarger) - absA;
-		
-		if (difference1 > difference2) {
-			guess = guessLarger;
 		}
 		
 		if (negative) {
