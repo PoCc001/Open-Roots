@@ -98,11 +98,6 @@ modified_exp:
 	addsd xmm0, xmm2
 	mulsd xmm0, xmm3
 
-	movsd xmm2, xmm1				;do Newton's iterations #6
-	divsd xmm2, xmm0
-	addsd xmm0, xmm2
-	mulsd xmm0, xmm3
-
 	movsd xmm2, xmm0	;square the guess value and compare it to the input value
 	mulsd xmm2, xmm2
 
