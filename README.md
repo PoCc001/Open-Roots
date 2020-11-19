@@ -1,5 +1,7 @@
 # Open-Roots
-Open-Source implementation of roots (2nd, 3rd etc.) for Java and C/C++ (double datatype)
+Open-Source implementation of roots (2nd, 3rd etc.) for Java and C/C++ (double datatype) which is optimized for
+speed rather than 100% precise results. This means that results may vary one ulp from the actual value and be
+incorrectly rounded.
 
 ## API
 ### Java
