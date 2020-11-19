@@ -62,6 +62,10 @@ public class OCbrt {
 			guess = Double.longBitsToDouble(longGuess);
 		}
 		
+		if (negative) {
+			guess = -guess;
+		}
+		
 		return guess;
 	}
 }
