@@ -9,12 +9,13 @@
 #include <stdbool.h>
 
 double ccbrt(const double a) {
-	if (a == 0.0 || a == 1.0 || a != a) {
+	double absA = a > 0.0 ? a : -a;
+	if (absA == 0.0 || absA == 1.0 || a != a) {
 		return a;
 	}
 
 	double_ull val;
-	val.d = a;
+	val.d = absA;
 
 	unsigned int exponent = (unsigned int)(val.ull >> 52);
 
@@ -42,15 +43,19 @@ double ccbrt(const double a) {
 	guess.ull = (unsigned long long)(exponent) << 52;
 
 	for (int i = 0; i < 6; ++i) {
-		guess.d = (2.0 * guess.d + (a / (guess.d * guess.d))) / 3.0;
+		guess.d = (2.0 * guess.d + (absA / (guess.d * guess.d))) / 3.0;
 	}
 
-	if ((guess.d * guess.d * guess.d) > a) {
+	if ((guess.d * guess.d * guess.d) > absA) {
 		--guess.ull;
 	}
 
-	if ((guess.d * guess.d * guess.d) < a) {
+	if ((guess.d * guess.d * guess.d) < absA) {
 		++guess.ull;
+	}
+
+	if (a < 0.0) {
+		guess.d = -guess.d;
 	}
 
 	return guess.d;
