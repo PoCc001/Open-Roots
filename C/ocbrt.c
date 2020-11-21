@@ -17,24 +17,17 @@ double ccbrt(const double a) {
 	double_ull val;
 	val.d = absA;
 
-	unsigned int exponent = (unsigned int)(val.ull >> 52);
+	int exponent = (int)(val.ull >> 52);
 
 	bool is_sub_normal = !exponent;
 
-	if (exponent & DOUBLE_EXP_MASK_1) {
-		exponent &= DOUBLE_EXP_MASK_2;
-		exponent /= 3;
-		exponent |= DOUBLE_EXP_MASK_1;
-	}
-	else {
-		unsigned int exponent2 = DOUBLE_EXP_MASK_1 - exponent;
-		exponent2 /= 3;
-		exponent = DOUBLE_EXP_MASK_1 - exponent2;
-	}
+	exponent -= 1024;
+	exponent /= 3;
+	exponent += 1024;
 
 	if (is_sub_normal) {
 		unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
-		unsigned int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
+		int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
 		sub_normal_exponent /= 3;
 		exponent -= sub_normal_exponent;
 	}
