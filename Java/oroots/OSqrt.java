@@ -25,20 +25,14 @@ public class OSqrt {
 	   
 	   boolean isSubNormal = exponent == 0;
 	   
-	   if ((exponent & DOUBLE_EXP_MASK_1) != 0) {
-		   exponent &= DOUBLE_EXP_MASK_2;
-		   exponent >>>= 1;
-		   exponent |= DOUBLE_EXP_MASK_1;
-	   } else {
-		   int exponent2 = DOUBLE_EXP_MASK_1 - exponent;
-		   exponent2 >>>= 1;
-		   exponent = DOUBLE_EXP_MASK_1 - exponent2;
-	   }
+	   exponent -= 1023;
+	   exponent >>= 1;
+	   exponent += 1023;
 	   
 	   if (isSubNormal) {
 		   long mantissa = longValue & DOUBLE_MANTISSA_MASK;
 		   long subNormalExponent = Long.numberOfLeadingZeros(mantissa) - 11;
-		   subNormalExponent >>>= 1;
+		   subNormalExponent >>= 1;
 		   exponent -= subNormalExponent;
 	   }
 	   

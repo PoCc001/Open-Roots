@@ -32,27 +32,12 @@ positive:
 	cmovz r11, r12
 	mov rdx, rcx			;copy argument into rdx for use in subnormal_number
 	mov r8, rax				;copy exponent into r8
-	and rax, r13			;check if the input value is greater than two
-	jnz greater_than_two	;conditional jump
-	jmp smaller_than_two
 
-greater_than_two:		;if the input value is greater than two do the following instructions
-	and r8, 1023		;remove last bit of the exponent
-	shr r8, 1			;divide exponent by two
-	or r8, r13			;insert last bit of the exponent again
-	jmp modified_exp	;go on
-
-smaller_than_two:
-	mov r9, r8			;copy exponent
-	sub r9, r13			;effectively subtract the (copied) exponent from DOUBLE_EXPONENT_MASK_1
-	neg r9
-	shr r9, 1			;divide copied exponent by 2
-	sub r9, r13			;effectively subtract the (copied) exponent from DOUBLE_EXPONENT_MASK_1
-	neg r9
-	mov r8, r9			;r8 should hold the exponent
+	sub r8, 1024			;subtract 2^10 from the exponent
+	sar r8, 1				;divide it by 2
+	add r8, 1024			;add 2^10 again
 	and r11, r11
-	jz subnormal_number
-	jmp modified_exp	;go on
+	jnz modified_exp
 
 subnormal_number:
 	mov r12, 1
@@ -61,12 +46,11 @@ subnormal_number:
 	and rdx, r12					;extract mantissa
 	lzcnt r10, rdx					;count number of leading zeros in mantissa to determine the actual exponent
 	mov r11, 11
-	sub r10, r11					;subtract 11 (A in hexadecimal) from the leading-zeros-count
-	shr r10, 1						;divide this number by 2
+	sub r10, r11					;subtract 11 (B in hexadecimal) from the leading-zeros-count
+	sar r10, 1						;divide this number by 2
 	sub r8, r10						;subtract it from the exponent
 	shr r12, 42
 	and r8, r12
-	jmp modified_exp				;go on
 
 modified_exp:
 	shl r8, 52						;construct the first guess of the square root
