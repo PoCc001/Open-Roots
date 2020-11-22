@@ -13,7 +13,7 @@ HALF_DOUBLE mmword +0.5
 
 .code
 
-asmsqrt proc
+osqrt proc
 start:
 	xor rax, rax
 	movq xmm1, rax
