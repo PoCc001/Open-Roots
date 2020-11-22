@@ -10,7 +10,7 @@ package oroots;
 import static oroots.Masks;
 
 public class OSqrt {
-	public static double sqrt(final double a) {
+	public static strictfp double sqrt(final double a) {
 	   if (a < 0.0 || a == Double.NEGATIVE_INFINITY) {
 		   return Double.NaN;
 	   }

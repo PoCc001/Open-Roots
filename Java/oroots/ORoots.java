@@ -9,7 +9,7 @@ package oroots;
 
 import static oroots.Masks;
 
-public class ORoots {
+public strictfp class ORoots {
 	private final static double LOG_2 = 0.6931471805599453;
 	private final static double E = 2.718281828459045;
 	

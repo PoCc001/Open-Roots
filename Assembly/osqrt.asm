@@ -28,6 +28,7 @@ positive:
 	movsd xmm3, mmword ptr [HALF_DOUBLE]	;move HALF_DOUBLE into xmm3 for performance reasons
 	mov rax, rcx			;copy argument into rax
 	xor r12, r12
+	mov r11, 1
 	shr rax, 52				;get exponent by right-shifting
 	cmovz r11, r12
 	mov rdx, rcx			;copy argument into rdx for use in subnormal_number
@@ -86,8 +87,7 @@ modified_exp:
 	mulsd xmm2, xmm2
 
 	xor r9, r9			;set up the sign of the ulp to add to the guess
-	mov r10, r9
-	inc r10
+	mov r10, 1
 	mov r11, r9
 	not r11
 

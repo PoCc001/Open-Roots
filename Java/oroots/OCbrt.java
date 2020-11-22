@@ -10,7 +10,7 @@ package oroots;
 import static oroots.Masks;
 
 public class OCbrt {	
-	public static double cbrt (final double a) {
+	public static strictfp double cbrt (final double a) {
 		if (a == Double.POSITIVE_INFINITY || a == Double.NEGATIVE_INFINITY || a != a || a == 1.0 || a == 0.0 || a == -1.0) {
 			return a;
 		}
