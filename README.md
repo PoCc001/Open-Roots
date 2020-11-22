@@ -1,7 +1,8 @@
 # Open-Roots
 Open-Source implementation of roots (2nd, 3rd etc.) for Java and C/C++ (double datatype) which is optimized for
 speed rather than 100% precise results. This means that results may vary one ulp from the actual value and be
-incorrectly rounded.
+incorrectly rounded. Instead, this library aims to provide an open-source implementation of mathematical roots
+which is faster than other platform indipendent libaries of the same kind.
 
 ## API
 ### Java
