@@ -15,8 +15,10 @@ HALF_DOUBLE mmword +0.5
 
 osqrt proc
 start:
-	xor rax, rax
-	movq xmm1, rax
+	xorpd xmm1, xmm1
+
+	movq rcx, xmm0			;move input to rcx to enable bit manipulation on it
+
 	ucomisd xmm0, xmm1		;check the sign of the input
 	jz zero
 	jnc positive
@@ -24,7 +26,6 @@ start:
 
 positive:
 	mov r13, 1024			;move DOUBLE_EXPONENT_MASK1 into r13 for performance reasons
-	movq rcx, xmm0			;move input to rcx to enable bit manipulation on it
 	movsd xmm3, mmword ptr [HALF_DOUBLE]	;move HALF_DOUBLE into xmm3 for performance reasons
 	mov rax, rcx			;copy argument into rax
 	xor r12, r12
@@ -41,7 +42,7 @@ positive:
 	jnz modified_exp
 
 subnormal_number:
-	mov r12, 1
+	inc r12
 	shl r12, 53
 	dec r12
 	and rdx, r12					;extract mantissa
@@ -81,35 +82,21 @@ modified_exp:
 	movsd xmm2, xmm1				;do Newton's iterations #5
 	divsd xmm2, xmm0
 	addsd xmm0, xmm2
+	movsd xmm6, xmm0	;sqrt times 2 saved in xmm6 register
 	mulsd xmm0, xmm3
 
 	movsd xmm2, xmm0	;square the guess value and compare it to the input value
-	mulsd xmm2, xmm2
 
-	xor r9, r9			;set up the sign of the ulp to add to the guess
-	mov r10, 1
-	mov r11, r9
-	not r11
+	vfmsub213sd xmm2, xmm2, xmm1
+	divsd xmm2, xmm6
 
-	ucomisd xmm2, xmm1	;compare the square of the guess with the input value
-
-	cmovnc r12, r11
-	cmovc r12, r10
-	cmovz r12, r9
-
-	movq r8, xmm0
-
-	add r8, r12			;correct the guess
-
-	movq xmm0, r8
+	subsd xmm0, xmm2
+	
 	ret				;end the procedure
 
 not_positive:		;if the input is negative, insert NaN into xmm0, else return 0.0
-	xor r8, r8		;make the value in rax 0
-	inc r8			;build the NaN value
-	shl r8, 63
-	not r8
-	movq xmm0, r8
+	mov rax, 7FFFFFFFFFFFFFFFh
+	movq xmm0, rax
 	ret					;end the procedure
 
 zero:
