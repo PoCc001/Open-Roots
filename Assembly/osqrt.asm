@@ -13,7 +13,7 @@ HALF_DOUBLE mmword +0.5
 
 .code
 
-osqrt proc
+asmsqrt proc
 start:
 	xorpd xmm1, xmm1
 
@@ -77,12 +77,7 @@ modified_exp:
 	movsd xmm2, xmm1				;do Newton's iterations #4
 	divsd xmm2, xmm0
 	addsd xmm0, xmm2
-	mulsd xmm0, xmm3
-
-	movsd xmm2, xmm1				;do Newton's iterations #5
-	divsd xmm2, xmm0
-	addsd xmm0, xmm2
-	movsd xmm6, xmm0	;sqrt times 2 saved in xmm6 register
+	movsd xmm6, xmm0				;sqrt times 2 saved in xmm6 register
 	mulsd xmm0, xmm3
 
 	movsd xmm2, xmm0	;square the guess value and compare it to the input value
