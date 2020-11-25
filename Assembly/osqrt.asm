@@ -80,7 +80,7 @@ modified_exp:
 	movsd xmm6, xmm0				;sqrt times 2 saved in xmm6 register
 	mulsd xmm0, xmm3
 
-	movsd xmm2, xmm0	;square the guess value and compare it to the input value
+	movsd xmm2, xmm0				;do bit correction
 
 	vfmsub213sd xmm2, xmm2, xmm1
 	divsd xmm2, xmm6

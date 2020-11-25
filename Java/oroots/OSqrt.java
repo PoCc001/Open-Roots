@@ -42,20 +42,6 @@ public class OSqrt {
 			guess = (guess + (a / guess)) / 2;
 	   }
 	   
-	   long longGuess;
-	   
-	   if ((guess * guess) > a) {
-		   longGuess = Double.doubleToRawLongBits(guess);
-		   longGuess--;
-		   guess = Double.longBitsToDouble(longGuess);
-	   }
-	   
-	   if ((guess * guess) < a) {
-		   longGuess = Double.doubleToRawLongBits(guess);
-		   longGuess++;
-		   guess = Double.longBitsToDouble(longGuess);
-	   }
-	   
 	   return guess;
     }
 }

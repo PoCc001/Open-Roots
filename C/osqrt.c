@@ -43,17 +43,8 @@ double csqrt(const double a) {
 	guess.ull = (unsigned long long)(exponent) << 52;
 
 	for (int i = 0; i < 5; ++i) {
-	//	guess.d = (guess.d + (a / guess.d)) / 2.0;
 		guess.d += (a / guess.d);
 		guess.ull -= 0x10000000000000ULL;
-	}
-
-	if ((guess.d * guess.d) > a) {
-		--guess.ull;
-	}
-
-	if ((guess.d * guess.d) < a) {
-		++guess.ull;
 	}
 
 	return guess.d;
