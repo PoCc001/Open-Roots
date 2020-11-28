@@ -46,6 +46,10 @@ double csqrt(const double a) {
 		guess.d += (a / guess.d);
 		guess.ull -= 0x10000000000000ULL;
 	}
+	
+	double diff = (guess.d * guess.d) - a;
+	diff /= 2.0 * guess.d;
+	guess.d -= diff;
 
 	return guess.d;
 }

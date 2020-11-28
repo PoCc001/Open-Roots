@@ -42,6 +42,10 @@ public class OSqrt {
 			guess = (guess + (a / guess)) / 2;
 	   }
 	   
+	   double diff = (guess * guess) - a;
+	   diff /= 2.0 * guess;
+	   guess -= diff;
+	   
 	   return guess;
     }
 }
