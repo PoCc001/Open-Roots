@@ -42,7 +42,7 @@ double csqrt(const double a) {
 	double_ull guess;
 	guess.ull = (unsigned long long)(exponent) << 52;
 
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 4; ++i) {
 		guess.d += (a / guess.d);
 		guess.ull -= 0x10000000000000ULL;
 	}
