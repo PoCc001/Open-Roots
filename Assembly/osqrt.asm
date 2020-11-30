@@ -5,7 +5,8 @@
 ; https://www.boost.org/LICENSE_1_0.txt)
 ;
 
-; Assemble with MASM (Macro Assembler) on a Windows PC with an Intel 64-Bit processor.
+; Assemble with MASM (Macro Assembler) on a Windows PC with an Intel or AMD 64-Bit processor that is
+; SSE-capable.
 
 .data
 

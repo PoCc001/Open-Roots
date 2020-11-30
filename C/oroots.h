@@ -11,6 +11,16 @@
 #include "osqrt.h"
 #include "ocbrt.h"
 
+#ifndef STRICT
+#define STRICT 1
+#endif
+
+#if STRICT == 1
+typedef double corr_t;
+#else
+typedef long double corr_t;
+#endif
+
 typedef union {
 	double d;
 	unsigned long long ull;

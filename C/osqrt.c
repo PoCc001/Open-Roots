@@ -7,8 +7,6 @@
 
 #include "osqrt.h"
 #include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 double csqrt(const double a) {
 	if (a < 0.0) {
@@ -17,7 +15,7 @@ double csqrt(const double a) {
 		return nan;
 	}
 
-	if (a == 0.0 || a == 1.0 || a != a) {
+	if (a == 0.0 || a != a) {
 		return a;
 	}
 
@@ -32,11 +30,13 @@ double csqrt(const double a) {
 	exponent >>= 1;
 	exponent += 1024;
 
+	unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
+
 	if (is_sub_normal) {
-		unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
 		int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
 		sub_normal_exponent >>= 1;
-		exponent -= sub_normal_exponent;
+		exponent = ~(sub_normal_exponent) + 1;
+		exponent &= DOUBLE_EXP_MASK_3;
 	}
 
 	double_ull guess;
@@ -46,10 +46,10 @@ double csqrt(const double a) {
 		guess.d += (a / guess.d);
 		guess.ull -= 0x10000000000000ULL;
 	}
-	
-	double diff = (guess.d * guess.d) - a;
-	diff /= 2.0 * guess.d;
-	guess.d -= diff;
 
+	corr_t diff = ((corr_t)(guess.d) * (corr_t)guess.d) - (corr_t)a;
+	diff /= 2.0 * (corr_t)(guess.d);
+	guess.d -= (double)(diff);
+	
 	return guess.d;
 }
