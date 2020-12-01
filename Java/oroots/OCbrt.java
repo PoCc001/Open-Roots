@@ -43,8 +43,8 @@ public class OCbrt {
 		}
 		
 		double diff = (guess * guess * guess) - a;
-	   diff /= 3.0 * guess * guess;
-	   guess -= diff;
+		diff /= 3.0 * guess * guess;
+		guess -= diff;
 		
 		if (negative) {
 			guess = -guess;
