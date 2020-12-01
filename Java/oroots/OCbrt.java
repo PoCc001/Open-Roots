@@ -38,7 +38,7 @@ public class OCbrt {
 		
 		double guess = Double.longBitsToDouble((long)(exponent) << 52);
 		
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 6; i++) {
 			guess = (2.0 * guess + (absA / (guess * guess))) / 3.0;
 		}
 		
