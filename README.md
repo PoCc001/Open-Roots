@@ -6,7 +6,7 @@ which is faster than other platform indipendent libaries of the same kind.
 
 ## Note
 This library assumes that the *double* datatype in C/C++ is 64 Bit wide. Also, a *double* must fit into an
-***unsigned long long***.
+*unsigned long long*.
 
 ## API
 ### Java
