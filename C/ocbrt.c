@@ -35,17 +35,13 @@ double ccbrt(const double a) {
 	double_ull guess;
 	guess.ull = (unsigned long long)(exponent) << 52;
 
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		guess.d = (2.0 * guess.d + (absA / (guess.d * guess.d))) / 3.0;
 	}
 
-	if ((guess.d * guess.d * guess.d) > absA) {
-		--guess.ull;
-	}
-
-	if ((guess.d * guess.d * guess.d) < absA) {
-		++guess.ull;
-	}
+	corr_t diff = ((corr_t)(guess.d) * (corr_t)guess.d * (corr_t)(guess.d)) - (corr_t)absA;
+	diff /= 3.0 * (corr_t)(guess.d) * (corr_t)(guess.d);
+	guess.d -= (double)(diff);
 
 	if (a < 0.0) {
 		guess.d = -guess.d;
