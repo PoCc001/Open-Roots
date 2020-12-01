@@ -4,6 +4,10 @@ speed rather than 100% precise results. This means that results may vary one ulp
 incorrectly rounded. Instead, this library aims to provide an open-source implementation of mathematical roots
 which is faster than other platform indipendent libaries of the same kind.
 
+## Note
+This library assumes that the *double* datatype in C/C++ is 64 Bit wide. Also, a *double* must fit into an
+*unsigned long long*.
+
 ## API
 ### Java
 The square root and cube root functions can be called in three different ways:
@@ -29,4 +33,4 @@ Call the procedure osqrt found in the file "osqrt.asm" in the "Assembly" directo
 stored in the xmm0 register. The result will be moved into the same register. "osqrt.asm" should be assembled using the
 Macro Assembler (MASM). It can also be used with C/C++ projects in Visual Studio.
 
-**Note:** x is a variable of the primitive datatype double.
+**Note:** x is a variable of the primitive datatype *double* in Java and C/C++ and *mmword* in assembly.
