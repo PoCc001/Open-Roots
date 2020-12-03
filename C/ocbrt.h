@@ -10,6 +10,6 @@
 
 #include "oroots.h"
 
-extern double ccbrt(const double);
+extern double ocbrt(const double);
 
 #endif

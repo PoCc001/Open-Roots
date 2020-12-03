@@ -194,7 +194,7 @@ inline void invroot(double *root, const double *a, const int *n) {
 	return;
 }
 
-double croot(double a, int n) {
+double oroot(double a, int n) {
 	if (n == 1) {
 		return a;
 	}

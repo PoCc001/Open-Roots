@@ -62,6 +62,6 @@ inline unsigned int leading_zeros_ui(const unsigned int *val) {
 	return 0;
 }
 
-extern double croot(double, int);
+extern double oroot(double, int);
 
 #endif

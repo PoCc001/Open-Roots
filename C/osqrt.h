@@ -10,6 +10,6 @@
 
 #include "oroots.h"
 
-extern double csqrt(const double);
+extern double osqrt(const double);
 
 #endif

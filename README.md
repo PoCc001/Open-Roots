@@ -19,14 +19,14 @@ The general root of degree n can be computed with ORoots.root(x, n).
 All the necessary files are located in Java/oroots directory.
 
 ### C
-Include the oroots.h file which can be found in the "C" directory. The functions are called csqrt, ccbrt and croot.
+Include the oroots.h file which can be found in the "C" directory. The functions are called osqrt, ocbrt and oroot.
 The first two take a double variable as an input. The third one takes a double and an int.
-The square root and the cube root can also be computed by calling croot(x, 2) or croot(x, 3) respectively.
+The square root and the cube root can also be computed by calling oroot(x, 2) or oroot(x, 3) respectively.
 
 ### C++
-Include the oroots.hpp file which can be found in the "C" directory. The functions are called cppsqrt, cppcbrt and cpproot.
+Include the oroots.hpp file which can be found in the "C" directory. The functions are called the same.
 The first two take a double variable as an input. The third one takes a double and an int.
-The square root and the cube root can also be computed by calling cpproot(x, 2) or cpproot(x, 3) respectively.
+The square root and the cube root can also be computed by calling oroot(x, 2) or oroot(x, 3) respectively.
 
 ### x86/64 Assembly
 Call the procedure osqrt found in the file "osqrt.asm" in the "Assembly" directory. The floating point argument has to be

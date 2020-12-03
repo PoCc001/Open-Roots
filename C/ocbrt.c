@@ -8,7 +8,7 @@
 #include "ocbrt.h"
 #include <stdbool.h>
 
-double ccbrt(const double a) {
+double ocbrt(const double a) {
 	double absA = a > 0.0 ? a : -a;
 	if (absA == 0.0 || absA == 1.0 || a != a) {
 		return a;

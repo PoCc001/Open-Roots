@@ -8,7 +8,7 @@
 #include "osqrt.h"
 #include <stdbool.h>
 
-double csqrt(const double a) {
+double osqrt(const double a) {
 	if (a < 0.0) {
 		double nan;
 		get_nan(&nan);
