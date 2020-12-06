@@ -11,7 +11,7 @@ import static oroots.Masks;
 
 public class OSqrt {
 	public static strictfp double sqrt(final double a) {
-	   if (a < 0.0 || a == Double.NEGATIVE_INFINITY) {
+	   if (a < 0.0d || a == Double.NEGATIVE_INFINITY) {
 		   return Double.NaN;
 	   }
 	   
@@ -39,11 +39,50 @@ public class OSqrt {
 	   double guess = Double.longBitsToDouble((long)(exponent) << 52);
 	   
 	   for (int i = 0; i < 4; i++) {
-			guess = (guess + (a / guess)) / 2;
+			guess = (guess + (a / guess)) / 2.0d;
 	   }
 	   
 	   double diff = (guess * guess) - a;
-	   diff /= 2.0 * guess;
+	   diff /= 2.0d * guess;
+	   guess -= diff;
+	   
+	   return guess;
+    }
+	
+	public static strictfp float sqrt(final float a) {
+	   if (a < 0.0f || a == Float.NEGATIVE_INFINITY) {
+		   return Float.NaN;
+	   }
+	   
+	   if (a == 0.0f || a == 1.0f || a != a || a == Float.POSITIVE_INFINITY) {
+		   return a;
+	   }
+	   
+	   int intValue = Float.FloatToRawIntBits(a);
+	   
+	   int exponent = intValue >>> 23;
+	   
+	   boolean isSubNormal = exponent == 0;
+	   
+	   exponent -= 127;
+	   exponent >>= 1;
+	   exponent += 127;
+	   
+	   if (isSubNormal) {
+		   int mantissa = intValue & FLOAT_MANTISSA_MASK;
+		   int subNormalExponent = Integer.numberOfLeadingZeros(mantissa) - 8;
+		   subNormalExponent >>= 1;
+		   exponent -= subNormalExponent;
+	   }
+	   
+	   float guess = Float.intBitsToFloat(exponent << 23);
+	   
+	   for (int i = 0; i < 3; i++) {
+			guess = (guess + (a / guess)) / 2.0f;
+	   }
+	   
+	   float diff = (guess * guess) - a;
+	   diff /= 2.0f * guess;
 	   guess -= diff;
 	   
 	   return guess;
