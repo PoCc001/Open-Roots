@@ -39,7 +39,7 @@ public class OSqrt {
 	   double guess = Double.longBitsToDouble((long)(exponent) << 52);
 	   
 	   for (int i = 0; i < 4; i++) {
-			guess = (guess + (a / guess)) / 2.0d;
+			guess = (guess + (a / guess)) * 0.5d;
 	   }
 	   
 	   double diff = (guess * guess) - a;
@@ -78,7 +78,7 @@ public class OSqrt {
 	   float guess = Float.intBitsToFloat(exponent << 23);
 	   
 	   for (int i = 0; i < 3; i++) {
-			guess = (guess + (a / guess)) / 2.0f;
+			guess = (guess + (a / guess)) * 0.5f;
 	   }
 	   
 	   float diff = (guess * guess) - a;
