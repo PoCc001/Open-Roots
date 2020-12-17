@@ -42,13 +42,15 @@ double osqrt(const double a) {
 	double_ull guess;
 	guess.ull = (unsigned long long)(exponent) << 52;
 
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 3; ++i) {
 		guess.d += (a / guess.d);
 		guess.ull -= 0x10000000000000ULL;
 	}
+	
+	double guesst2 = guess.d + (a / guess.d);
 
 	corr_t diff = ((corr_t)(guess.d) * (corr_t)guess.d) - (corr_t)a;
-	diff /= 2.0 * (corr_t)(guess.d);
+	diff /= guesst2;
 	guess.d -= (double)(diff);
 	
 	return guess.d;

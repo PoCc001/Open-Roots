@@ -38,12 +38,14 @@ public class OSqrt {
 	   
 	   double guess = Double.longBitsToDouble((long)(exponent) << 52);
 	   
-	   for (int i = 0; i < 4; i++) {
+	   for (int i = 0; i < 3; i++) {
 			guess = (guess + (a / guess)) * 0.5d;
 	   }
 	   
+	   double guesst2 = guess + (a / guess);
+	   
 	   double diff = (guess * guess) - a;
-	   diff /= 2.0d * guess;
+	   diff /= guesst2;
 	   guess -= diff;
 	   
 	   return guess;
@@ -77,12 +79,14 @@ public class OSqrt {
 	   
 	   float guess = Float.intBitsToFloat(exponent << 23);
 	   
-	   for (int i = 0; i < 3; i++) {
+	   for (int i = 0; i < 2; i++) {
 			guess = (guess + (a / guess)) * 0.5f;
 	   }
 	   
+	   float guesst2 = guess + (a / guess);
+	   
 	   float diff = (guess * guess) - a;
-	   diff /= 2.0f * guess;
+	   diff /= guesst2;
 	   guess -= diff;
 	   
 	   return guess;
