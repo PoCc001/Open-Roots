@@ -10,27 +10,34 @@
 
 double ocbrt(const double a) {
 	double absA = a > 0.0 ? a : -a;
-	if (absA == 0.0 || absA == 1.0 || a != a) {
+	
+#if CHECK_SPECIAL_CASES != 0
+	if (absA == 0.0 || a != a) {
 		return a;
 	}
+#endif
 
 	double_ull val;
 	val.d = absA;
 
 	int exponent = (int)(val.ull >> 52);
 
+#if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !exponent;
+#endif
 
 	exponent -= 1024;
 	exponent /= 3;
 	exponent += 1024;
 
+#if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
 		unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
 		int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
 		sub_normal_exponent /= 3;
 		exponent -= sub_normal_exponent;
 	}
+#endif
 
 	double_ull guess;
 	guess.ull = (unsigned long long)(exponent) << 52;
