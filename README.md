@@ -23,10 +23,20 @@ Include the oroots.h file which can be found in the "C" directory. The functions
 The first two take a double variable as an input. The third one takes a double and an int.
 The square root and the cube root can also be computed by calling oroot(x, 2) or oroot(x, 3) respectively.
 
+If you know that the root functions won't have to deal with special values like 0, NaN or subnormal numbers, you can turn
+of checking for them at compile time. Doing so will most likely increase the performance of the functions in this library.
+This can be done by defining the macro(s) *CHECK_SPECIAL_CASES* and/or *SUBNORMAL_NUMBERS* as 0.
+YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
+
 ### C++
 Include the oroots.hpp file which can be found in the "C" directory. The functions are called the same.
 The first two take a double variable as an input. The third one takes a double and an int.
 The square root and the cube root can also be computed by calling oroot(x, 2) or oroot(x, 3) respectively.
+
+If you know that the root functions won't have to deal with special values like 0, NaN or subnormal numbers, you can turn
+of checking for them at compile time. Doing so will most likely increase the performance of the functions in this library.
+This can be done by defining the macro(s) *CHECK_SPECIAL_CASES* and/or *SUBNORMAL_NUMBERS* as 0.
+YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
 
 ### x86/64 Assembly
 Call the procedure osqrt found in the file "osqrt.asm" in the "Assembly" directory. The floating point argument has to be
