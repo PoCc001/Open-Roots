@@ -208,10 +208,10 @@ double oroot(double a, int n) {
 		return 1.0 / a;
 	}
 	else if (n == 2) {
-		return csqrt(a);
+		return osqrt(a);
 	}
 	else if (n == 3) {
-		return ccbrt(a);
+		return ocbrt(a);
 	}
 	else if (n > 0) {
 		double r;
