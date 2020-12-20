@@ -54,6 +54,7 @@ double osqrt(const double a) {
 	}
 	
 	double guesst2 = guess.d + (a / guess.d);
+	guess.d = guesst2 * 0.5;
 
 	corr_t diff = ((corr_t)(guess.d) * (corr_t)guess.d) - (corr_t)a;
 	diff /= guesst2;

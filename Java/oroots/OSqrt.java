@@ -43,6 +43,7 @@ public class OSqrt {
 	   }
 	   
 	   double guesst2 = guess + (a / guess);
+	   guess = guesst2 * 0.5d;
 	   
 	   double diff = (guess * guess) - a;
 	   diff /= guesst2;
@@ -84,6 +85,7 @@ public class OSqrt {
 	   }
 	   
 	   float guesst2 = guess + (a / guess);
+	   guess = guesst2 * 0.5f;
 	   
 	   float diff = (guess * guess) - a;
 	   diff /= guesst2;
