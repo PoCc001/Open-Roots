@@ -11,11 +11,11 @@ import static oroots.Masks;
 
 public class OSqrt {
 	public static strictfp double sqrt(final double a) {
-	   if (a < 0.0d || a == Double.NEGATIVE_INFINITY) {
+	   if (a < 0.0d) {
 		   return Double.NaN;
 	   }
 	   
-	   if (a == 0.0d || a == 1.0d || a != a || a == Double.POSITIVE_INFINITY) {
+	   if (a == 0.0d || a != a) {
 		   return a;
 	   }
 	   
@@ -53,11 +53,11 @@ public class OSqrt {
     }
 	
 	public static strictfp float sqrt(final float a) {
-	   if (a < 0.0f || a == Float.NEGATIVE_INFINITY) {
+	   if (a < 0.0f) {
 		   return Float.NaN;
 	   }
 	   
-	   if (a == 0.0f || a == 1.0f || a != a || a == Float.POSITIVE_INFINITY) {
+	   if (a == 0.0f || a != a) {
 		   return a;
 	   }
 	   

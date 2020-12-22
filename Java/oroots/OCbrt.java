@@ -11,7 +11,7 @@ import static oroots.Masks;
 
 public class OCbrt {	
 	public static strictfp double cbrt (final double a) {
-		if (a == Double.POSITIVE_INFINITY || a == Double.NEGATIVE_INFINITY || a != a || a == 1.0d || a == 0.0d || a == -1.0d) {
+		if (a == Double.POSITIVE_INFINITY || a == Double.NEGATIVE_INFINITY || a != a || a == 0.0d) {
 			return a;
 		}
 		
@@ -54,7 +54,7 @@ public class OCbrt {
 	}
 	
 	public static strictfp float cbrt (final float a) {
-		if (a == Float.POSITIVE_INFINITY || a == Float.NEGATIVE_INFINITY || a != a || a == 1.0f || a == 0.0f || a == -1.0f) {
+		if (a == Float.POSITIVE_INFINITY || a == Float.NEGATIVE_INFINITY || a != a || a == 0.0f) {
 			return a;
 		}
 		
