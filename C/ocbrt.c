@@ -9,7 +9,7 @@
 #include <stdbool.h>
 
 double ccbrt(const double a) {
-	if (a == 0.0 || a != a) {
+	if (a == 0.0) {
 		return a;
 	}
 
@@ -42,8 +42,8 @@ double ccbrt(const double a) {
 
 	guess.ull |= sign;
 
-	for (int i = 0; i < 6; ++i) {
-		guess.d = (2.0 * guess.d + (val.d / (guess.d * guess.d))) / 3.0;
+	for (int i = 0; i < 5; ++i) {
+		guess.d = (2.0 * guess.d + (val.d / (guess.d * guess.d))) * ONE_THIRD;
 	}
 
 	corr_t diff = ((corr_t)(guess.d) * (corr_t)guess.d * (corr_t)(guess.d)) - (corr_t)val.d;

@@ -16,7 +16,7 @@ double osqrt(const double a) {
 		return nan;
 	}
 
-	if (a == 0.0 || a != a) {
+	if (a == 0.0) {
 		return a;
 	}
 #endif

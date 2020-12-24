@@ -10,6 +10,8 @@
 
 #include "oroots.h"
 
-extern double ocbrt(const double);
+#define ONE_THIRD 0.333333333333333333;
+
+extern double ccbrt(const double);
 
 #endif
