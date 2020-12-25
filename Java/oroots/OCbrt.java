@@ -11,15 +11,15 @@ import static oroots.Masks;
 
 public class OCbrt {	
 	public static strictfp double cbrt (final double a) {
-		if (a != a || a == 0.0d) {
+		if (a == 0.0d) {
 			return a;
 		}
 		
-		boolean negative = a < 0.0d;
+		long longValue = Double.doubleToRawLongBits(a);
 		
-		double absA = negative ? -a : a;
+		long sign = longValue & 0x8000000000000000L;
 		
-		long longValue = Double.doubleToRawLongBits(absA);
+		longValue &= 0x7fffffffffffffffL;
 		
 		int exponent = (int)(longValue >>> 52);
 		
@@ -36,62 +36,58 @@ public class OCbrt {
 			exponent -= subNormalExponent;
 		}
 		
-		double guess = Double.longBitsToDouble((long)(exponent) << 52);
+		long longGuess = (long)(exponent) << 52;
+		longGuess |= sign;
+		double guess = Double.longBitsToDouble(longGuess);
 		
-		for (int i = 0; i < 6; i++) {
-			guess = (2.0d * guess + (absA / (guess * guess))) / 3.0d;
+		for (int i = 0; i < 5; i++) {
+			guess = (2.0d * guess + (a / (guess * guess))) / 3.0d;
 		}
 		
 		double diff = (guess * guess * guess) - a;
 		diff /= 3.0d * guess * guess;
 		guess -= diff;
 		
-		if (negative) {
-			guess = -guess;
-		}
-		
 		return guess;
 	}
 	
 	public static strictfp float cbrt (final float a) {
-		if (a != a || a == 0.0f) {
+		if (a == 0.0f) {
 			return a;
 		}
 		
-		boolean negative = a < 0.0f;
+		int intValue = Float.floatToRawIntBits(a);
 		
-		float absA = negative ? -a : a;
+		int sign = intValue & 0x80000000;
 		
-		int intValue = Float.floatToRawIntBits(absA);
+		intValue &= 0x7fffffff;
 		
 		int exponent = intValue >>> 23;
 		
 		boolean isSubNormal = exponent == 0;
 		
-		exponent -= 128;
+		exponent -= 1024;
 		exponent /= 3;
-		exponent += 128;
+		exponent += 1024;
 		
 		if (isSubNormal) {
-			int mantissa = longValue & FLOAT_MANTISSA_MASK;
-			int subNormalExponent = Integer.numberOfLeadingZeros(mantissa) - 8;
+			int mantissa = intValue & FLOAT_MANTISSA_MASK;
+			int subNormalExponent = Integer.numberOfLeadingZeros(mantissa) - 11;
 			subNormalExponent /= 3;
 			exponent -= subNormalExponent;
 		}
 		
-		float guess = Float.intBitsToFloat(exponent << 23);
+		int intGuess = exponent << 23;
+		intGuess |= sign;
+		float guess = Float.intBitsToFloat(intGuess);
 		
-		for (int i = 0; i < 6; i++) {
-			guess = (2.0f * guess + (absA / (guess * guess))) / 3.0f;
+		for (int i = 0; i < 4; i++) {
+			guess = (2.0f * guess + (a / (guess * guess))) / 3.0f;
 		}
 		
-		float diff = (guess * guess * guess) - a;
+		double diff = (guess * guess * guess) - a;
 		diff /= 3.0f * guess * guess;
 		guess -= diff;
-		
-		if (negative) {
-			guess = -guess;
-		}
 		
 		return guess;
 	}

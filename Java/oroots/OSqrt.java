@@ -13,9 +13,7 @@ public class OSqrt {
 	public static strictfp double sqrt(final double a) {
 	   if (a < 0.0d) {
 		   return Double.NaN;
-	   }
-	   
-	   if (a == 0.0d || a != a) {
+	   } else if (a == 0.0d) {
 		   return a;
 	   }
 	   
@@ -55,9 +53,7 @@ public class OSqrt {
 	public static strictfp float sqrt(final float a) {
 	   if (a < 0.0f) {
 		   return Float.NaN;
-	   }
-	   
-	   if (a == 0.0f || a != a) {
+	   } else if (a == 0.0f) {
 		   return a;
 	   }
 	   
