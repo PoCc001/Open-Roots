@@ -1,5 +1,5 @@
 # Open-Roots
-Open-Source implementation of roots (2nd, 3rd etc.) for Java, C/C++ (double datatype) and x64 Assembly which is
+Open-Source implementation of roots (2nd, 3rd etc.) for Java and C/C++ (double datatype) which is
 optimized for speed rather than 100% precise results. This means that results may vary one ulp from the actual
 value and be incorrectly rounded. Instead, this library aims to provide an open-source implementation of mathematical
 roots which is faster than other platform indipendent libaries of the same kind.
@@ -38,9 +38,4 @@ of checking for them at compile time. Doing so will most likely increase the per
 This can be done by defining the macro(s) *CHECK_SPECIAL_CASES* and/or *SUBNORMAL_NUMBERS* as 0.
 YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
 
-### x86/64 Assembly
-Call the procedure osqrt found in the file "osqrt.asm" in the "Assembly" directory. The floating point argument has to be
-stored in the xmm0 register. The result will be moved into the same register. "osqrt.asm" should be assembled using the
-Macro Assembler (MASM). It can also be used with C/C++ projects in Visual Studio.
-
-**Note:** x is a variable of the primitive datatype *double* in Java and C/C++ and *mmword* in assembly.
+**Note:** x is a variable of the primitive datatype *double* in Java and C/C++.

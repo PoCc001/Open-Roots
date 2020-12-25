@@ -10,7 +10,7 @@
 
 #include "oroots.h"
 
-#define ONE_THIRD 0.333333333333333333;
+#define ONE_THIRD 0.333333333333333333
 
 extern double ccbrt(const double);
 
