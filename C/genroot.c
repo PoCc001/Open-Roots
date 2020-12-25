@@ -102,9 +102,10 @@ inline void pow_real(double *result, const double *a, const double *b) {
 }
 
 inline void invroot(double *root, const double *a, const int *n) {
-#if CHECK_SPECIAL_CASES != 0
 	if (*a < 0.0 && (*n & 1) == 0) {
-		get_nan(root);
+		double_ull nan;
+		nan.ull = DOUBLE_NAN;
+		*root = nan.d;
 		return;
 	}
 
@@ -112,7 +113,6 @@ inline void invroot(double *root, const double *a, const int *n) {
 		*root = *a;
 		return;
 	}
-#endif
 
 	bool negative = *a < 0.0;
 
@@ -123,31 +123,20 @@ inline void invroot(double *root, const double *a, const int *n) {
 
 	if (*n < 5 && *n > -5) {
 
-		unsigned int exponent = (unsigned int)(guess.ull >> 52);
-		
-#if SUBNORMAL_NUMBERS != 0
+		int exponent = (int)(guess.ull >> 52);
+
 		bool is_sub_normal = exponent == 0;
-#endif
 
-		if ((exponent & DOUBLE_EXP_MASK_1) != 0) {
-			exponent &= DOUBLE_EXP_MASK_2;
-			exponent /= *n;
-			exponent |= DOUBLE_EXP_MASK_1;
-		}
-		else {
-			int exponent2 = DOUBLE_EXP_MASK_1 - exponent;
-			exponent2 /= *n;
-			exponent = DOUBLE_EXP_MASK_1 - exponent2;
-		}
+		exponent -= 1024;
+		exponent /= *n;
+		exponent += 1024;
 
-#if SUBNORMAL_NUMBERS != 0
 		if (is_sub_normal) {
 			unsigned long long mantissa = guess.ull & DOUBLE_MANTISSA_MASK;
-			unsigned long long sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
+			int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
 			sub_normal_exponent /= *n;
-			exponent -= (unsigned int)(sub_normal_exponent);
+			exponent -= sub_normal_exponent;
 		}
-#endif
 
 		guess.d = 1.0 / (double)((unsigned long long)(exponent) << 52);
 	}
@@ -159,11 +148,11 @@ inline void invroot(double *root, const double *a, const int *n) {
 	guess.d = ((*n + 1) * guess.d - (abs_a * (int_pow(&guess.d, *n + 1)))) / *n;
 	guess.d = *n / ((*n + 1) * guess.d - (abs_a * (int_pow(&guess.d, *n + 1))));
 
-	while ((int_pow(&guess.d, *n)) > abs_a) {
+	if ((int_pow(&guess.d, *n)) > abs_a) {
 		guess.ull--;
 	}
 
-	while ((int_pow(&guess.d, *n)) < abs_a) {
+	if ((int_pow(&guess.d, *n)) < abs_a) {
 		guess.ull++;
 	}
 
@@ -212,6 +201,9 @@ double oroot(double a, int n) {
 	}
 	else if (n == 3) {
 		return ocbrt(a);
+	}
+	else if (n == 4) {
+		return osqrt(osqrt(a));
 	}
 	else if (n > 0) {
 		double r;

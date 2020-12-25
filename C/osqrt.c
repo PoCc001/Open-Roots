@@ -9,26 +9,12 @@
 #include <stdbool.h>
 
 double osqrt(const double a) {
-#if CHECK_SPECIAL_CASES != 0
-	if (a < 0.0) {
-		double nan;
-		get_nan(&nan);
-		return nan;
-	}
-
-	if (a == 0.0) {
-		return a;
-	}
-#endif
-
 	double_ull val;
 	val.d = a;
 
 	int exponent = (int)(val.ull >> 52);
-	
-#if SUBNORMAL_NUMBERS != 0
+
 	bool is_sub_normal = !exponent;
-#endif
 
 	exponent -= 1024;
 	exponent >>= 1;
@@ -36,14 +22,12 @@ double osqrt(const double a) {
 
 	unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
 
-#if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
 		int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
 		sub_normal_exponent >>= 1;
 		exponent = ~(sub_normal_exponent) + 1;
 		exponent &= DOUBLE_EXP_MASK_3;
 	}
-#endif
 
 	double_ull guess;
 	guess.ull = (unsigned long long)(exponent) << 52;
@@ -52,13 +36,15 @@ double osqrt(const double a) {
 		guess.d += (a / guess.d);
 		guess.ull -= 0x10000000000000ULL;
 	}
-	
+
 	double guesst2 = guess.d + (a / guess.d);
 	guess.d = guesst2 * 0.5;
 
 	corr_t diff = ((corr_t)(guess.d) * (corr_t)guess.d) - (corr_t)a;
-	diff /= guesst2;
+	diff /= (corr_t)(guesst2);
 	guess.d -= (double)(diff);
+
+	guess.ull = a > 0.0 ? guess.ull : DOUBLE_NAN;
 	
-	return guess.d;
+	return a == 0.0 ? 0.0 : guess.d;
 }
