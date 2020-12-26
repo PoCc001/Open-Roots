@@ -7,8 +7,6 @@
 
 package oroots;
 
-import static oroots.Masks;
-
 public class OSqrt {
 	public static strictfp double sqrt(final double a) {
 	   if (a < 0.0d) {
@@ -67,8 +65,7 @@ public class OSqrt {
 	   exponent += 127;
 	   
 	   if (isSubNormal) {
-		   int mantissa = intValue & FLOAT_MANTISSA_MASK;
-		   int subNormalExponent = Integer.numberOfLeadingZeros(mantissa) - 8;
+		   int subNormalExponent = Integer.numberOfLeadingZeros(longValue) - 8;
 		   subNormalExponent >>= 1;
 		   exponent -= subNormalExponent;
 	   }

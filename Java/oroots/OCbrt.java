@@ -7,8 +7,6 @@
 
 package oroots;
 
-import static oroots.Masks;
-
 public class OCbrt {	
 	public static strictfp double cbrt (final double a) {
 		if (a == 0.0d) {
