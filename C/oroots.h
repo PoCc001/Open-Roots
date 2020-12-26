@@ -15,6 +15,14 @@
 #define STRICT 1
 #endif
 
+#ifndef CHECK_SPECIAL_CASES
+#define CHECK_SPECIAL_CASES 1
+#endif
+
+#ifndef SUBNORMAL_NUMBERS
+#define SUBNORMAL_NUMBERS 1
+#endif
+
 #if STRICT == 1
 typedef double corr_t;
 #else

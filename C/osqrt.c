@@ -14,7 +14,9 @@ double osqrt(const double a) {
 
 	int exponent = (int)(val.ull >> 52);
 
+#if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !exponent;
+#endif
 
 	exponent -= 1024;
 	exponent >>= 1;
@@ -22,12 +24,14 @@ double osqrt(const double a) {
 
 	unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
 
+#if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
 		int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
 		sub_normal_exponent >>= 1;
 		exponent = ~(sub_normal_exponent) + 1;
 		exponent &= DOUBLE_EXP_MASK_3;
 	}
+#endif
 
 	double_ull guess;
 	guess.ull = (unsigned long long)(exponent) << 52;
@@ -44,7 +48,11 @@ double osqrt(const double a) {
 	diff /= (corr_t)(guesst2);
 	guess.d -= (double)(diff);
 
+#if CHECK_SPECIAL_CASES != 0
 	guess.ull = a > 0.0 ? guess.ull : DOUBLE_NAN;
 	
 	return a == 0.0 ? 0.0 : guess.d;
+#else
+	return guess.d;
+#endif
 }

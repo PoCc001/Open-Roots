@@ -102,6 +102,7 @@ inline void pow_real(double *result, const double *a, const double *b) {
 }
 
 inline void invroot(double *root, const double *a, const int *n) {
+#if CHECK_SPECIAL_CASES != 0
 	if (*a < 0.0 && (*n & 1) == 0) {
 		double_ull nan;
 		nan.ull = DOUBLE_NAN;
@@ -113,6 +114,7 @@ inline void invroot(double *root, const double *a, const int *n) {
 		*root = *a;
 		return;
 	}
+#endif
 
 	bool negative = *a < 0.0;
 
@@ -124,19 +126,23 @@ inline void invroot(double *root, const double *a, const int *n) {
 	if (*n < 5 && *n > -5) {
 
 		int exponent = (int)(guess.ull >> 52);
-
+		
+#if SUBNORMAL_NUMBERS != 0
 		bool is_sub_normal = exponent == 0;
+#endif
 
 		exponent -= 1024;
 		exponent /= *n;
 		exponent += 1024;
 
+#if SUBNORMAL_NUMBERS != 0
 		if (is_sub_normal) {
 			unsigned long long mantissa = guess.ull & DOUBLE_MANTISSA_MASK;
 			int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
 			sub_normal_exponent /= *n;
 			exponent -= sub_normal_exponent;
 		}
+#endif
 
 		guess.d = 1.0 / (double)((unsigned long long)(exponent) << 52);
 	}

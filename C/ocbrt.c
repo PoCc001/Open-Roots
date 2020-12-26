@@ -9,9 +9,11 @@
 #include <stdbool.h>
 
 double ocbrt(const double a) {
+#if CHECK_SPECIAL_CASES != 0
 	if (a == 0.0) {
 		return a;
 	}
+#endif
 
 	double_ull val;
 	val.d = a;
@@ -22,18 +24,22 @@ double ocbrt(const double a) {
 
 	int exponent = (int)(val.ull >> 52);
 
+#if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !exponent;
+#endif
 
 	exponent -= 1024;
 	exponent /= 3;
 	exponent += 1024;
 
+#if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
 		unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
 		int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
 		sub_normal_exponent /= 3;
 		exponent -= sub_normal_exponent;
 	}
+#endif
 
 	val.ull |= sign;
 
