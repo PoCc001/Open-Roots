@@ -126,9 +126,9 @@ inline void invroot(double *root, const double *a, const int *n) {
 	if (*n < 5 && *n > -5) {
 
 		int exponent = (int)(guess.ull >> 52);
-		
-#if SUBNORMAL_NUMBERS != 0
-		bool is_sub_normal = exponent == 0;
+
+#if SUBNORMAL_NUMBERS != 0		
+		bool is_sub_normal = !exponent;
 #endif
 
 		exponent -= 1024;
@@ -137,8 +137,7 @@ inline void invroot(double *root, const double *a, const int *n) {
 
 #if SUBNORMAL_NUMBERS != 0
 		if (is_sub_normal) {
-			unsigned long long mantissa = guess.ull & DOUBLE_MANTISSA_MASK;
-			int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
+			int sub_normal_exponent = leading_zeros_ull(&a);
 			sub_normal_exponent /= *n;
 			exponent -= sub_normal_exponent;
 		}

@@ -43,19 +43,7 @@ typedef union {
 #define E 2.718281828459045
 
 inline unsigned int leading_zeros_ull(const unsigned long long *val) {
-	unsigned int max_length = sizeof(*val) * 8;
-	for (unsigned int i = max_length; i > 0; --i) {
-		if (*val & (1ULL << (i - 1))) {
-			return i;
-		}
-	}
-
-	return 0;
-}
-
-inline unsigned int leading_zeros_ui(const unsigned int *val) {
-	unsigned int max_length = sizeof(*val) * 8;
-	for (unsigned int i = max_length; i > 0; --i) {
+	for (unsigned int i = 53; i > 0; --i) {
 		if (*val & (1ULL << (i - 1))) {
 			return i;
 		}

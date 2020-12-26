@@ -34,8 +34,7 @@ double ocbrt(const double a) {
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
-		unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
-		int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
+		int sub_normal_exponent = leading_zeros_ull(&val.ull);
 		sub_normal_exponent /= 3;
 		exponent -= sub_normal_exponent;
 	}

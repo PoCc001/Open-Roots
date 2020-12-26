@@ -22,11 +22,9 @@ double osqrt(const double a) {
 	exponent >>= 1;
 	exponent += 1024;
 
-	unsigned long long mantissa = val.ull & DOUBLE_MANTISSA_MASK;
-
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
-		int sub_normal_exponent = leading_zeros_ull(&mantissa) - 11;
+		int sub_normal_exponent = leading_zeros_ull(&val.ull);
 		sub_normal_exponent >>= 1;
 		exponent = ~(sub_normal_exponent) + 1;
 		exponent &= DOUBLE_EXP_MASK_3;
