@@ -30,8 +30,7 @@ public class OCbrt {
 		exponent += 1024;
 		
 		if (isSubNormal) {
-			long mantissa = longValue & DOUBLE_MANTISSA_MASK;
-			long subNormalExponent = Long.numberOfLeadingZeros(mantissa) - 11;
+			long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
 			subNormalExponent /= 3;
 			exponent -= subNormalExponent;
 		}
@@ -41,7 +40,7 @@ public class OCbrt {
 		double guess = Double.longBitsToDouble(longGuess);
 		
 		for (int i = 0; i < 5; i++) {
-			guess = (2.0d * guess + (a / (guess * guess))) / 3.0d;
+			guess = (2.0d * guess + (a / (guess * guess))) * 0.333333333333333333d;
 		}
 		
 		double diff = (guess * guess * guess) - a;
@@ -71,8 +70,7 @@ public class OCbrt {
 		exponent += 1024;
 		
 		if (isSubNormal) {
-			int mantissa = intValue & FLOAT_MANTISSA_MASK;
-			int subNormalExponent = Integer.numberOfLeadingZeros(mantissa) - 11;
+			int subNormalExponent = Integer.numberOfLeadingZeros(longValue) - 8;
 			subNormalExponent /= 3;
 			exponent -= subNormalExponent;
 		}
@@ -82,7 +80,7 @@ public class OCbrt {
 		float guess = Float.intBitsToFloat(intGuess);
 		
 		for (int i = 0; i < 4; i++) {
-			guess = (2.0f * guess + (a / (guess * guess))) / 3.0f;
+			guess = (2.0f * guess + (a / (guess * guess))) * 0.333333333f;
 		}
 		
 		double diff = (guess * guess * guess) - a;

@@ -52,6 +52,17 @@ inline unsigned int leading_zeros_ull(const unsigned long long *val) {
 	return 0;
 }
 
+inline unsigned int leading_zeros_ui(const unsigned long long *val) {
+	unsigned int length = sizeof(*val) << 3;
+	for (unsigned int i = length; i > 0; --i) {
+		if (*val & (1 << (i - 1))) {
+			return i;
+		}
+	}
+
+	return 0;
+}
+
 extern double oroot(double, int);
 
 #endif

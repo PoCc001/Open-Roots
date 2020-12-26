@@ -28,8 +28,7 @@ public class OSqrt {
 	   exponent += 1023;
 	   
 	   if (isSubNormal) {
-		   long mantissa = longValue & DOUBLE_MANTISSA_MASK;
-		   long subNormalExponent = Long.numberOfLeadingZeros(mantissa) - 11;
+		   long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
 		   subNormalExponent >>= 1;
 		   exponent -= subNormalExponent;
 	   }

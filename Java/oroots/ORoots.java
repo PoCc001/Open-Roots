@@ -7,11 +7,12 @@
 
 package oroots;
 
-import static oroots.Masks;
-
 public strictfp class ORoots {
 	private final static double LOG_2 = 0.6931471805599453;
 	private final static double E = 2.718281828459045;
+	private final static int DOUBLE_EXP_MASK_1 = 0b10000000000;
+	private final static int DOUBLE_EXP_MASK_2 = 0b1111111111;
+	private final static int DOUBLE_EXP_MASK_3 = 0b11111111111;
 	
 	public static double sqrt (final double a) {
 		return OSqrt.sqrt(a);
@@ -63,19 +64,12 @@ public strictfp class ORoots {
 			
 			boolean isSubNormal = exponent == 0;
 			
-			if ((exponent & DOUBLE_EXP_MASK_1) != 0) {
-				exponent &= DOUBLE_EXP_MASK_2;
-				exponent /= mn;
-				exponent |= DOUBLE_EXP_MASK_1;
-			} else {
-				int exponent2 = DOUBLE_EXP_MASK_1 - exponent;
-				exponent2 /= mn;
-				exponent = DOUBLE_EXP_MASK_1 - exponent2;
-			}
+			exponent -= 1024;
+			exponent /= mn;
+			exponent += 1024;
 			
 			if (isSubNormal) {
-				long mantissa = longValue & DOUBLE_MANTISSA_MASK;
-				long subNormalExponent = Long.numberOfLeadingZeros(mantissa) - 11;
+				long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
 				subNormalExponent /= mn;
 				exponent -= subNormalExponent;
 			}
