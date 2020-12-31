@@ -28,9 +28,8 @@ double ocbrt(const double a) {
 	bool is_sub_normal = !exponent;
 #endif
 
-	exponent -= 1024;
 	exponent /= 3;
-	exponent += 1024;
+	exponent += 683;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {

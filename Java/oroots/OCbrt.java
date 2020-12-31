@@ -23,9 +23,8 @@ public class OCbrt {
 		
 		boolean isSubNormal = exponent == 0;
 		
-		exponent -= 1024;
 		exponent /= 3;
-		exponent += 1024;
+		exponent += 683;
 		
 		if (isSubNormal) {
 			long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
@@ -63,9 +62,8 @@ public class OCbrt {
 		
 		boolean isSubNormal = exponent == 0;
 		
-		exponent -= 1024;
 		exponent /= 3;
-		exponent += 1024;
+		exponent += 85;
 		
 		if (isSubNormal) {
 			int subNormalExponent = Integer.numberOfLeadingZeros(longValue) - 8;

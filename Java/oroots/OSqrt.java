@@ -21,9 +21,8 @@ public class OSqrt {
 	   
 	   boolean isSubNormal = exponent == 0;
 	   
-	   exponent -= 1023;
 	   exponent >>= 1;
-	   exponent += 1023;
+	   exponent += 512;
 	   
 	   if (isSubNormal) {
 		   long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
@@ -60,9 +59,8 @@ public class OSqrt {
 	   
 	   boolean isSubNormal = exponent == 0;
 	   
-	   exponent -= 127;
 	   exponent >>= 1;
-	   exponent += 127;
+	   exponent += 64;
 	   
 	   if (isSubNormal) {
 		   int subNormalExponent = Integer.numberOfLeadingZeros(longValue) - 8;

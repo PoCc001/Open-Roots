@@ -18,9 +18,8 @@ double osqrt(const double a) {
 	bool is_sub_normal = !exponent;
 #endif
 
-	exponent -= 1024;
 	exponent >>= 1;
-	exponent += 1024;
+	exponent += 512;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
