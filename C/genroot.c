@@ -101,7 +101,7 @@ inline void pow_real(double *result, const double *a, const double *b) {
 	*result *= ip;
 }
 
-inline void invroot(double *root, const double *a, const int *n) {
+inline void invroot(double *root, const double *a, const int *n, bool inv) {
 #if CHECK_SPECIAL_CASES != 0
 	if (*a < 0.0 && (*n & 1) == 0) {
 		double_ull nan;
@@ -151,7 +151,10 @@ inline void invroot(double *root, const double *a, const int *n) {
 	}
 	
 	guess.d = ((*n + 1) * guess.d - (abs_a * (int_pow(&guess.d, *n + 1)))) / *n;
-	guess.d = *n / ((*n + 1) * guess.d - (abs_a * (int_pow(&guess.d, *n + 1))));
+
+	if (!inv) {
+		guess.d = *n / ((*n + 1) * guess.d - (abs_a * (int_pow(&guess.d, *n + 1))));
+	}
 
 	if ((int_pow(&guess.d, *n)) > abs_a) {
 		guess.ull--;
@@ -212,13 +215,13 @@ double oroot(double a, int n) {
 	}
 	else if (n > 0) {
 		double r;
-		invroot(&r, &a, &n);
+		invroot(&r, &a, &n, false);
 		return r;
 	}
 	else if (n < 0) {
 		double r;
 		n = -n;
-		invroot(&r, &a, &n);
+		invroot(&r, &a, &n, true);
 		return r;
 	}
 	else {
