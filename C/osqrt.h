@@ -12,4 +12,6 @@
 
 extern double osqrt(const double);
 
+extern float osqrtf(const float);
+
 #endif

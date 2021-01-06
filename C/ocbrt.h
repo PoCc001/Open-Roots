@@ -14,4 +14,6 @@
 
 extern double ocbrt(const double);
 
+extern float ocbrtf(const float);
+
 #endif
