@@ -123,32 +123,8 @@ inline void invroot(double *root, const double *a, const int *n, bool inv) {
 	double_ull guess;
 	guess.d = 1.0;
 
-	if (*n < 5 && *n > -5) {
-
-		int exponent = (int)(guess.ull >> 52);
-
-#if SUBNORMAL_NUMBERS != 0		
-		bool is_sub_normal = !exponent;
-#endif
-
-		exponent -= 1024;
-		exponent /= *n;
-		exponent += 1024;
-
-#if SUBNORMAL_NUMBERS != 0
-		if (is_sub_normal) {
-			int sub_normal_exponent = leading_zeros_ull(&a);
-			sub_normal_exponent /= *n;
-			exponent -= sub_normal_exponent;
-		}
-#endif
-
-		guess.d = 1.0 / (double)((unsigned long long)(exponent) << 52);
-	}
-	else {
-		double npm1 = -1.0 / (double)(*n);
-		pow_real(&guess.d, &abs_a, &npm1);
-	}
+	double npm1 = -1.0 / (double)(*n);
+	pow_real(&guess.d, &abs_a, &npm1);
 	
 	guess.d = ((*n + 1) * guess.d - (abs_a * (int_pow(&guess.d, *n + 1)))) / *n;
 
