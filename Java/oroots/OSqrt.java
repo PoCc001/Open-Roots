@@ -53,7 +53,7 @@ public class OSqrt {
 		   return a;
 	   }
 	   
-	   int intValue = Float.FloatToRawIntBits(a);
+	   int intValue = Float.floatToRawIntBits(a);
 	   
 	   int exponent = intValue >>> 23;
 	   
@@ -63,7 +63,7 @@ public class OSqrt {
 	   exponent += 64;
 	   
 	   if (isSubNormal) {
-		   int subNormalExponent = Integer.numberOfLeadingZeros(longValue) - 8;
+		   int subNormalExponent = Integer.numberOfLeadingZeros(intValue) - 8;
 		   subNormalExponent >>= 1;
 		   exponent -= subNormalExponent;
 	   }

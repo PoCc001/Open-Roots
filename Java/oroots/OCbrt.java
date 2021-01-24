@@ -66,7 +66,7 @@ public class OCbrt {
 		exponent += 85;
 		
 		if (isSubNormal) {
-			int subNormalExponent = Integer.numberOfLeadingZeros(longValue) - 8;
+			int subNormalExponent = Integer.numberOfLeadingZeros(intValue) - 8;
 			subNormalExponent /= 3;
 			exponent -= subNormalExponent;
 		}
