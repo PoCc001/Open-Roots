@@ -12,26 +12,26 @@ double osqrt(const double a) {
 	double_ull val;
 	val.d = a;
 
-	int exponent = (int)(val.ull >> 52);
+	unsigned long long manipulated_exp = val.ull;
 
 #if SUBNORMAL_NUMBERS != 0
-	bool is_sub_normal = !exponent;
+	bool is_sub_normal = !((manipulated_exp) & (0x7ff0000000000000ULL));
 #endif
 
-	exponent >>= 1;
-	exponent += 512;
+	manipulated_exp >>= 1;
+	manipulated_exp += 0x3ff0000000000000ULL;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
 		int sub_normal_exponent = leading_zeros_ull(&val.ull);
 		sub_normal_exponent >>= 1;
-		exponent = ~(sub_normal_exponent) + 1;
-		exponent &= DOUBLE_EXP_MASK_3;
+		manipulated_exp = (unsigned long long)(-(long long)(sub_normal_exponent)) << 52;
+		manipulated_exp &= 0x7fffffffffffffffULL;
 	}
 #endif
 
 	double_ull guess;
-	guess.ull = (unsigned long long)(exponent) << 52;
+	guess.ull = manipulated_exp;
 
 	for (int i = 0; i < 3; ++i) {
 		guess.d += (a / guess.d);
@@ -58,26 +58,26 @@ float osqrtf(const float a) {
 	float_ul val;
 	val.f = a;
 
-	int exponent = (int)(val.ul >> 23);
+	unsigned long manipulated_exp = val.ul;
 
 #if SUBNORMAL_NUMBERS != 0
-	bool is_sub_normal = !exponent;
+	bool is_sub_normal = !((manipulated_exp) & (0x7f800000UL));
 #endif
 
-	exponent >>= 1;
-	exponent += 64;
+	manipulated_exp >>= 1;
+	manipulated_exp += 0x3f00000UL;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
 		int sub_normal_exponent = leading_zeros_ul(&val.ul);
 		sub_normal_exponent >>= 1;
-		exponent = ~(sub_normal_exponent)+1;
-		exponent &= FLOAT_EXP_MASK_3;
+		manipulated_exp = (unsigned long)(-(long)(sub_normal_exponent)) << 23;
+		manipulated_exp &= 0x7fffffffUL;
 	}
 #endif
 
 	float_ul guess;
-	guess.ul = (unsigned long)(exponent) << 23;
+	guess.ul = manipulated_exp;
 
 	for (int i = 0; i < 2; ++i) {
 		guess.f += (a / guess.f);
