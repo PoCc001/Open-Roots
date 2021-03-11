@@ -19,7 +19,7 @@ double osqrt(const double a) {
 #endif
 
 	manipulated_exp >>= 1;
-	manipulated_exp += 0x3ff0000000000000ULL;
+	manipulated_exp += 0x1ff0000000000000ULL;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
