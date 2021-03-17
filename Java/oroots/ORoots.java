@@ -168,7 +168,7 @@ public strictfp class ORoots {
 		long aLong = Double.doubleToRawLongBits(a);
 		int exponent = (int)(aLong >>> 52) & DOUBLE_EXP_MASK_3;
 		int powerOfTwo = exponent - DOUBLE_EXP_MASK_1;
-		aLong &= DOUBLE_MANTISSA_MASK;
+		aLong &= ((1L << 53) - 1);
 		aLong |= (1L << 62);
 		a = Double.longBitsToDouble(aLong);
 		double sum = (a - 1.0) / (a + 1.0);
@@ -190,7 +190,7 @@ public strictfp class ORoots {
 		} else {
 			long longVal = Double.doubleToRawLongBits(a);
 			int exponent = ((int)(longVal >>> 52) + 2) & DOUBLE_EXP_MASK_2;
-			long mantissa = longVal & DOUBLE_MANTISSA_MASK;
+			long mantissa = longVal & ((1L << 53) - 1);
 			long intP = mantissa >>> (52 - exponent);
 			intP |= (1L << exponent);
 			return intP;
