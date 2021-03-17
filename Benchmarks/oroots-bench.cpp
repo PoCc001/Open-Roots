@@ -40,7 +40,7 @@ int main() {
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = cppsqrt(rand_array[i]);
+			root_array_oroots[i] = osqrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -74,7 +74,7 @@ int main() {
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = cppcbrt(rand_array[i]);
+			root_array_oroots[i] = ocbrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -126,7 +126,7 @@ int main() {
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = cpproot(rand_array[i], degree);
+			root_array_oroots[i] = oroot(rand_array[i], degree);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
