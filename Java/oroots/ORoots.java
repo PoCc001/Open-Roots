@@ -1,5 +1,5 @@
 /**
-* Copyright Johannes Kloimböck 2020.
+* Copyright Johannes Kloimböck 2020 - 2021.
 * Distributed under the Boost Software License, Version 1.0.
 * (See accompanying file LICENSE or copy at
 * https://www.boost.org/LICENSE_1_0.txt)
@@ -18,7 +18,23 @@ public strictfp class ORoots {
 		return OSqrt.sqrt(a);
 	}
 	
+	public static double rsqrt (final double a) {
+		return OSqrt.rsqrt(a);
+	}
+	
+	public static float sqrt (final float a) {
+		return OSqrt.sqrt(a);
+	}
+	
+	public static float rsqrt (final float a) {
+		return OSqrt.rsqrt(a);
+	}
+	
 	public static double cbrt (final double a) {
+		return OCbrt.cbrt(a);
+	}
+	
+	public static float cbrt (final float a) {
 		return OCbrt.cbrt(a);
 	}
 	
@@ -40,6 +56,10 @@ public strictfp class ORoots {
 		} else {
 			return Double.NaN;
 		}
+	}
+	
+	public static float root (final float a, int n) {
+		return (float)(root((double)(a)));
 	}
 	
 	private static double invroot (final double a, final int mn) {
