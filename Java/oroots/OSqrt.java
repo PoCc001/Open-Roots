@@ -1,5 +1,5 @@
 /**
-* Copyright Johannes Kloimböck 2020.
+* Copyright Johannes Kloimböck 2020 - 2021.
 * Distributed under the Boost Software License, Version 1.0.
 * (See accompanying file LICENSE or copy at
 * https://www.boost.org/LICENSE_1_0.txt)
@@ -8,6 +8,45 @@
 package oroots;
 
 public class OSqrt {
+	private static final double RSQRT_1L = Double.longBitsToDouble(0x6180000000000000L);
+	private static final float RSQRT_1 = Float.intBitsToFloat(0x653504f3);
+	
+	public static strictfp double rsqrt(final double a) {
+		if (a < 0.0d) {
+			return Double.NaN;
+		} else if (a == 0.0d) {
+			return Double.POSITIVE_INFINITY;
+		}
+		
+		long longValue = Double.doubleToRawLongBits(a);
+		
+		if (longValue == 1L) {
+			return RSQRT_1L;
+		}
+		
+		int exponent = (int)(longValue >>> 52);
+		
+		boolean isSubNormal = exponent == 0;
+		
+		exponent = 3069 - exponent;
+		exponent >>= 1;
+		
+		if (isSubNormal) {
+			long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
+			subNormalExponent >>= 1;
+			exponent += subNormalExponent;
+		}
+		
+		double guess = Double.longBitsToDouble((long)(exponent) << 52);
+		double halfA = a * 0.5d;
+		
+		for (int i = 0; i < 6; ++i) {
+			guess = guess + (guess * (0.5d - (halfA * guess * guess)));
+		}
+		
+		return guess;
+	}
+	
 	public static strictfp double sqrt(final double a) {
 	   if (a < 0.0d) {
 		   return Double.NaN;
@@ -45,6 +84,42 @@ public class OSqrt {
 	   
 	   return guess;
     }
+	
+	public static strictfp float rsqrt(final float a) {
+		if (a < 0.0f) {
+			return Float.NaN;
+		} else if (a == 0.0f) {
+			return Float.POSITIVE_INFINITY;
+		}
+		
+		int intValue = Float.floatToRawIntBits(a);
+		
+		if (intValue == 1) {
+			return RSQRT_1;
+		}
+		
+		int exponent = intValue >>> 23;
+		
+		boolean isSubNormal = exponent == 0;
+		
+		exponent = 381 - exponent;
+		exponent >>= 1;
+		
+		if (isSubNormal) {
+			int subNormalExponent = Integer.numberOfLeadingZeros(intValue) - 8;
+			subNormalExponent >>= 1;
+			exponent += subNormalExponent;
+		}
+		
+		float guess = Float.intBitsToFloat(exponent << 23);
+		float halfA = a * 0.5f;
+		
+		for (int i = 0; i < 5; ++i) {
+			guess = guess + (guess * (0.5f - (halfA * guess * guess)));
+		}
+		
+		return guess;
+	}
 	
 	public static strictfp float sqrt(final float a) {
 	   if (a < 0.0f) {
