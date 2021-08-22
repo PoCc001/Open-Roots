@@ -1,5 +1,5 @@
 /**
-* Copyright Johannes Kloimböck 2020 - 2021.
+* Copyright Johannes Kloimböck 2020.
 * Distributed under the Boost Software License, Version 1.0.
 * (See accompanying file LICENSE or copy at
 * https://www.boost.org/LICENSE_1_0.txt)
@@ -65,7 +65,7 @@ float osqrtf(const float a) {
 #endif
 
 	manipulated_exp >>= 1;
-	manipulated_exp += 0x3f00000UL;
+	manipulated_exp += 0x1f800000UL;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
