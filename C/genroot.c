@@ -204,3 +204,7 @@ double oroot(double a, int n) {
 		return 0.0;
 	}
 }
+
+float orootf(float a, int n) {
+	return (float)(oroot((double)(a), n));
+}
