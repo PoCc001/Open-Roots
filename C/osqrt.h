@@ -10,8 +10,10 @@
 
 #include "oroots.h"
 
+extern double orsqrt(const double);
 extern double osqrt(const double);
 
+extern float orsqrtf(const float);
 extern float osqrtf(const float);
 
 #endif
