@@ -8,8 +8,6 @@
 #ifndef OSQRT_H
 #define OSQRT_H
 
-#include "oroots.h"
-
 extern double orsqrt(const double);
 extern double osqrt(const double);
 
