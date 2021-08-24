@@ -5,7 +5,7 @@
 
 #pragma warning(disable : 4996)
 
-constexpr unsigned int array_length = 10000;
+constexpr unsigned int array_length = 1000000;
 
 int main() {
 	std::cout << "Which function do you want to test?" << std::endl;
@@ -23,9 +23,10 @@ int main() {
 		return EXIT_SUCCESS;
 	}
 
-	double rand_array[array_length];
-	double root_array_oroots[array_length];
-	double root_array_std[array_length];
+	double* rand_array = new double[array_length];
+	double* root_array_oroots = new double[array_length];
+	double* root_array_std = new double[array_length];
+
 	printf("\n");
 	std::cout << "Generating random numbers..." << std::endl;
 	for (unsigned int i = 0; i < array_length; ++i) {
@@ -40,14 +41,14 @@ int main() {
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = osqrt(rand_array[i]);
+			root_array_oroots[i] = orsqrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_std[i] = sqrt(rand_array[i]);
+			root_array_std[i] = 1.0 / std::sqrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -81,7 +82,7 @@ int main() {
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_std[i] = cbrt(rand_array[i]);
+			root_array_std[i] = std::cbrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -135,7 +136,7 @@ int main() {
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_std[i] = pow(rand_array[i], exponent);
+			root_array_std[i] = std::pow(rand_array[i], exponent);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -168,7 +169,7 @@ int main() {
 	std::cout << "Writing roots and other info to file \"oroots-bench.txt\"" << std::endl;
 	FILE *oroots_bench_txt = fopen("oroots-bench.txt", "w");
 	fprintf(oroots_bench_txt, "input\t\t|\t\tstd\t\t|\t\toroots\t\t|\tdifference (bits)\n");
-	long long diff_array[array_length];
+	long long* diff_array = new long long[array_length];
 	double_ull std;
 	double_ull oroots;
 	for (unsigned int i = 0; i < array_length; ++i) {
@@ -197,6 +198,10 @@ int main() {
 
 	printf("\n");
 
+	delete[] rand_array;
+	delete[] root_array_oroots;
+	delete[] root_array_std;
+	delete[] diff_array;
 
 	system("PAUSE");
 	return EXIT_SUCCESS;
