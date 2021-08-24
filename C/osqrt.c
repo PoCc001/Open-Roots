@@ -5,7 +5,7 @@
 * https://www.boost.org/LICENSE_1_0.txt)
 */
 
-#include "osqrt.h"
+#include "oroots.h"
 #include <stdbool.h>
 
 double orsqrt(const double a) {
@@ -117,7 +117,7 @@ float orsqrtf(const float a) {
 	bool is_sub_normal = !((manipulated_exp) & (0x7ff0000000000000ULL));
 #endif
 
-	manipulated_exp = 0xbfd0000000000000ULL - manipulated_exp;
+	manipulated_exp = 0xbe800000UL - manipulated_exp;
 	manipulated_exp >>= 1;
 
 #if SUBNORMAL_NUMBERS != 0
