@@ -12,4 +12,20 @@ extern "C" {
 #include "oroots.h"
 }
 
+inline float orsqrt(const float& x) noexcept {
+	return orsqrtf(x);
+}
+
+inline float osqrt(const float &x) noexcept {
+	return osqrtf(x);
+}
+
+inline float ocbrt(const float &x) noexcept {
+	return ocbrtf(x);
+}
+
+inline float oroot(const float &x, const int &n) noexcept {
+	return orootf(x, n);
+}
+
 #endif
