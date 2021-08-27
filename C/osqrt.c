@@ -14,13 +14,6 @@ double orsqrt(const double a) {
 
 	unsigned long long manipulated_exp = val.ull;
 
-	if (manipulated_exp == 1ULL) {
-		double_ull r;
-		r.ull = 0x6180000000000000ULL;
-
-		return r.d;
-	}
-
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !((manipulated_exp) & (0x7ff0000000000000ULL));
 #endif
@@ -30,6 +23,13 @@ double orsqrt(const double a) {
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
+		if (val.ull == 1ULL) {
+			double_ull r;
+			r.ull = 0x6180000000000000ULL;
+
+			return r.d;
+		}
+
 		int sub_normal_exponent = leading_zeros_ull(&val.ull);
 		sub_normal_exponent >>= 1;
 		manipulated_exp += sub_normal_exponent;
@@ -40,9 +40,14 @@ double orsqrt(const double a) {
 	guess.ull = manipulated_exp;
 	double half_a = a * 0.5;
 	
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		guess.d *= (1.5 - (half_a * guess.d * guess.d));
 	}
+
+	corr_t g = (corr_t)(guess.d);
+	corr_t r = g * ((corr_t)(1.5) - ((corr_t)(a) * (corr_t)(0.5) * g * g));
+
+	guess.d = (double)(r);
 
 #if CHECK_SPECIAL_CASES != 0
 	guess.ull = a > 0.0 ? guess.ull : DOUBLE_NAN;
@@ -106,13 +111,6 @@ float orsqrtf(const float a) {
 
 	unsigned long manipulated_exp = val.ul;
 
-	if (manipulated_exp == 1UL) {
-		float_ul r;
-		r.ul = 0x653504f3;
-
-		return r.f;
-	}
-
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !((manipulated_exp) & (0x7ff0000000000000ULL));
 #endif
@@ -121,6 +119,13 @@ float orsqrtf(const float a) {
 	manipulated_exp >>= 1;
 
 #if SUBNORMAL_NUMBERS != 0
+	if (val.ul == 1UL) {
+		float_ul r;
+		r.ul = 0x653504f3;
+
+		return r.f;
+	}
+
 	if (is_sub_normal) {
 		int sub_normal_exponent = leading_zeros_ul(&val.ul);
 		sub_normal_exponent >>= 1;
@@ -132,9 +137,14 @@ float orsqrtf(const float a) {
 	guess.ul = manipulated_exp;
 	float half_a = a * 0.5f;
 
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 4; ++i) {
 		guess.f *= (1.5f - (half_a * guess.f * guess.f));
 	}
+
+	corrf_t g = (corrf_t)(guess.f);
+	corrf_t r = g * ((corrf_t)(1.5) - ((corrf_t)(a) * (corrf_t)(0.5) * g * g));
+
+	guess.f = (float)(r);
 
 #if CHECK_SPECIAL_CASES != 0
 	guess.ul = a > 0.0f ? guess.ul : FLOAT_NAN;
