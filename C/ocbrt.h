@@ -9,9 +9,12 @@
 #define OCBRT_H
 
 #define ONE_THIRD 0.333333333333333333
+#define FOUR_THIRDS 1.3333333333333333333
 
+extern double orcbrt(const double);
 extern double ocbrt(const double);
 
+extern float orcbrtf(const float);
 extern float ocbrtf(const float);
 
 #endif
