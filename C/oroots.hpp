@@ -20,6 +20,10 @@ inline float osqrt(const float &x) noexcept {
 	return osqrtf(x);
 }
 
+inline float orcbrt(const float& x) noexcept {
+	return orcbrtf(x);
+}
+
 inline float ocbrt(const float &x) noexcept {
 	return ocbrtf(x);
 }
