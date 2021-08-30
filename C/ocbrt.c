@@ -23,6 +23,7 @@ double orcbrt(const double a) {
 	val.ull ^= sign;
 
 	int exponent = (int)(val.ull >> 52);
+	int iterations = 6;
 
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !exponent;
@@ -40,9 +41,7 @@ double orcbrt(const double a) {
 			return r.d;
 		}
 
-		int sub_normal_exponent = leading_zeros_ull(&val.ull);
-		sub_normal_exponent /= 3;
-		exponent += sub_normal_exponent;
+		iterations = 35;
 	}
 #endif
 
@@ -51,7 +50,7 @@ double orcbrt(const double a) {
 
 	double thirdA = a * ONE_THIRD;
 
-	for (int i = 0; i < 6; ++i) {
+	for (int i = 0; i < iterations; ++i) {
 		guess.d *= (FOUR_THIRDS - (thirdA * guess.d) * (guess.d * guess.d));
 	}
 
@@ -83,7 +82,7 @@ double ocbrt(const double a) {
 	int iterations = 5;
 #if SUBNORMAL_NUMBERS != 0
 	if (!exponent) {
-		iterations = 30;
+		iterations = 35;
 	}
 #endif
 
@@ -121,6 +120,7 @@ float orcbrtf(const float a) {
 	val.ul ^= sign;
 
 	int exponent = (int)(val.ul >> 23);
+	int iterations = 5;
 
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !exponent;
@@ -138,9 +138,7 @@ float orcbrtf(const float a) {
 			return r.f;
 		}
 
-		int sub_normal_exponent = leading_zeros_ul(&val.ul);
-		sub_normal_exponent /= 3;
-		exponent += sub_normal_exponent;
+		iterations = 33;
 	}
 #endif
 
@@ -181,7 +179,7 @@ float ocbrtf(const float a) {
 
 #if SUBNORMAL_NUMBERS != 0
 	if (!exponent) {
-		iterations = 28;
+		iterations = 33;
 	}
 #endif
 
