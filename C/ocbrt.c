@@ -80,25 +80,20 @@ double ocbrt(const double a) {
 
 	int exponent = (int)(val.ull >> 52);
 
+	int iterations = 5;
 #if SUBNORMAL_NUMBERS != 0
-	bool is_sub_normal = !exponent;
+	if (!exponent) {
+		iterations = 30;
+	}
 #endif
 
 	exponent /= 3;
 	exponent += 683;
 
-#if SUBNORMAL_NUMBERS != 0
-	if (is_sub_normal) {
-		int sub_normal_exponent = leading_zeros_ull(&val.ull);
-		sub_normal_exponent /= 3;
-		exponent -= sub_normal_exponent;
-	}
-#endif
-
 	double_ull guess;
 	guess.ull = (unsigned long long)(exponent) << 52;
 
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < iterations; ++i) {
 		guess.d = (2.0 * guess.d + (val.d / (guess.d * guess.d))) * ONE_THIRD;
 	}
 
@@ -182,26 +177,21 @@ float ocbrtf(const float a) {
 	val.ul &= 0x7ffffffffUL;
 
 	int exponent = (int)(val.ul >> 23);
+	int iterations = 4;
 
 #if SUBNORMAL_NUMBERS != 0
-	bool is_sub_normal = !exponent;
+	if (!exponent) {
+		iterations = 28;
+	}
 #endif
 
 	exponent /= 3;
 	exponent += 85;
 
-#if SUBNORMAL_NUMBERS != 0
-	if (is_sub_normal) {
-		int sub_normal_exponent = leading_zeros_ul(&val.ul);
-		sub_normal_exponent /= 3;
-		exponent -= sub_normal_exponent;
-	}
-#endif
-
 	float_ul guess;
 	guess.ul = (unsigned long)(exponent) << 23;
 
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < iterations; ++i) {
 		guess.f = (2.0f * guess.f + (val.f / (guess.f * guess.f))) * (float)(ONE_THIRD);
 	}
 
