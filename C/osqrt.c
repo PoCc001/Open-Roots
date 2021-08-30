@@ -20,6 +20,7 @@ double orsqrt(const double a) {
 
 	manipulated_exp = 0xbfd0000000000000ULL - manipulated_exp;
 	manipulated_exp >>= 1;
+	int iterations = 5;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
@@ -30,9 +31,7 @@ double orsqrt(const double a) {
 			return r.d;
 		}
 
-		int sub_normal_exponent = leading_zeros_ull(&val.ull);
-		sub_normal_exponent >>= 1;
-		manipulated_exp += sub_normal_exponent;
+		iterations = 35;
 	}
 #endif
 
@@ -40,7 +39,7 @@ double orsqrt(const double a) {
 	guess.ull = manipulated_exp;
 	double half_a = a * 0.5;
 	
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < iterations; ++i) {
 		guess.d *= (1.5 - (half_a * guess.d * guess.d));
 	}
 
@@ -64,27 +63,23 @@ double osqrt(const double a) {
 	val.d = a;
 
 	unsigned long long manipulated_exp = val.ull;
+	int iterations = 3;
 
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !((manipulated_exp) & (0x7ff0000000000000ULL));
+
+	if (is_sub_normal) {
+		iterations = 35;
+	}
 #endif
 
 	manipulated_exp >>= 1;
 	manipulated_exp += 0x1ff0000000000000ULL;
 
-#if SUBNORMAL_NUMBERS != 0
-	if (is_sub_normal) {
-		int sub_normal_exponent = leading_zeros_ull(&val.ull);
-		sub_normal_exponent >>= 1;
-		manipulated_exp = (unsigned long long)(-(long long)(sub_normal_exponent)) << 52;
-		manipulated_exp &= 0x7fffffffffffffffULL;
-	}
-#endif
-
 	double_ull guess;
 	guess.ull = manipulated_exp;
 
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 0; i < iterations; ++i) {
 		guess.d += (a / guess.d);
 		guess.ull -= 0x10000000000000ULL;
 	}
@@ -117,19 +112,18 @@ float orsqrtf(const float a) {
 
 	manipulated_exp = 0xbe800000UL - manipulated_exp;
 	manipulated_exp >>= 1;
+	int iterations = 4;
 
 #if SUBNORMAL_NUMBERS != 0
-	if (val.ul == 1UL) {
-		float_ul r;
-		r.ul = 0x653504f3;
-
-		return r.f;
-	}
-
 	if (is_sub_normal) {
-		int sub_normal_exponent = leading_zeros_ul(&val.ul);
-		sub_normal_exponent >>= 1;
-		manipulated_exp += sub_normal_exponent;
+		if (val.ul == 1UL) {
+			float_ul r;
+			r.ul = 0x653504f3;
+
+			return r.f;
+		}
+
+		iterations = 33;
 	}
 #endif
 
@@ -137,7 +131,7 @@ float orsqrtf(const float a) {
 	guess.ul = manipulated_exp;
 	float half_a = a * 0.5f;
 
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < iterations; ++i) {
 		guess.f *= (1.5f - (half_a * guess.f * guess.f));
 	}
 
@@ -161,27 +155,23 @@ float osqrtf(const float a) {
 	val.f = a;
 
 	unsigned long manipulated_exp = val.ul;
+	int iterations = 2;
 
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !((manipulated_exp) & (0x7f800000UL));
+
+	if (is_sub_normal) {
+		iterations = 33;
+	}
 #endif
 
 	manipulated_exp >>= 1;
 	manipulated_exp += 0x1f800000UL;
 
-#if SUBNORMAL_NUMBERS != 0
-	if (is_sub_normal) {
-		int sub_normal_exponent = leading_zeros_ul(&val.ul);
-		sub_normal_exponent >>= 1;
-		manipulated_exp = (unsigned long)(-(long)(sub_normal_exponent)) << 23;
-		manipulated_exp &= 0x7fffffffUL;
-	}
-#endif
-
 	float_ul guess;
 	guess.ul = manipulated_exp;
 
-	for (int i = 0; i < 2; ++i) {
+	for (int i = 0; i < iterations; ++i) {
 		guess.f += (a / guess.f);
 		guess.ul -= 0x300000UL;
 	}
