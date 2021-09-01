@@ -9,16 +9,18 @@
 #include <stdbool.h>
 
 double orcbrt(const double a) {
-#if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0) {
-		return DOUBLE_INF;
-	}
-#endif
-
 	double_ull val;
 	val.d = a;
 
 	unsigned long long sign = val.ull & 0x8000000000000000ULL;
+
+#if CHECK_SPECIAL_CASES != 0
+	if (a == 0.0) {
+		double_ull inf;
+		inf.ull = DOUBLE_INF ^ sign;
+		return inf.d;
+	}
+#endif
 
 	val.ull ^= sign;
 
@@ -34,13 +36,6 @@ double orcbrt(const double a) {
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
-		if (val.ull < 3) {
-			double_ull r;
-			r.ull = val.ull == 1ULL ? 0x2990000000000000ULL : 0x299428a2f98d728bULL;
-			r.ull |= sign;
-			return r.d;
-		}
-
 		iterations = 35;
 	}
 #endif
@@ -65,7 +60,7 @@ double orcbrt(const double a) {
 
 double ocbrt(const double a) {
 #if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0) {
+	if (a == 0.0 || a == -0.0) {
 		return a;
 	}
 #endif
@@ -106,16 +101,18 @@ double ocbrt(const double a) {
 }
 
 float orcbrtf(const float a) {
-#if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0) {
-		return FLOAT_INF;
-	}
-#endif
-
 	float_ul val;
 	val.f = a;
 
 	unsigned long sign = val.ul & 0x80000000UL;
+
+#if CHECK_SPECIAL_CASES != 0
+	if (a == 0.0) {
+		float_ul inf;
+		inf.ul = FLOAT_INF ^ sign;
+		return inf.f;
+	}
+#endif
 
 	val.ul ^= sign;
 
@@ -131,13 +128,6 @@ float orcbrtf(const float a) {
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
-		if (val.ul < 3) {
-			float_ul r;
-			r.ul = val.ul == 1UL ? 0x26a14518UL : 0x26cb2ff5UL;
-			r.ul |= sign;
-			return r.f;
-		}
-
 		iterations = 33;
 	}
 #endif
@@ -147,7 +137,7 @@ float orcbrtf(const float a) {
 
 	float thirdA = a * (float)(ONE_THIRD);
 
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < iterations; ++i) {
 		guess.f *= ((float)(FOUR_THIRDS) - thirdA * guess.f * guess.f * guess.f);
 	}
 
@@ -162,7 +152,7 @@ float orcbrtf(const float a) {
 
 float ocbrtf(const float a) {
 #if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0f) {
+	if (a == 0.0f || a == -0.0f) {
 		return a;
 	}
 #endif
