@@ -35,20 +35,23 @@ int main() {
 	std::cout << "Finished with generating random numbers!" << std::endl;
 	printf("\n");
 
+	std::string rootString;
+
 	if (choice == 1) {
+		rootString = "sqrt";
 		std::cout << "Calculate the square roots..." << std::endl;
 		printf("\n");
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_oroots[i] = orsqrt(rand_array[i]);
+			root_array_oroots[i] = osqrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
 
 		begin = std::chrono::steady_clock::now();
 		for (unsigned int i = 0; i < array_length; ++i) {
-			root_array_std[i] = 1.0 / std::sqrt(rand_array[i]);
+			root_array_std[i] = std::sqrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
 		double time2 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
@@ -70,6 +73,7 @@ int main() {
 		}
 	}
 	else if (choice == 2) {
+		rootString = "cbrt";
 		std::cout << "Calculate the cube roots..." << std::endl;
 		printf("\n");
 
@@ -104,6 +108,7 @@ int main() {
 		}
 	}
 	else if (choice == 3) {
+		rootString = "root";
 		std::cout << "Enter the degree of the roots!" << std::endl;
 		int degree;
 		try {
@@ -179,7 +184,7 @@ int main() {
 	}
 
 	for (unsigned int i = 0; i < array_length; ++i) {
-		fprintf(oroots_bench_txt, "sqrt(%3.1f):\t|\t%3.16f\t|\t%3.16f\t|\t%lli\n", rand_array[i], root_array_std[i], root_array_oroots[i], diff_array[i]);
+		fprintf(oroots_bench_txt, "%s(%3.1f):\t|\t%3.16f\t|\t%3.16f\t|\t%lli\n", rootString.c_str(), rand_array[i], root_array_std[i], root_array_oroots[i], diff_array[i]);
 	}
 
 	fclose(oroots_bench_txt);
