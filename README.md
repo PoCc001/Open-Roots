@@ -6,7 +6,8 @@ roots which is faster than other platform indipendent libaries of the same kind.
 
 ## Note
 This library assumes that the *double* datatype in C/C++ is 64 Bit wide. Also, a *double* must fit into an
-*unsigned long long*.
+*unsigned long long*. The Java and C/C++ version of Open-Roots is licensed under the Boost Software License v1.0. The assembly version
+however is licensed under the MIT license.
 
 ## API
 ### Java
