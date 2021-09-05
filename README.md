@@ -43,5 +43,6 @@ YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
 
 ### x64 Assembly
 Assemble the asmcbrt.asm file in Visual Studio using the Macro Asssembler on an AVX2- and FMA-capable machine. For maximum
-performance, one could consider optimizing the code for a specific processor model. Currently, there is no support for
-AVX-512 instructions.
+performance, one could consider optimizing the code for a specific processor model. There are only procedures for calculating
+the cube root and its reciprocal, as the square root can be computed via a single assembly instruction. Maybe, the generic root
+function will be available in the future. Currently, there is no support for AVX-512 instructions.
