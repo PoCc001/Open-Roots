@@ -47,6 +47,9 @@ EXP_MASK_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f80000
 EXP_MINUEND_64 qword -13510798882111488, -13510798882111488, -13510798882111488, -13510798882111488
 EXP_MINUEND_32 dword 4261412864, 4261412864, 4261412864, 4261412864, 4261412864, 4261412864, 4261412864, 4261412864
 
+; There might be a better "magical" number, but this one already does a good job.
+MAGICAL_NUMBER dword 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641
+
 FP_INFINITY_64 qword 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h
 FP_INFINITY_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h
 
@@ -349,7 +352,7 @@ orcbrt_ps endp
 ; Adapted from the famous FISR algorithm
 fast_invcbrt_ss proc
 	vmovd eax, xmm0
-	sub eax, [EXP_MINUEND_32]
+	sub eax, [MAGICAL_NUMBER]
 	not eax
 	shr eax, 17
 	mul [DIV_3_32]
@@ -366,7 +369,7 @@ fast_invcbrt_ss endp
 
 ; Adapted from the famous FISR algorithm
 fast_invcbrt_ps proc
-	vpsubd ymm1, ymm0, [EXP_MINUEND_32]
+	vpsubd ymm1, ymm0, [MAGICAL_NUMBER]
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
