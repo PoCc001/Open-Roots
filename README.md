@@ -42,5 +42,6 @@ YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
 **Note:** x is a variable of the primitive datatype *double* in Java and C/C++.
 
 ### x64 Assembly
-Assemble the asmcbrt.asm file in Visual Studio using the Macro Asssembler on an AVX2- and FMA-capable machine. Currently,
-there is no support for AVX-512 instructions.
+Assemble the asmcbrt.asm file in Visual Studio using the Macro Asssembler on an AVX2- and FMA-capable machine. For maximum
+performance, one could consider optimizing the code for a specific processor model. Currently, there is no support for
+AVX-512 instructions.
