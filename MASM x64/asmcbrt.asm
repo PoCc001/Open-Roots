@@ -90,7 +90,6 @@ ocbrt_sd proc
 		vmovq xmm0, r9
 		vandpd xmm1, xmm1, xmm4
 		vxorpd xmm0, xmm0, xmm1
-		vzeroupper
 		
 	ret
 ocbrt_sd endp
@@ -159,7 +158,6 @@ ocbrt_ss proc
 		vmovd xmm0, r9d
 		vandps xmm1, xmm1, xmm4
 		vxorps xmm0, xmm0, xmm1
-		vzeroupper
 		
 	ret
 ocbrt_ss endp
@@ -233,7 +231,6 @@ orcbrt_sd proc
 		cmovz rcx, [FP_INFINITY_64]
 		vmovq xmm1, rcx
 		vxorpd xmm0, xmm2, xmm1
-		vzeroupper
 
 	ret
 orcbrt_sd endp
@@ -276,7 +273,6 @@ orcbrt_ss proc
 		cmovz ecx, [FP_INFINITY_32]
 		vmovd xmm1, ecx
 		vxorps xmm0, xmm2, xmm1
-		vzeroupper
 
 	ret
 orcbrt_ss endp
