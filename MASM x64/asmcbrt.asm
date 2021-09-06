@@ -22,7 +22,7 @@
 ; IMPORTANT NOTE: Assemble on Windows in MS Visual Studio (MASM) on a AVX2- and FMA3-capable machine!
 
 ; These are important values stored in memory that the following procedures will operate with (for scalar and packed instructions)
-.data
+.const
 SIGN_64 qword 8000000000000000h, 8000000000000000h, 8000000000000000h, 8000000000000000h
 SIGN_32 dword 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h
 
