@@ -57,7 +57,7 @@ ONES_64 qword -1, -1, -1, -1
 ONES_32 dword -1, -1, -1, -1, -1, -1, -1, -1
 
 DIV_3_64_SCALAR qword 5555555500000000h
-DIV_3_32_SCALAR dword 5555h
+DIV_3_32_SCALAR dword 5555b700h
 
 .code
 ; Calculates the cube root of one double-precision floating-point number.
@@ -69,7 +69,7 @@ ocbrt_sd proc
 		and r9, rax
 		xor rax, r9
 		mov ecx, 7
-		mov r8d, 35
+		mov r8d, 35				; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test rax, [EXP_MASK_64]
 		cmovz ecx, r8d
 		mul [DIV_3_64_SCALAR]
@@ -78,21 +78,21 @@ ocbrt_sd proc
 
 	newton_iterations:
 		vmovq xmm1, rdx
-		vmovsd xmm2, [ONE_THIRD_64]
-		vmovsd xmm5, [TWO_THIRDS_64]
-		vmulsd xmm0, xmm0, xmm2
+		vmovsd xmm2, [TWO_THIRDS_64]
+		vmulsd xmm0, xmm0, [ONE_THIRD_64]
 
 		it:
 			vmulsd xmm3, xmm1, xmm1
 			vdivsd xmm3, xmm0, xmm3
-			vfmadd213sd xmm1, xmm5, xmm3
+			vfmadd213sd xmm1, xmm2, xmm3
+
 			dec ecx
 			jnz it
 
 		vmovq xmm0, r9
 		vandpd xmm1, xmm1, xmm4
 		vxorpd xmm0, xmm0, xmm1
-		
+
 	ret
 ocbrt_sd endp
 
@@ -110,8 +110,8 @@ ocbrt_pd proc
 		vandpd ymm1, ymm1, ymm3
 
 	newton_iterations:
-		vmovapd ymm4, [ONE_THIRD_64]
 		vmovapd ymm5, [TWO_THIRDS_64]
+		vmovapd ymm4, [ONE_THIRD_64]
 		vmulpd ymm0, ymm0, ymm4
 		mov ecx, 7					; change to about 35, if you have to deal with denormal numbers (is much slower though)
 
@@ -135,8 +135,8 @@ ocbrt_ss proc
 		mov r9d, 80000000h
 		and r9d, eax
 		xor eax, r9d
-		mov ecx, 6
-		mov r8d, 33
+		mov ecx, 4
+		mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, [EXP_MASK_32]
 		cmovz ecx, r8d
 		mul [DIV_3_32_SCALAR]
@@ -203,7 +203,7 @@ orcbrt_sd proc
 		xor rax, r9
 		vmovq xmm0, rax
 		mov ecx, 7
-		mov r8d, 35
+		mov r8d, 35					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test rax, [EXP_MASK_64]
 		cmovz ecx, r8d
 		sub rax, [EXP_MINUEND_64]
@@ -229,7 +229,7 @@ orcbrt_sd proc
 		vmovq rcx, xmm1
 		xor rax, 0
 		cmovz rcx, [FP_INFINITY_64]
-		vmovq xmm1, rcx
+		vmovq xmm0, rcx
 		vxorpd xmm0, xmm2, xmm1
 
 	ret
@@ -243,11 +243,11 @@ orcbrt_ss proc
 		and r9d, eax
 		xor eax, r9d
 		vmovd xmm0, eax
-		mov ecx, 7
-		mov r8d, 35
+		mov ecx, 4
+		mov r8d, 31						; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, [EXP_MASK_32]
 		cmovz ecx, r8d
-		sub eax, [EXP_MINUEND_32]
+		sub eax, [MAGICAL_NUMBER]
 		not eax
 		mul [DIV_3_32_SCALAR]
 
@@ -315,7 +315,7 @@ orcbrt_ps proc
 	start:
 		vpand ymm5, ymm0, [SIGN_32]
 		vpxor ymm0, ymm0, ymm5
-		vpsubd ymm1, ymm0, [EXP_MINUEND_32]
+		vpsubd ymm1, ymm0, [MAGICAL_NUMBER]
 		vpxor ymm1, ymm1, [ONES_32]
 		vpsrld ymm1, ymm1, 17
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
@@ -345,7 +345,7 @@ orcbrt_ps proc
 orcbrt_ps endp
 
 ; Adapted from the famous FISR algorithm
-fast_invcbrt_ss proc
+macro_fast_invcbrt_ss macro
 	vmovd eax, xmm0
 	sub eax, [MAGICAL_NUMBER]
 	not eax
@@ -357,12 +357,17 @@ fast_invcbrt_ss proc
 	vmulss xmm2, xmm1, xmm1
 	vfnmadd213ss xmm4, xmm2, [FOUR_THIRDS_32]
 	vmulss xmm0, xmm1, xmm4
+endm
+
+; Adapted from the famous FISR algorithm
+fast_invcbrt_ss proc
+	macro_fast_invcbrt_ss
 
 	ret
 fast_invcbrt_ss endp
 
 ; Adapted from the famous FISR algorithm
-fast_invcbrt_ps proc
+macro_fast_invcbrt_ps macro
 	vpsubd ymm1, ymm0, [MAGICAL_NUMBER]
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
@@ -373,6 +378,11 @@ fast_invcbrt_ps proc
 	vmulps ymm2, ymm1, ymm1
 	vfnmadd213ps ymm4, ymm2, [FOUR_THIRDS_32]
 	vmulps ymm0, ymm1, ymm4
+endm
+
+; Adapted from the famous FISR algorithm
+fast_invcbrt_ps proc
+	macro_fast_invcbrt_ps
 
 	ret
 fast_invcbrt_ps endp
