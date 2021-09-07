@@ -324,7 +324,7 @@ orcbrt_ps proc
 	newton_iterations:
 		vmovaps ymm2, [ONE_THIRD_32]
 		vmulps ymm3, ymm0, ymm2
-		mov ecx, 6			; change to about 33, if you have to deal with denormal numbers (is much slower though)
+		mov ecx, 4			; change to about 31, if you have to deal with denormal numbers (is much slower though)
 
 		it:
 			vmulps ymm4, ymm3, ymm1
