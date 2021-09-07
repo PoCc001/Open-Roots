@@ -56,6 +56,9 @@ FP_INFINITY_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f80
 ONES_64 qword -1, -1, -1, -1
 ONES_32 dword -1, -1, -1, -1, -1, -1, -1, -1
 
+DIV_3_64_SCALAR qword 5555555500000000h
+DIV_3_32_SCALAR dword 5555h
+
 .code
 ; Calculates the cube root of one double-precision floating-point number.
 ocbrt_sd proc
@@ -69,13 +72,12 @@ ocbrt_sd proc
 		mov r8d, 35
 		test rax, [EXP_MASK_64]
 		cmovz ecx, r8d
-		shr rax, 33
-		mul [DIV_3_64]
-		add rax, [EXP_ADDEND_64]
+		mul [DIV_3_64_SCALAR]
+		add rdx, [EXP_ADDEND_64]
 		vcmpsd xmm4, xmm0, xmm2, 4h
 
 	newton_iterations:
-		vmovq xmm1, rax
+		vmovq xmm1, rdx
 		vmovsd xmm2, [ONE_THIRD_64]
 		vmovsd xmm5, [TWO_THIRDS_64]
 		vmulsd xmm0, xmm0, xmm2
@@ -137,13 +139,12 @@ ocbrt_ss proc
 		mov r8d, 33
 		test eax, [EXP_MASK_32]
 		cmovz ecx, r8d
-		shr eax, 17
-		mul [DIV_3_32]
-		add eax, [EXP_ADDEND_32]
+		mul [DIV_3_32_SCALAR]
+		add edx, [EXP_ADDEND_32]
 		vcmpss xmm4, xmm0, xmm2, 4h
 
 	newton_iterations:
-		vmovd xmm1, eax
+		vmovd xmm1, edx
 		vmovss xmm2, [ONE_THIRD_32]
 		vmovss xmm5, [TWO_THIRDS_32]
 		vmulss xmm0, xmm0, xmm2
@@ -207,11 +208,10 @@ orcbrt_sd proc
 		cmovz ecx, r8d
 		sub rax, [EXP_MINUEND_64]
 		not rax
-		shr rax, 33
-		mul [DIV_3_64]
+		mul [DIV_3_64_SCALAR]
 
 	newton_iterations:
-		vmovq xmm1, rax
+		vmovq xmm1, rdx
 		vmovsd xmm2, [ONE_THIRD_64]
 		vmovsd xmm5, [FOUR_THIRDS_64]
 		vmulsd xmm3, xmm0, xmm2
@@ -249,11 +249,10 @@ orcbrt_ss proc
 		cmovz ecx, r8d
 		sub eax, [EXP_MINUEND_32]
 		not eax
-		shr eax, 17
-		mul [DIV_3_32]
+		mul [DIV_3_32_SCALAR]
 
 	newton_iterations:
-		vmovd xmm1, eax
+		vmovd xmm1, edx
 		vmovss xmm2, [ONE_THIRD_32]
 		vmovss xmm5, [FOUR_THIRDS_32]
 		vmulss xmm3, xmm0, xmm2
@@ -350,9 +349,8 @@ fast_invcbrt_ss proc
 	vmovd eax, xmm0
 	sub eax, [MAGICAL_NUMBER]
 	not eax
-	shr eax, 17
-	mul [DIV_3_32]
-	vmovd xmm1, eax
+	mul [DIV_3_32_SCALAR]
+	vmovd xmm1, edx
 	vmovss xmm2, [ONE_THIRD_32]
 	vmulss xmm3, xmm0, xmm2
 	vmulss xmm4, xmm3, xmm1
