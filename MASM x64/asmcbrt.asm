@@ -279,7 +279,7 @@ orcbrt_pd proc
 	start:
 		vpand ymm5, ymm0, [SIGN_64]
 		vpxor ymm0, ymm0, ymm5
-		vpsubq ymm1, ymm0, [EXP_MINUEND_64]
+		vpsubq ymm1, ymm0, [MAGICAL_NUMBER_64]
 		vpxor ymm1, ymm1, [ONES_64]
 		vpsrlq ymm1, ymm1, 33
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
