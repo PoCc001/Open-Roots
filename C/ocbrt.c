@@ -24,24 +24,24 @@ double orcbrt(const double a) {
 
 	val.ull ^= sign;
 
-	int exponent = (int)(val.ull >> 52);
-	int iterations = 6;
+	unsigned long long exponent = val.ull;
+	int iterations = 3;
 
 #if SUBNORMAL_NUMBERS != 0
-	bool is_sub_normal = !exponent;
+	bool is_sub_normal = !(exponent & 0x7ff0000000000000ULL);
 #endif
 
-	exponent = 4092 - exponent;
-	exponent /= 3;
+	exponent = -19178652474277888 - exponent;
+	exponent /= 3ULL;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
-		iterations = 35;
+		iterations = 32;
 	}
 #endif
 
 	double_ull guess;
-	guess.ull = (unsigned long long)(exponent) << 52;
+	guess.ull = exponent;
 
 	double thirdA = a * ONE_THIRD;
 
@@ -72,20 +72,20 @@ double ocbrt(const double a) {
 
 	val.ull ^= sign;
 
-	int exponent = (int)(val.ull >> 52);
+	unsigned long long exponent = val.ull;
 
-	int iterations = 5;
+	int iterations = 3;
 #if SUBNORMAL_NUMBERS != 0
-	if (!exponent) {
-		iterations = 35;
+	if (!(exponent & 0x7ff0000000000000ULL)) {
+		iterations = 32;
 	}
 #endif
 
-	exponent /= 3;
-	exponent += 683;
+	exponent /= 3ULL;
+	exponent += 0x2a9f5cc62cb0f9e1ULL;
 
 	double_ull guess;
-	guess.ull = (unsigned long long)(exponent) << 52;
+	guess.ull = exponent;
 
 	for (int i = 0; i < iterations; ++i) {
 		guess.d = (2.0 * guess.d + (val.d / (guess.d * guess.d))) * ONE_THIRD;
@@ -116,24 +116,24 @@ float orcbrtf(const float a) {
 
 	val.ul ^= sign;
 
-	int exponent = (int)(val.ul >> 23);
-	int iterations = 5;
+	unsigned long exponent = val.ul;
+	int iterations = 3;
 
 #if SUBNORMAL_NUMBERS != 0
-	bool is_sub_normal = !exponent;
+	bool is_sub_normal = !(exponent & 0x7f800000UL);
 #endif
 
-	exponent = 508 - exponent;
-	exponent /= 3;
+	exponent = 0xfdde0001UL - exponent;
+	exponent /= 3UL;
 
 #if SUBNORMAL_NUMBERS != 0
 	if (is_sub_normal) {
-		iterations = 33;
+		iterations = 32;
 	}
 #endif
 
 	float_ul guess;
-	guess.ul = (unsigned long)(exponent) << 23;
+	guess.ul = exponent;
 
 	float thirdA = a * (float)(ONE_THIRD);
 
@@ -162,22 +162,22 @@ float ocbrtf(const float a) {
 
 	unsigned long sign = val.ul & 0x80000000UL;
 
-	val.ul &= 0x7ffffffffUL;
+	val.ul ^= sign;
 
-	int exponent = (int)(val.ul >> 23);
-	int iterations = 4;
+	unsigned long exponent = val.ul;
+	int iterations = 2;
 
 #if SUBNORMAL_NUMBERS != 0
-	if (!exponent) {
-		iterations = 33;
+	if (!(exponent & 0x7f800000UL)) {
+		iterations = 31;
 	}
 #endif
 
-	exponent /= 3;
-	exponent += 85;
+	exponent /= 3UL;
+	exponent += 0x2a501a5bUL;
 
 	float_ul guess;
-	guess.ul = (unsigned long)(exponent) << 23;
+	guess.ul = exponent;
 
 	for (int i = 0; i < iterations; ++i) {
 		guess.f = (2.0f * guess.f + (val.f / (guess.f * guess.f))) * (float)(ONE_THIRD);
