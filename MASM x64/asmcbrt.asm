@@ -44,11 +44,9 @@ FOUR_THIRDS_32 dword 3faaaaabh, 3faaaaabh, 3faaaaabh, 3faaaaabh, 3faaaaabh, 3faa
 EXP_MASK_64 qword 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h
 EXP_MASK_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h
 
-EXP_MINUEND_64 qword -13510798882111488, -13510798882111488, -13510798882111488, -13510798882111488
-EXP_MINUEND_32 dword 4261412864, 4261412864, 4261412864, 4261412864, 4261412864, 4261412864, 4261412864, 4261412864
-
-; There might be a better "magical" number, but this one already does a good job.
-MAGICAL_NUMBER dword 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641
+; There might be better "magical" numbers, but these ones already do a good job.
+MAGICAL_NUMBER_64 qword -19178652474277888, -19178652474277888, -19178652474277888, -19178652474277888
+MAGICAL_NUMBER_32 dword 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641
 
 FP_INFINITY_64 qword 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h
 FP_INFINITY_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h
@@ -202,11 +200,11 @@ orcbrt_sd proc
 		and r9, rax
 		xor rax, r9
 		vmovq xmm0, rax
-		mov ecx, 7
-		mov r8d, 35					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
+		mov ecx, 4
+		mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test rax, [EXP_MASK_64]
 		cmovz ecx, r8d
-		sub rax, [EXP_MINUEND_64]
+		sub rax, [MAGICAL_NUMBER_64]
 		not rax
 		mul [DIV_3_64_SCALAR]
 
@@ -247,7 +245,7 @@ orcbrt_ss proc
 		mov r8d, 31						; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, [EXP_MASK_32]
 		cmovz ecx, r8d
-		sub eax, [MAGICAL_NUMBER]
+		sub eax, [MAGICAL_NUMBER_32]
 		not eax
 		mul [DIV_3_32_SCALAR]
 
@@ -290,7 +288,7 @@ orcbrt_pd proc
 	newton_iterations:
 		vmovapd ymm2, [ONE_THIRD_64]
 		vmulpd ymm3, ymm0, ymm2
-		mov ecx, 7				; change to about 35, if you have to deal with denormal numbers (is much slower though)
+		mov ecx, 4				; change to about 32, if you have to deal with denormal numbers (is much slower though)
 
 		it:
 			vmulpd ymm4, ymm3, ymm1
@@ -315,7 +313,7 @@ orcbrt_ps proc
 	start:
 		vpand ymm5, ymm0, [SIGN_32]
 		vpxor ymm0, ymm0, ymm5
-		vpsubd ymm1, ymm0, [MAGICAL_NUMBER]
+		vpsubd ymm1, ymm0, [MAGICAL_NUMBER_32]
 		vpxor ymm1, ymm1, [ONES_32]
 		vpsrld ymm1, ymm1, 17
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
@@ -345,9 +343,10 @@ orcbrt_ps proc
 orcbrt_ps endp
 
 ; Adapted from the famous FISR algorithm
+; Use this macro to inline the code
 macro_fast_invcbrt_ss macro
 	vmovd eax, xmm0
-	sub eax, [MAGICAL_NUMBER]
+	sub eax, [MAGICAL_NUMBER_32]
 	not eax
 	mul [DIV_3_32_SCALAR]
 	vmovd xmm1, edx
@@ -367,8 +366,9 @@ fast_invcbrt_ss proc
 fast_invcbrt_ss endp
 
 ; Adapted from the famous FISR algorithm
+; Use this macro to inline the code
 macro_fast_invcbrt_ps macro
-	vpsubd ymm1, ymm0, [MAGICAL_NUMBER]
+	vpsubd ymm1, ymm0, [MAGICAL_NUMBER_32]
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
