@@ -6,7 +6,8 @@ roots which is faster than other platform indipendent libaries of the same kind.
 
 ## Note
 This library assumes that the *double* datatype in C/C++ is 64 Bit wide. Also, a *double* must fit into an
-*unsigned long long*.
+*unsigned long long*. The Java and C/C++ version of Open-Roots, as well as the benchmark programs, are licensed under the Boost Software License v1.0. The assembly version
+however is licensed under the MIT license.
 
 ## API
 ### Java
@@ -39,3 +40,9 @@ This can be done by defining the macro(s) *CHECK_SPECIAL_CASES* and/or *SUBNORMA
 YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
 
 **Note:** x is a variable of the primitive datatype *double* in Java and C/C++.
+
+### x64 Assembly
+Assemble the asmcbrt.asm file in Visual Studio using the Macro Asssembler on an AVX2- and FMA-capable machine. For maximum
+performance, one could consider optimizing the code for a specific processor model. There are only procedures for calculating
+the cube root and its reciprocal, as the square root can be computed via a single assembly instruction. Maybe, the generic root
+function will be available in the future. Currently, no AVX-512 instructions are used.
