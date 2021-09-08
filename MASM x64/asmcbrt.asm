@@ -26,8 +26,9 @@
 SIGN_64 qword 8000000000000000h, 8000000000000000h, 8000000000000000h, 8000000000000000h
 SIGN_32 dword 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h
 
-EXP_ADDEND_64 qword 2ab0000000000000h, 2ab0000000000000h, 2ab0000000000000h, 2ab0000000000000h
-EXP_ADDEND_32 dword 2a800000h, 2a800000h, 2a800000h, 2a800000h, 2a800000h, 2a800000h, 2a800000h, 2a800000h
+; There might be better "magical" numbers, but these ones already do a good job.
+EXP_MAGIC_ADDEND_64 qword 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h
+EXP_MAGIC_ADDEND_32 dword 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh
 
 DIV_3_64 qword 2863311531, 2863311531, 2863311531, 2863311531
 DIV_3_32 dword 43691, 43691, 43691, 43691, 43691, 43691, 43691, 43691
@@ -45,8 +46,8 @@ EXP_MASK_64 qword 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h, 7ff00
 EXP_MASK_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h
 
 ; There might be better "magical" numbers, but these ones already do a good job.
-MAGICAL_NUMBER_64 qword -19178652474277888, -19178652474277888, -19178652474277888, -19178652474277888
-MAGICAL_NUMBER_32 dword 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641
+EXP_MAGIC_MINUEND_64 qword -19178652474277888, -19178652474277888, -19178652474277888, -19178652474277888
+EXP_MAGIC_MINUEND_32 dword 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641
 
 FP_INFINITY_64 qword 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h
 FP_INFINITY_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h
@@ -66,12 +67,12 @@ ocbrt_sd proc
 		mov r9, 8000000000000000h
 		and r9, rax
 		xor rax, r9
-		mov ecx, 7
-		mov r8d, 35				; omit this and the following 2 instructions, if you know that no subnormal numbers occur
+		mov ecx, 4
+		mov r8d, 32 			; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test rax, [EXP_MASK_64]
 		cmovz ecx, r8d
 		mul [DIV_3_64_SCALAR]
-		add rdx, [EXP_ADDEND_64]
+		add rdx, [EXP_MAGIC_ADDEND_64]
 		vcmpsd xmm4, xmm0, xmm2, 4h
 
 	newton_iterations:
@@ -103,7 +104,7 @@ ocbrt_pd proc
 		vpsrlq ymm1, ymm0, 33
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
 		vpsllq ymm1, ymm1, 32
-		vpaddq ymm1, ymm1, [EXP_ADDEND_64]
+		vpaddq ymm1, ymm1, [EXP_MAGIC_ADDEND_64]
 		vcmppd ymm3, ymm0, ymm4, 4h
 		vandpd ymm1, ymm1, ymm3
 
@@ -111,7 +112,7 @@ ocbrt_pd proc
 		vmovapd ymm5, [TWO_THIRDS_64]
 		vmovapd ymm4, [ONE_THIRD_64]
 		vmulpd ymm0, ymm0, ymm4
-		mov ecx, 7					; change to about 35, if you have to deal with denormal numbers (is much slower though)
+		mov ecx, 4					; change to about 32, if you have to deal with denormal numbers (is much slower though)
 
 		it:
 			vmulpd ymm3, ymm1, ymm1
@@ -133,12 +134,12 @@ ocbrt_ss proc
 		mov r9d, 80000000h
 		and r9d, eax
 		xor eax, r9d
-		mov ecx, 4
-		mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
+		mov ecx, 3
+		mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, [EXP_MASK_32]
 		cmovz ecx, r8d
 		mul [DIV_3_32_SCALAR]
-		add edx, [EXP_ADDEND_32]
+		add edx, [EXP_MAGIC_ADDEND_32]
 		vcmpss xmm4, xmm0, xmm2, 4h
 
 	newton_iterations:
@@ -170,7 +171,7 @@ ocbrt_ps proc
 		vpsrld ymm1, ymm0, 17
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
 		vpslld ymm1, ymm1, 16
-		vpaddd ymm1, ymm1, [EXP_ADDEND_32]
+		vpaddd ymm1, ymm1, [EXP_MAGIC_ADDEND_32]
 		vcmpps ymm3, ymm0, ymm4, 4h
 		vandps ymm1, ymm1, ymm3
 
@@ -178,7 +179,7 @@ ocbrt_ps proc
 		vmovaps ymm4, [ONE_THIRD_32]
 		vmovaps ymm5, [TWO_THIRDS_32]
 		vmulps ymm0, ymm0, ymm4
-		mov ecx, 6					; change to about 33, if you have to deal with denormal numbers (is much slower though)
+		mov ecx, 4					; change to about 31, if you have to deal with denormal numbers (is much slower though)
 
 		it:
 			vmulps ymm3, ymm1, ymm1
@@ -204,7 +205,7 @@ orcbrt_sd proc
 		mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test rax, [EXP_MASK_64]
 		cmovz ecx, r8d
-		sub rax, [MAGICAL_NUMBER_64]
+		sub rax, [EXP_MAGIC_MINUEND_64]
 		not rax
 		mul [DIV_3_64_SCALAR]
 
@@ -245,7 +246,7 @@ orcbrt_ss proc
 		mov r8d, 31						; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, [EXP_MASK_32]
 		cmovz ecx, r8d
-		sub eax, [MAGICAL_NUMBER_32]
+		sub eax, [EXP_MAGIC_MINUEND_32]
 		not eax
 		mul [DIV_3_32_SCALAR]
 
@@ -279,7 +280,7 @@ orcbrt_pd proc
 	start:
 		vpand ymm5, ymm0, [SIGN_64]
 		vpxor ymm0, ymm0, ymm5
-		vpsubq ymm1, ymm0, [MAGICAL_NUMBER_64]
+		vpsubq ymm1, ymm0, [EXP_MAGIC_MINUEND_64]
 		vpxor ymm1, ymm1, [ONES_64]
 		vpsrlq ymm1, ymm1, 33
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
@@ -313,7 +314,7 @@ orcbrt_ps proc
 	start:
 		vpand ymm5, ymm0, [SIGN_32]
 		vpxor ymm0, ymm0, ymm5
-		vpsubd ymm1, ymm0, [MAGICAL_NUMBER_32]
+		vpsubd ymm1, ymm0, [EXP_MAGIC_MINUEND_32]
 		vpxor ymm1, ymm1, [ONES_32]
 		vpsrld ymm1, ymm1, 17
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
@@ -346,7 +347,7 @@ orcbrt_ps endp
 ; Use this macro to inline the code
 macro_fast_invcbrt_ss macro
 	vmovd eax, xmm0
-	sub eax, [MAGICAL_NUMBER_32]
+	sub eax, [EXP_MAGIC_MINUEND_32]
 	not eax
 	mul [DIV_3_32_SCALAR]
 	vmovd xmm1, edx
@@ -368,7 +369,7 @@ fast_invcbrt_ss endp
 ; Adapted from the famous FISR algorithm
 ; Use this macro to inline the code
 macro_fast_invcbrt_ps macro
-	vpsubd ymm1, ymm0, [MAGICAL_NUMBER_32]
+	vpsubd ymm1, ymm0, [EXP_MAGIC_MINUEND_32]
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
