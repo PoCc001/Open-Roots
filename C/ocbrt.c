@@ -58,6 +58,7 @@ double orcbrt(const double a) {
 	return guess.d;
 }
 
+#if ONLY_USE_RECIP_ROOTS == 0
 double ocbrt(const double a) {
 #if CHECK_SPECIAL_CASES != 0
 	if (a == 0.0 || a == -0.0) {
@@ -99,6 +100,12 @@ double ocbrt(const double a) {
 
 	return guess.d;
 }
+#else
+inline double ocbrt(const double a) {
+	double r = orcbrt(a);
+	return a * r * r;
+}
+#endif
 
 float orcbrtf(const float a) {
 	float_ul val;
@@ -150,6 +157,7 @@ float orcbrtf(const float a) {
 	return guess.f;
 }
 
+#if ONLY_USE_RECIP_ROOTS == 0
 float ocbrtf(const float a) {
 #if CHECK_SPECIAL_CASES != 0
 	if (a == 0.0f || a == -0.0f) {
@@ -191,3 +199,9 @@ float ocbrtf(const float a) {
 
 	return guess.f;
 }
+#else
+inline float ocbrtf(const float a) {
+	float r = orcbrtf(a);
+	return a * r * r;
+}
+#endif

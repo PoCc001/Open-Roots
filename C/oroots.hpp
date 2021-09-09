@@ -32,4 +32,46 @@ inline float oroot(const float &x, const int &n) noexcept {
 	return orootf(x, n);
 }
 
+namespace oroots {
+	inline double rsqrt(const double& x) noexcept {
+		return orsqrt(x);
+	}
+
+	inline float rsqrt(const float& x) noexcept {
+		return orsqrtf(x);
+	}
+
+	inline double sqrt(const double& x) noexcept {
+		return osqrt(x);
+	}
+
+	inline float sqrt(const float& x) noexcept {
+		return osqrtf(x);
+	}
+
+	inline double rcbrt(const double& x) noexcept {
+		return orcbrt(x);
+	}
+
+	inline float rcbrt(const float& x) noexcept {
+		return orcbrtf(x);
+	}
+
+	inline double cbrt(const double& x) noexcept {
+		return ocbrt(x);
+	}
+
+	inline float cbrt(const float& x) noexcept {
+		return ocbrtf(x);
+	}
+
+	inline double root(const double& x, const int& n) noexcept {
+		return oroot(x, n);
+	}
+
+	inline float root(const float& x, const int& n) noexcept {
+		return orootf(x, n);
+	}
+}
+
 #endif

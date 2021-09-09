@@ -23,6 +23,12 @@
 #define SUBNORMAL_NUMBERS 1
 #endif
 
+// Setting this to 1 could make the osqrt(f) and ocbrt(f) functions faster.
+// However, the results may be less accurate!
+#ifndef ONLY_USE_RECIP_ROOTS
+#define ONLY_USE_RECIP_ROOTS 0
+#endif
+
 #if STRICT == 1
 typedef double corr_t;
 typedef float corrf_t;

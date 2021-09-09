@@ -51,6 +51,7 @@ double orsqrt(const double a) {
 #endif
 }
 
+#if ONLY_USE_RECIP_ROOTS == 0
 double osqrt(const double a) {
 	double_ull val;
 	val.d = a;
@@ -92,6 +93,12 @@ double osqrt(const double a) {
 	return guess.d;
 #endif
 }
+#else
+inline double osqrt(const double a) {
+	double r = orsqrt(a);
+	return a * r * r;
+}
+#endif
 
 float orsqrtf(const float a) {
 	float_ul val;
@@ -136,6 +143,7 @@ float orsqrtf(const float a) {
 #endif
 }
 
+#if ONLY_USE_RECIP_ROOTS == 0
 float osqrtf(const float a) {
 	float_ul val;
 	val.f = a;
@@ -177,3 +185,9 @@ float osqrtf(const float a) {
 	return guess.f;
 #endif
 }
+#else
+inline float osqrtf(const float a) {
+	float r = orsqrtf(a);
+	return a * r * r;
+}
+#endif
