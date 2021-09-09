@@ -59,7 +59,7 @@ public strictfp class ORoots {
 	}
 	
 	public static float root (final float a, int n) {
-		return (float)(root((double)(a)));
+		return (float)(root((double)(a), n));
 	}
 	
 	private static double invroot (final double a, final int mn) {
