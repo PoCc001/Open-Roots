@@ -25,23 +25,21 @@ public class OCbrt {
 		
 		exponent /= 3;
 		exponent += 0x2a9f5cc62cb0f9e1L;
-		int iterations = 3;
+		int iterations = 4;
 		
 		if (isSubNormal) {
-			iterations = 32;
+			iterations = 33;
 		}
 		
 		long longGuess = exponent;
 		longGuess |= sign;
 		double guess = Double.longBitsToDouble(longGuess);
 		
-		for (int i = 0; i < iterations; i++) {
-			guess = (2.0d * guess + (a / (guess * guess))) * 0.333333333333333333d;
-		}
+		double oneThirdA = a * 0.333333333333333333d;
 		
-		double diff = (guess * guess * guess) - a;
-		diff /= 3.0d * guess * guess;
-		guess -= diff;
+		for (int i = 0; i < iterations; i++) {
+			guess = guess * 0.6666666666666666667d + (oneThirdA / (guess * guess));
+		}
 		
 		return guess;
 	}
@@ -63,23 +61,21 @@ public class OCbrt {
 		
 		exponent /= 3;
 		exponent += 0x2a501a5b;
-		int iterations = 2;
+		int iterations = 3;
 		
 		if (isSubNormal) {
-			iterations = 31;
+			iterations = 32;
 		}
 		
 		int intGuess = exponent;
 		intGuess |= sign;
 		float guess = Float.intBitsToFloat(intGuess);
 		
-		for (int i = 0; i < iterations; i++) {
-			guess = (2.0f * guess + (a / (guess * guess))) * 0.333333333f;
-		}
+		float oneThirdA = a * 0.333333333f;
 		
-		double diff = (guess * guess * guess) - a;
-		diff /= 3.0f * guess * guess;
-		guess -= diff;
+		for (int i = 0; i < iterations; i++) {
+			guess = guess * 0.666666667f + (oneThirdA / (guess * guess));
+		}
 		
 		return guess;
 	}
