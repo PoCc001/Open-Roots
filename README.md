@@ -42,7 +42,7 @@ This can be done by defining the macro(s) *CHECK_SPECIAL_CASES* and/or *SUBNORMA
 YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
 Setting *ONLY_USE_RECIP_ROOTS* to 1 may allow for faster calculation of osqrt(f) and ocbrt(f) at the cost of less accuracy.
 
-**Note:** x is a variable of the primitive datatype *double* in Java and C/C++.
+**Note:** x is a variable of the primitive datatype *double* or *float* in Java and C/C++.
 
 ### x64 Assembly
 Assemble the asmcbrt.asm file in Visual Studio using the Macro Asssembler on an AVX2- and FMA-capable machine. For maximum
