@@ -1,11 +1,11 @@
 /**
-* Copyright Johannes KloimbÃ¶ck 2020 - 2021.
+* Copyright Johannes Kloimböck 2020 - 2021.
 * Distributed under the Boost Software License, Version 1.0.
 * (See accompanying file LICENSE or copy at
 * https://www.boost.org/LICENSE_1_0.txt)
 */
 
-package oroots;
+package at.kloimboeck.johannes.oroots;
 
 public class OSqrt {
 	private static final double RSQRT_1L = Double.longBitsToDouble(0x6180000000000000L);
@@ -24,23 +24,23 @@ public class OSqrt {
 			return RSQRT_1L;
 		}
 		
-		int exponent = (int)(longValue >>> 52);
+		long exponent = longValue;
 		
-		boolean isSubNormal = exponent == 0;
+		boolean isSubNormal = (exponent & 0x7ff0000000000000L) == 0;
 		
-		exponent = 3069 - exponent;
-		exponent >>= 1;
+		exponent = 0xbfcc409b00000000L - exponent;
+		exponent >>>= 1;
+		
+		int iterations = 4;
 		
 		if (isSubNormal) {
-			long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
-			subNormalExponent >>= 1;
-			exponent += subNormalExponent;
+			iterations = 31;
 		}
 		
-		double guess = Double.longBitsToDouble((long)(exponent) << 52);
+		double guess = Double.longBitsToDouble(exponent);
 		double halfA = a * 0.5d;
 		
-		for (int i = 0; i < 6; ++i) {
+		for (int i = 0; i < iterations; ++i) {
 			guess = guess + (guess * (0.5d - (halfA * guess * guess)));
 		}
 		
@@ -56,22 +56,21 @@ public class OSqrt {
 	   
 	   long longValue = Double.doubleToRawLongBits(a);
 	   
-	   int exponent = (int)(longValue >>> 52);
+	   long exponent = longValue;
 	   
-	   boolean isSubNormal = exponent == 0;
+	   boolean isSubNormal = (exponent & 0x7ff0000000000000L) == 0;
 	   
-	   exponent >>= 1;
-	   exponent += 512;
+	   exponent >>>= 1;
+	   exponent += 0x1ff62ddf00000000L;
+	   int iterations = 2;
 	   
 	   if (isSubNormal) {
-		   long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
-		   subNormalExponent >>= 1;
-		   exponent -= subNormalExponent;
+		   iterations = 30;
 	   }
 	   
-	   double guess = Double.longBitsToDouble((long)(exponent) << 52);
+	   double guess = Double.longBitsToDouble(exponent);
 	   
-	   for (int i = 0; i < 3; i++) {
+	   for (int i = 0; i < iterations; i++) {
 			guess = (guess + (a / guess)) * 0.5d;
 	   }
 	   
@@ -98,23 +97,22 @@ public class OSqrt {
 			return RSQRT_1;
 		}
 		
-		int exponent = intValue >>> 23;
+		int exponent = intValue;
 		
-		boolean isSubNormal = exponent == 0;
+		boolean isSubNormal = (exponent & 0x7f800000) == 0;
 		
-		exponent = 381 - exponent;
-		exponent >>= 1;
+		exponent = 0xbe700000 - exponent;
+		exponent >>>= 1;
+	   	int iterations = 3;
 		
 		if (isSubNormal) {
-			int subNormalExponent = Integer.numberOfLeadingZeros(intValue) - 8;
-			subNormalExponent >>= 1;
-			exponent += subNormalExponent;
+			iterations = 31;
 		}
 		
-		float guess = Float.intBitsToFloat(exponent << 23);
+		float guess = Float.intBitsToFloat(exponent);
 		float halfA = a * 0.5f;
 		
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < iterations; ++i) {
 			guess = guess + (guess * (0.5f - (halfA * guess * guess)));
 		}
 		
@@ -130,22 +128,21 @@ public class OSqrt {
 	   
 	   int intValue = Float.floatToRawIntBits(a);
 	   
-	   int exponent = intValue >>> 23;
+	   int exponent = intValue;
 	   
-	   boolean isSubNormal = exponent == 0;
+	   boolean isSubNormal = (exponent & 0x7f800000) == 0;
 	   
-	   exponent >>= 1;
-	   exponent += 64;
+	   exponent >>>= 1;
+	   exponent += 0x1f94da6d;
+	   int iterations = 1;
 	   
 	   if (isSubNormal) {
-		   int subNormalExponent = Integer.numberOfLeadingZeros(intValue) - 8;
-		   subNormalExponent >>= 1;
-		   exponent -= subNormalExponent;
+		   iterations = 33;
 	   }
 	   
-	   float guess = Float.intBitsToFloat(exponent << 23);
+	   float guess = Float.intBitsToFloat(exponent);
 	   
-	   for (int i = 0; i < 2; i++) {
+	   for (int i = 0; i < iterations; i++) {
 			guess = (guess + (a / guess)) * 0.5f;
 	   }
 	   

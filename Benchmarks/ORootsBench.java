@@ -1,15 +1,17 @@
 /**
-* Copyright Johannes KloimbÃ¶ck 2020.
+* Copyright Johannes Kloimböck 2020.
 * Distributed under the Boost Software License, Version 1.0.
 * (See accompanying file LICENSE or copy at
 * https://www.boost.org/LICENSE_1_0.txt)
 */
 
-import oroots.*;
+package test;
+
+import at.kloimboeck.johannes.oroots.*;
 import java.util.Scanner;
 
 public class ORootsBench {
-	private static final int array_length = 10000;
+	private static final int array_length = 1000000;
 	
 	public static void main (String [] args) {
 		System.out.println("Which function do you want to test?");
@@ -23,8 +25,11 @@ public class ORootsBench {
 		} catch (NumberFormatException nfe) {
 			System.out.println("There's something wrong with the input!");
 			System.out.println("Aborting!");
+			scanner.close();
 			return;
 		}
+		
+		scanner.close();
 		
 		double []root_array_oroots = new double[array_length];
 		double []root_array_std = new double[array_length];

@@ -1,11 +1,11 @@
 /**
-* Copyright Johannes KloimbÃ¶ck 2020 - 2021.
+* Copyright Johannes Kloimböck 2020 - 2021.
 * Distributed under the Boost Software License, Version 1.0.
 * (See accompanying file LICENSE or copy at
 * https://www.boost.org/LICENSE_1_0.txt)
 */
 
-package oroots;
+package at.kloimboeck.johannes.oroots;
 
 public class OCbrt {	
 	public static strictfp double cbrt (final double a) {
@@ -17,26 +17,25 @@ public class OCbrt {
 		
 		long sign = longValue & 0x8000000000000000L;
 		
-		longValue &= 0x7fffffffffffffffL;
+		longValue ^= sign;
 		
-		int exponent = (int)(longValue >>> 52);
+		long exponent = longValue;
 		
-		boolean isSubNormal = exponent == 0;
+		boolean isSubNormal = (exponent & 0x7ff0000000000000L) == 0;
 		
 		exponent /= 3;
-		exponent += 683;
+		exponent += 0x2a9f5cc62cb0f9e1L;
+		int iterations = 3;
 		
 		if (isSubNormal) {
-			long subNormalExponent = Long.numberOfLeadingZeros(longValue) - 11;
-			subNormalExponent /= 3;
-			exponent -= subNormalExponent;
+			iterations = 32;
 		}
 		
-		long longGuess = (long)(exponent) << 52;
+		long longGuess = exponent;
 		longGuess |= sign;
 		double guess = Double.longBitsToDouble(longGuess);
 		
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < iterations; i++) {
 			guess = (2.0d * guess + (a / (guess * guess))) * 0.333333333333333333d;
 		}
 		
@@ -56,26 +55,25 @@ public class OCbrt {
 		
 		int sign = intValue & 0x80000000;
 		
-		intValue &= 0x7fffffff;
+		intValue ^= sign;
 		
-		int exponent = intValue >>> 23;
+		int exponent = intValue;
 		
-		boolean isSubNormal = exponent == 0;
+		boolean isSubNormal = (exponent & 0x7f800000) == 0;
 		
 		exponent /= 3;
-		exponent += 85;
+		exponent += 0x2a501a5b;
+		int iterations = 2;
 		
 		if (isSubNormal) {
-			int subNormalExponent = Integer.numberOfLeadingZeros(intValue) - 8;
-			subNormalExponent /= 3;
-			exponent -= subNormalExponent;
+			iterations = 31;
 		}
 		
-		int intGuess = exponent << 23;
+		int intGuess = exponent;
 		intGuess |= sign;
 		float guess = Float.intBitsToFloat(intGuess);
 		
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < iterations; i++) {
 			guess = (2.0f * guess + (a / (guess * guess))) * 0.333333333f;
 		}
 		
