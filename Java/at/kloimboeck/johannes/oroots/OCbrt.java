@@ -8,7 +8,7 @@
 package at.kloimboeck.johannes.oroots;
 
 public class OCbrt {	
-	public static strictfp double cbrt (final double a) {
+	public static double cbrt (final double a) {
 		if (a == 0.0d) {
 			return a;
 		}
@@ -18,6 +18,10 @@ public class OCbrt {
 		long sign = longValue & 0x8000000000000000L;
 		
 		longValue ^= sign;
+		
+		if (longValue == 0x7ff0000000000000L) {
+			return a;
+		}
 		
 		long exponent = longValue;
 		
@@ -44,7 +48,7 @@ public class OCbrt {
 		return guess;
 	}
 	
-	public static strictfp float cbrt (final float a) {
+	public static float cbrt (final float a) {
 		if (a == 0.0f) {
 			return a;
 		}
@@ -54,6 +58,10 @@ public class OCbrt {
 		int sign = intValue & 0x80000000;
 		
 		intValue ^= sign;
+		
+		if (intValue == 0x7f800000) {
+			return a;
+		}
 		
 		int exponent = intValue;
 		

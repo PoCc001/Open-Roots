@@ -15,10 +15,8 @@ double orcbrt(const double a) {
 	unsigned long long sign = val.ull & 0x8000000000000000ULL;
 
 #if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0) {
-		double_ull inf;
-		inf.ull = DOUBLE_INF ^ sign;
-		return inf.d;
+	if (a == 0.0 || a == -0.0) {
+		return 1.0 / a;
 	}
 #endif
 
@@ -53,6 +51,7 @@ double orcbrt(const double a) {
 	g *= ((corr_t)(FOUR_THIRDS) - ((corr_t)(a) * ONE_THIRD) * (g * g) * g);
 	guess.d = (double)(g);
 
+	guess.ull = val.ull == DOUBLE_INF ? 0ULL : guess.ull;
 	guess.ull |= sign;
 
 	return guess.d;
@@ -60,18 +59,18 @@ double orcbrt(const double a) {
 
 #if ONLY_USE_RECIP_ROOTS == 0
 double ocbrt(const double a) {
-#if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0 || a == -0.0) {
-		return a;
-	}
-#endif
-
 	double_ull val;
 	val.d = a;
 
 	unsigned long long sign = val.ull & 0x8000000000000000ULL;
 
 	val.ull ^= sign;
+
+#if CHECK_SPECIAL_CASES != 0
+	if (a == 0.0 || a == -0.0 || val.ull == DOUBLE_INF) {
+		return a;
+	}
+#endif
 
 	unsigned long long exponent = val.ull;
 
@@ -103,8 +102,7 @@ double ocbrt(const double a) {
 }
 #else
 inline double ocbrt(const double a) {
-	double r = orcbrt(a);
-	return a * r * r;
+	return 1.0 / orcbrt(a);
 }
 #endif
 
@@ -115,10 +113,8 @@ float orcbrtf(const float a) {
 	unsigned long sign = val.ul & 0x80000000UL;
 
 #if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0) {
-		float_ul inf;
-		inf.ul = FLOAT_INF ^ sign;
-		return inf.f;
+	if (a == 0.0f || a == -0.0f) {
+		return 1.0f / a;
 	}
 #endif
 
@@ -153,6 +149,7 @@ float orcbrtf(const float a) {
 	g *= ((corrf_t)(FOUR_THIRDS) - ((corrf_t)(a) * ONE_THIRD) * (g * g) * g);
 	guess.f = (float)(g);
 
+	guess.ul = val.ul == FLOAT_INF ? 0UL : guess.ul;
 	guess.ul |= sign;
 
 	return guess.f;
@@ -160,18 +157,18 @@ float orcbrtf(const float a) {
 
 #if ONLY_USE_RECIP_ROOTS == 0
 float ocbrtf(const float a) {
-#if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0f || a == -0.0f) {
-		return a;
-	}
-#endif
-
 	float_ul val;
 	val.f = a;
 
 	unsigned long sign = val.ul & 0x80000000UL;
 
 	val.ul ^= sign;
+
+#if CHECK_SPECIAL_CASES != 0
+	if (a == 0.0f || a == -0.0f || val.ul == FLOAT_INF) {
+		return a;
+	}
+#endif
 
 	unsigned long exponent = val.ul;
 	int iterations = 2;
@@ -203,7 +200,6 @@ float ocbrtf(const float a) {
 }
 #else
 inline float ocbrtf(const float a) {
-	float r = orcbrtf(a);
-	return a * r * r;
+	return 1.0f / orcbrtf(a);
 }
 #endif

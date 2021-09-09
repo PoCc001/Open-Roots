@@ -44,6 +44,7 @@ double orsqrt(const double a) {
 #if CHECK_SPECIAL_CASES != 0
 	guess.ull = a > 0.0 ? guess.ull : DOUBLE_NAN;
 	guess.ull = a == 0.0 ? DOUBLE_INF : guess.ull;
+	guess.ull = val.ull == DOUBLE_INF ? 0ULL : guess.ull;
 
 	return guess.d;
 #else
@@ -87,7 +88,7 @@ double osqrt(const double a) {
 
 #if CHECK_SPECIAL_CASES != 0
 	guess.ull = a > 0.0 ? guess.ull : DOUBLE_NAN;
-	
+	guess.ull = val.ull == DOUBLE_INF ? DOUBLE_INF : guess.ull;
 	return a == 0.0 ? 0.0 : guess.d;
 #else
 	return guess.d;
@@ -95,8 +96,7 @@ double osqrt(const double a) {
 }
 #else
 inline double osqrt(const double a) {
-	double r = orsqrt(a);
-	return a * r * r;
+	return 1.0 / orsqrt(a);
 }
 #endif
 
@@ -136,6 +136,7 @@ float orsqrtf(const float a) {
 #if CHECK_SPECIAL_CASES != 0
 	guess.ul = a > 0.0f ? guess.ul : FLOAT_NAN;
 	guess.ul = a == 0.0f ? FLOAT_INF : guess.ul;
+	guess.ul = val.ul == FLOAT_INF ? 0UL : guess.ul;
 
 	return guess.f;
 #else
@@ -179,7 +180,7 @@ float osqrtf(const float a) {
 
 #if CHECK_SPECIAL_CASES != 0
 	guess.ul = a > 0.0f ? guess.ul : FLOAT_NAN;
-
+	guess.ul = val.ul == FLOAT_INF ? FLOAT_INF : guess.ul;
 	return a == 0.0f ? 0.0f : guess.f;
 #else
 	return guess.f;
@@ -187,7 +188,6 @@ float osqrtf(const float a) {
 }
 #else
 inline float osqrtf(const float a) {
-	float r = orsqrtf(a);
-	return a * r * r;
+	return 1.0f / orsqrtf(a);
 }
 #endif

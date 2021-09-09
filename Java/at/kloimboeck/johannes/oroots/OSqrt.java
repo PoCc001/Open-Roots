@@ -8,7 +8,7 @@
 package at.kloimboeck.johannes.oroots;
 
 public class OSqrt {	
-	public static strictfp double rsqrt(final double a) {
+	public static double rsqrt(final double a) {
 		if (a == 0.0d) {
 			return a == -0.0 ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
 		}
@@ -35,10 +35,10 @@ public class OSqrt {
 			guess = guess + (guess * (0.5d - (halfA * guess * guess)));
 		}
 		
-		return guess;
+		return a == Double.POSITIVE_INFINITY ? 0.0 : guess;
 	}
 	
-	public static strictfp double sqrt(final double a) {
+	public static double sqrt(final double a) {
 	   if (a == 0.0d) {
 		   return a;
 	   }
@@ -63,10 +63,10 @@ public class OSqrt {
 			guess = (guess + (a / guess)) * 0.5d;
 	   }
 	   
-	   return guess;
+	   return a == Double.POSITIVE_INFINITY ? a : guess;
     }
 	
-	public static strictfp float rsqrt(final float a) {
+	public static float rsqrt(final float a) {
 		if (a == 0.0f) {
 			return a == -0.0f ? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
 		}
@@ -92,10 +92,10 @@ public class OSqrt {
 			guess = guess + (guess * (0.5f - (halfA * guess * guess)));
 		}
 		
-		return guess;
+		return a == Float.POSITIVE_INFINITY ? 0.0f : guess;
 	}
 	
-	public static strictfp float sqrt(final float a) {
+	public static float sqrt(final float a) {
 	   if (a == 0.0f) {
 		   return a;
 	   }
@@ -120,6 +120,10 @@ public class OSqrt {
 			guess = (guess + (a / guess)) * 0.5f;
 	   }
 	   
-	   return guess;
+	   return a == Float.POSITIVE_INFINITY ? a : guess;
     }
+	
+	public static void main (String [] args) {
+		System.out.println(rsqrt(Double.NaN));
+	}
 }
