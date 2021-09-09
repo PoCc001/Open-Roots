@@ -88,14 +88,15 @@ double ocbrt(const double a) {
 	double_ull guess;
 	guess.ull = exponent;
 
+	double one_third_a = val.d * ONE_THIRD;
+
 	for (int i = 0; i < iterations; ++i) {
-		guess.d = (2.0 * guess.d + (val.d / (guess.d * guess.d))) * ONE_THIRD;
+		guess.d = guess.d * TWO_THIRDS + (one_third_a / (guess.d * guess.d));
 	}
 
-	corr_t guess_sqr = (corr_t)(guess.d) * (corr_t)(guess.d);
-	corr_t diff = (guess_sqr * (corr_t)(guess.d)) - (corr_t)(val.d);
-	diff /= (corr_t)(3.0) * guess_sqr;
-	guess.d -= (double)(diff);
+	corr_t g = (corr_t)(guess.d);
+	corr_t guess_sqr = g * g;
+	guess.d = (double)(g * TWO_THIRDS + ((corr_t)(val.d) * ONE_THIRD / (guess_sqr)));
 	guess.ull |= sign;
 
 	return guess.d;
@@ -149,7 +150,7 @@ float orcbrtf(const float a) {
 	}
 
 	corrf_t g = (corrf_t)(guess.f);
-	g *= ((corrf_t)(FOUR_THIRDS)-((corrf_t)(a) * ONE_THIRD) * (g * g) * g);
+	g *= ((corrf_t)(FOUR_THIRDS) - ((corrf_t)(a) * ONE_THIRD) * (g * g) * g);
 	guess.f = (float)(g);
 
 	guess.ul |= sign;
@@ -187,14 +188,15 @@ float ocbrtf(const float a) {
 	float_ul guess;
 	guess.ul = exponent;
 
+	float one_third_a = val.f * (float)(ONE_THIRD);
+
 	for (int i = 0; i < iterations; ++i) {
-		guess.f = (2.0f * guess.f + (val.f / (guess.f * guess.f))) * (float)(ONE_THIRD);
+		guess.f = guess.f * (float)(TWO_THIRDS) + (one_third_a / (guess.f * guess.f));
 	}
 
-	corrf_t guess_sqr = (corrf_t)(guess.f) * (corrf_t)(guess.f);
-	corrf_t diff = (guess_sqr * (corrf_t)(guess.f)) - (corrf_t)(val.f);
-	diff /= (corrf_t)(3.0) * guess_sqr;
-	guess.f -= (float)(diff);
+	corrf_t g = (corrf_t)(guess.f);
+	corrf_t guess_sqr = g * g;
+	guess.f = (float)(g * TWO_THIRDS + ((corrf_t)(val.f) * ONE_THIRD / (guess_sqr)));
 	guess.ul |= sign;
 
 	return guess.f;
