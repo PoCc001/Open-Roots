@@ -67,6 +67,7 @@ ocbrt_sd proc
 		mov r9, 8000000000000000h
 		and r9, rax
 		xor rax, r9
+		vmovq xmm0, rax
 		mov ecx, 4
 		mov r8d, 32 			; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test rax, [EXP_MASK_64]
@@ -78,6 +79,7 @@ ocbrt_sd proc
 	newton_iterations:
 		vmovq xmm1, rdx
 		vmovsd xmm2, [TWO_THIRDS_64]
+		vmovsd xmm5, [FP_INFINITY_64]
 		vmulsd xmm0, xmm0, [ONE_THIRD_64]
 
 		it:
@@ -88,9 +90,14 @@ ocbrt_sd proc
 			dec ecx
 			jnz it
 
-		vmovq xmm0, r9
+		vmovq xmm3, r9
 		vandpd xmm1, xmm1, xmm4
-		vxorpd xmm0, xmm0, xmm1
+		vcmpsd xmm2, xmm0, xmm5, 4h
+		vandpd xmm1, xmm1, xmm2
+		vandnpd xmm2, xmm2, xmm5
+		vorpd xmm1, xmm1, xmm2
+		vxorpd xmm0, xmm1, xmm3
+
 
 	ret
 ocbrt_sd endp
@@ -100,18 +107,15 @@ ocbrt_pd proc
 	start:
 		vpand ymm2, ymm0, [SIGN_64]
 		vpxor ymm0, ymm2, ymm0
-		vpxor ymm4, ymm4, ymm4
 		vpsrlq ymm1, ymm0, 33
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
 		vpsllq ymm1, ymm1, 32
 		vpaddq ymm1, ymm1, [EXP_MAGIC_ADDEND_64]
-		vcmppd ymm3, ymm0, ymm4, 4h
-		vandpd ymm1, ymm1, ymm3
 
 	newton_iterations:
+		vmovapd ymm4, [FP_INFINITY_64]
 		vmovapd ymm5, [TWO_THIRDS_64]
-		vmovapd ymm4, [ONE_THIRD_64]
-		vmulpd ymm0, ymm0, ymm4
+		vmulpd ymm0, ymm0, [ONE_THIRD_64]
 		mov ecx, 4					; change to about 32, if you have to deal with denormal numbers (is much slower though)
 
 		it:
@@ -121,7 +125,14 @@ ocbrt_pd proc
 			dec ecx
 			jnz it
 
-		vxorpd xmm0, xmm1, xmm2
+		vcmppd ymm3, ymm0, ymm4, 4h
+		vandpd ymm1, ymm1, ymm3
+		vandnpd ymm3, ymm3, ymm4
+		vorpd ymm1, ymm1, ymm3
+		vpxor ymm4, ymm4, ymm4
+		vcmppd ymm3, ymm0, ymm4, 4h
+		vandpd ymm1, ymm1, ymm3
+		vxorpd ymm0, ymm1, ymm2
 
 	ret
 ocbrt_pd endp
@@ -134,6 +145,7 @@ ocbrt_ss proc
 		mov r9d, 80000000h
 		and r9d, eax
 		xor eax, r9d
+		vmovd xmm0, eax
 		mov ecx, 3
 		mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, [EXP_MASK_32]
@@ -144,20 +156,24 @@ ocbrt_ss proc
 
 	newton_iterations:
 		vmovd xmm1, edx
-		vmovss xmm2, [ONE_THIRD_32]
-		vmovss xmm5, [TWO_THIRDS_32]
-		vmulss xmm0, xmm0, xmm2
+		vmovss xmm2, [TWO_THIRDS_32]
+		vmovss xmm5, [FP_INFINITY_32]
+		vmulss xmm0, xmm0, [ONE_THIRD_32]
 
 		it:
 			vmulss xmm3, xmm1, xmm1
 			vdivss xmm3, xmm0, xmm3
-			vfmadd213ss xmm1, xmm5, xmm3
+			vfmadd213ss xmm1, xmm2, xmm3
 			dec ecx
 			jnz it
 
-		vmovd xmm0, r9d
+		vmovd xmm3, r9d
 		vandps xmm1, xmm1, xmm4
-		vxorps xmm0, xmm0, xmm1
+		vcmpss xmm2, xmm0, xmm5, 4h
+		vandps xmm1, xmm1, xmm2
+		vandnps xmm2, xmm2, xmm5
+		vorps xmm1, xmm1, xmm2
+		vxorps xmm0, xmm1, xmm3
 		
 	ret
 ocbrt_ss endp
@@ -167,18 +183,15 @@ ocbrt_ps proc
 	start:
 		vpand ymm2, ymm0, [SIGN_32]
 		vpxor ymm0, ymm2, ymm0
-		vpxor ymm4, ymm4, ymm4
 		vpsrld ymm1, ymm0, 17
 		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
 		vpslld ymm1, ymm1, 16
 		vpaddd ymm1, ymm1, [EXP_MAGIC_ADDEND_32]
-		vcmpps ymm3, ymm0, ymm4, 4h
-		vandps ymm1, ymm1, ymm3
 
 	newton_iterations:
-		vmovaps ymm4, [ONE_THIRD_32]
+		vmovaps ymm4, [FP_INFINITY_32]
 		vmovaps ymm5, [TWO_THIRDS_32]
-		vmulps ymm0, ymm0, ymm4
+		vmulps ymm0, ymm0, [ONE_THIRD_32]
 		mov ecx, 4					; change to about 31, if you have to deal with denormal numbers (is much slower though)
 
 		it:
@@ -188,7 +201,14 @@ ocbrt_ps proc
 			dec ecx
 			jnz it
 
-		vxorps xmm0, xmm1, xmm2
+		vcmpps ymm3, ymm0, ymm4, 4h
+		vandps ymm1, ymm1, ymm3
+		vandnps ymm3, ymm3, ymm4
+		vorps ymm1, ymm1, ymm3
+		vpxor ymm4, ymm4, ymm4
+		vcmpps ymm3, ymm0, ymm4, 4h
+		vandps ymm1, ymm1, ymm3
+		vxorps ymm0, ymm1, ymm2
 
 	ret
 ocbrt_ps endp
@@ -202,8 +222,9 @@ orcbrt_sd proc
 		xor rax, r9
 		vmovq xmm0, rax
 		mov ecx, 4
+		mov r10, [EXP_MASK_64]
 		mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
-		test rax, [EXP_MASK_64]
+		test rax, r10
 		cmovz ecx, r8d
 		sub rax, [EXP_MAGIC_MINUEND_64]
 		not rax
@@ -228,6 +249,8 @@ orcbrt_sd proc
 		vmovq rcx, xmm1
 		xor rax, 0
 		cmovz rcx, [FP_INFINITY_64]
+		xor rax, r10
+		cmovz rcx, rax
 		vmovq xmm0, rcx
 		vxorpd xmm0, xmm2, xmm1
 
@@ -242,9 +265,10 @@ orcbrt_ss proc
 		and r9d, eax
 		xor eax, r9d
 		vmovd xmm0, eax
+		mov r10d, [EXP_MASK_32]
 		mov ecx, 4
 		mov r8d, 31						; omit this and the following 2 instructions, if you know that no subnormal numbers occur
-		test eax, [EXP_MASK_32]
+		test eax, r10d
 		cmovz ecx, r8d
 		sub eax, [EXP_MAGIC_MINUEND_32]
 		not eax
@@ -269,6 +293,8 @@ orcbrt_ss proc
 		vmovd ecx, xmm1
 		xor eax, 0
 		cmovz ecx, [FP_INFINITY_32]
+		xor eax, r10d
+		cmovz ecx, eax
 		vmovd xmm1, ecx
 		vxorps xmm0, xmm2, xmm1
 
@@ -289,7 +315,7 @@ orcbrt_pd proc
 	newton_iterations:
 		vmovapd ymm2, [ONE_THIRD_64]
 		vmulpd ymm3, ymm0, ymm2
-		mov ecx, 4				; change to about 32, if you have to deal with denormal numbers (is much slower though)
+		mov ecx, 5				; change to about 32, if you have to deal with denormal numbers (is much slower though)
 
 		it:
 			vmulpd ymm4, ymm3, ymm1
@@ -302,8 +328,11 @@ orcbrt_pd proc
 		vxorpd ymm4, ymm4, ymm4
 		vcmppd ymm3, ymm0, ymm4, 4h
 		vandpd ymm1, ymm1, ymm3
-		vandnpd ymm2, ymm3, [FP_INFINITY_64]
+		vmovapd ymm4, [FP_INFINITY_64]
+		vandnpd ymm2, ymm3, ymm4
 		vorpd ymm1, ymm1, ymm2
+		vcmppd ymm2, ymm0, ymm4, 4h
+		vandpd ymm1, ymm1, ymm2
 		vxorpd ymm0, ymm1, ymm5
 
 	ret
@@ -336,8 +365,11 @@ orcbrt_ps proc
 		vxorps ymm4, ymm4, ymm4
 		vcmpps ymm3, ymm0, ymm4, 4h
 		vandps ymm1, ymm1, ymm3
-		vandnps ymm2, ymm3, [FP_INFINITY_32]
+		vmovaps ymm4, [FP_INFINITY_32]
+		vandnps ymm2, ymm3, ymm4
 		vorps ymm1, ymm1, ymm2
+		vcmpps ymm2, ymm0, ymm4, 4h
+		vandps ymm1, ymm1, ymm2
 		vxorps ymm0, ymm1, ymm5
 
 	ret
