@@ -26,6 +26,9 @@
 SIGN_64 qword 8000000000000000h, 8000000000000000h, 8000000000000000h, 8000000000000000h
 SIGN_32 dword 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h
 
+WITHOUT_SIGN_64 qword 7fffffffffffffffh, 7fffffffffffffffh, 7fffffffffffffffh, 7fffffffffffffffh
+WITHOUT_SIGN_32 dword 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh
+
 ; There might be better "magical" numbers, but these ones already do a good job.
 EXP_MAGIC_ADDEND_64 qword 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h
 EXP_MAGIC_ADDEND_32 dword 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh
@@ -63,18 +66,18 @@ DIV_3_32_SCALAR dword 5555b700h
 ocbrt_sd proc
 	start:
 		vmovq rax, xmm0
-		vxorpd xmm2, xmm2, xmm2
+		vpxor xmm2, xmm2, xmm2
+		vpand xmm0, xmm0, [WITHOUT_SIGN_64]
 		mov r9, 8000000000000000h
+		mov ecx, 4
 		and r9, rax
 		xor rax, r9
-		vmovq xmm0, rax
-		mov ecx, 4
 		mov r8d, 32 			; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test rax, [EXP_MASK_64]
 		cmovz ecx, r8d
 		mul [DIV_3_64_SCALAR]
 		add rdx, [EXP_MAGIC_ADDEND_64]
-		vcmpsd xmm4, xmm0, xmm2, 4h
+		vpcmpeqq xmm4, xmm0, xmm2
 
 	newton_iterations:
 		vmovq xmm1, rdx
@@ -91,13 +94,12 @@ ocbrt_sd proc
 			jnz it
 
 		vmovq xmm3, r9
-		vandpd xmm1, xmm1, xmm4
+		vandnpd xmm1, xmm4, xmm1
 		vcmpsd xmm2, xmm0, xmm5, 4h
 		vandpd xmm1, xmm1, xmm2
 		vandnpd xmm2, xmm2, xmm5
 		vorpd xmm1, xmm1, xmm2
 		vxorpd xmm0, xmm1, xmm3
-
 
 	ret
 ocbrt_sd endp
@@ -141,18 +143,18 @@ ocbrt_pd endp
 ocbrt_ss proc
 	start:
 		vmovd eax, xmm0
-		vxorps xmm2, xmm2, xmm2
+		vpxor xmm2, xmm2, xmm2
+		vpand xmm0, xmm0, [WITHOUT_SIGN_32]
 		mov r9d, 80000000h
 		and r9d, eax
 		xor eax, r9d
-		vmovd xmm0, eax
 		mov ecx, 3
 		mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, [EXP_MASK_32]
 		cmovz ecx, r8d
 		mul [DIV_3_32_SCALAR]
 		add edx, [EXP_MAGIC_ADDEND_32]
-		vcmpss xmm4, xmm0, xmm2, 4h
+		vpcmpeqd xmm4, xmm0, xmm2
 
 	newton_iterations:
 		vmovd xmm1, edx
@@ -168,7 +170,7 @@ ocbrt_ss proc
 			jnz it
 
 		vmovd xmm3, r9d
-		vandps xmm1, xmm1, xmm4
+		vandnps xmm1, xmm4, xmm1
 		vcmpss xmm2, xmm0, xmm5, 4h
 		vandps xmm1, xmm1, xmm2
 		vandnps xmm2, xmm2, xmm5
@@ -218,22 +220,22 @@ orcbrt_sd proc
 	start:
 		vmovq rax, xmm0
 		mov r9, 8000000000000000h
+		mov r10, [EXP_MASK_64]
+		mov ecx, 4
 		and r9, rax
 		xor rax, r9
-		vmovq xmm0, rax
-		mov ecx, 4
-		mov r10, [EXP_MASK_64]
 		mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test rax, r10
 		cmovz ecx, r8d
 		sub rax, [EXP_MAGIC_MINUEND_64]
 		not rax
 		mul [DIV_3_64_SCALAR]
+		vpand xmm0, xmm0, [WITHOUT_SIGN_64]
 
 	newton_iterations:
-		vmovq xmm1, rdx
 		vmovsd xmm2, [ONE_THIRD_64]
 		vmovsd xmm5, [FOUR_THIRDS_64]
+		vmovq xmm1, rdx
 		vmulsd xmm3, xmm0, xmm2
 
 		it:
@@ -244,14 +246,15 @@ orcbrt_sd proc
 			dec ecx
 			jnz it
 
+		vmovsd xmm4, [FP_INFINITY_64]
+		vxorpd xmm5, xmm5, xmm5
+		vcmpsd xmm2, xmm0, xmm4, 4h
+		vcmpsd xmm3, xmm0, xmm5, 4h
+		vandpd xmm1, xmm1, xmm2
 		vmovq xmm2, r9
-		vmovq rax, xmm0
-		vmovq rcx, xmm1
-		xor rax, 0
-		cmovz rcx, [FP_INFINITY_64]
-		xor rax, r10
-		cmovz rcx, rax
-		vmovq xmm0, rcx
+		vandpd xmm1, xmm1, xmm3
+		vandnpd xmm4, xmm3, xmm4
+		vorpd xmm1, xmm1, xmm4
 		vxorpd xmm0, xmm2, xmm1
 
 	ret
@@ -262,10 +265,9 @@ orcbrt_ss proc
 	start:
 		vmovd eax, xmm0
 		mov r9d, 80000000h
+		mov r10d, [EXP_MASK_32]
 		and r9d, eax
 		xor eax, r9d
-		vmovd xmm0, eax
-		mov r10d, [EXP_MASK_32]
 		mov ecx, 4
 		mov r8d, 31						; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, r10d
@@ -273,6 +275,7 @@ orcbrt_ss proc
 		sub eax, [EXP_MAGIC_MINUEND_32]
 		not eax
 		mul [DIV_3_32_SCALAR]
+		vpand xmm0, xmm0, [WITHOUT_SIGN_32]
 
 	newton_iterations:
 		vmovd xmm1, edx
@@ -378,12 +381,11 @@ orcbrt_ps endp
 ; Adapted from the famous FISR algorithm
 ; Use this macro to inline the code
 macro_fast_invcbrt_ss macro
-	vmovd eax, xmm0
-	sub eax, [EXP_MAGIC_MINUEND_32]
-	not eax
-	mul [DIV_3_32_SCALAR]
-	vmovd xmm1, edx
-	vmovss xmm2, [ONE_THIRD_32]
+	vmovd xmm2, [ONE_THIRD_32]
+	vpsubd xmm1, xmm0, [EXP_MAGIC_MINUEND_32]
+	vpxor xmm1, xmm1, [ONES_32]
+	vpsrld xmm1, xmm1, 17
+	vpmulhuw xmm1, xmm1, xmmword ptr [DIV_3_32]
 	vmulss xmm3, xmm0, xmm2
 	vmulss xmm4, xmm3, xmm1
 	vmulss xmm2, xmm1, xmm1
@@ -401,11 +403,11 @@ fast_invcbrt_ss endp
 ; Adapted from the famous FISR algorithm
 ; Use this macro to inline the code
 macro_fast_invcbrt_ps macro
+	vmovaps ymm2, [ONE_THIRD_32]
 	vpsubd ymm1, ymm0, [EXP_MAGIC_MINUEND_32]
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
-	vmovaps ymm2, [ONE_THIRD_32]
 	vmulps ymm3, ymm0, ymm2
 	vmulps ymm4, ymm3, ymm1
 	vmulps ymm2, ymm1, ymm1
