@@ -1,20 +1,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The MIT License (MIT)                                                                         ;;
 ;;                                                                                               ;;
-;; Copyright ¬© 2021 Johannes Kloimb√∂ck                                                           ;;
+;; Copyright © 2021 Johannes Kloimbˆck                                                           ;;
 ;;                                                                                               ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy of this software ;;
-;; and associated documentation files (the ‚ÄúSoftware‚Äù), to deal in the Software without          ;;
-;; restriction, including without limitation the rights to use, copy, modify, merge, publish,	 ;;
+;; and associated documentation files (the ìSoftwareî), to deal in the Software without          ;;
+;; restriction, including without limitation the rights to use, copy, modify, merge, publish,    ;;
 ;; distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the ;;
 ;; Software is furnished to do so, subject to the following conditions:                          ;;
 ;;                                                                                               ;;
 ;; The above copyright notice and this permission notice shall be included in all copies or      ;;
 ;; substantial portions of the Software.                                                         ;;
 ;;                                                                                               ;;
-;; THE SOFTWARE IS PROVIDED ‚ÄúAS IS‚Äù, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING ;;
-;; BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND	 ;;
-;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,	 ;;
+;; THE SOFTWARE IS PROVIDED ìAS ISî, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING ;;
+;; BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND    ;;
+;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,  ;;
 ;; DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,;;
 ;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -386,11 +386,17 @@ macro_fast_invcbrt_ss macro
 	vpxor xmm1, xmm1, [ONES_32]
 	vpsrld xmm1, xmm1, 17
 	vpmulhuw xmm1, xmm1, xmmword ptr [DIV_3_32]
+	vpslld xmm1, xmm1, 16
 	vmulss xmm3, xmm0, xmm2
 	vmulss xmm4, xmm3, xmm1
 	vmulss xmm2, xmm1, xmm1
 	vfnmadd213ss xmm4, xmm2, [FOUR_THIRDS_32]
 	vmulss xmm0, xmm1, xmm4
+endm
+
+macro_fast_cbrt_ss macro
+	macro_fast_invcbrt_ss
+	vrcpss xmm0, xmm0, xmm0
 endm
 
 ; Adapted from the famous FISR algorithm
@@ -400,6 +406,12 @@ fast_invcbrt_ss proc
 	ret
 fast_invcbrt_ss endp
 
+fast_cbrt_ss proc
+	macro_fast_cbrt_ss
+
+	ret
+fast_cbrt_ss endp
+
 ; Adapted from the famous FISR algorithm
 ; Use this macro to inline the code
 macro_fast_invcbrt_ps macro
@@ -408,11 +420,17 @@ macro_fast_invcbrt_ps macro
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
+	vpslld ymm1, ymm1, 16
 	vmulps ymm3, ymm0, ymm2
 	vmulps ymm4, ymm3, ymm1
 	vmulps ymm2, ymm1, ymm1
 	vfnmadd213ps ymm4, ymm2, [FOUR_THIRDS_32]
 	vmulps ymm0, ymm1, ymm4
+endm
+
+macro_fast_cbrt_ps macro
+	macro_fast_invcbrt_ps
+	vrcpps ymm0, ymm0
 endm
 
 ; Adapted from the famous FISR algorithm
@@ -421,5 +439,11 @@ fast_invcbrt_ps proc
 
 	ret
 fast_invcbrt_ps endp
+
+fast_cbrt_ps proc
+	macro_fast_cbrt_ps
+
+	ret
+fast_cbrt_ps endp
 
 END
