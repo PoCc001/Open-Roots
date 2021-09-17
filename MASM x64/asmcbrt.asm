@@ -1,10 +1,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The MIT License (MIT)                                                                         ;;
 ;;                                                                                               ;;
-;; Copyright © 2021 Johannes Kloimbˆck                                                           ;;
+;; Copyright ¬© 2021 Johannes Kloimb√∂ck                                                           ;;
 ;;                                                                                               ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy of this software ;;
-;; and associated documentation files (the ìSoftwareî), to deal in the Software without          ;;
+;; and associated documentation files (the ‚ÄúSoftware‚Äù), to deal in the Software without          ;;
 ;; restriction, including without limitation the rights to use, copy, modify, merge, publish,    ;;
 ;; distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the ;;
 ;; Software is furnished to do so, subject to the following conditions:                          ;;
@@ -12,7 +12,7 @@
 ;; The above copyright notice and this permission notice shall be included in all copies or      ;;
 ;; substantial portions of the Software.                                                         ;;
 ;;                                                                                               ;;
-;; THE SOFTWARE IS PROVIDED ìAS ISî, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING ;;
+;; THE SOFTWARE IS PROVIDED ‚ÄúAS IS‚Äù, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING ;;
 ;; BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND    ;;
 ;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,  ;;
 ;; DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,;;
@@ -55,6 +55,9 @@ EXP_MAGIC_MINUEND_32 dword 4259184641, 4259184641, 4259184641, 4259184641, 42591
 FP_INFINITY_64 qword 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h
 FP_INFINITY_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h
 
+FP_ONE_64 real8 1.0, 1.0, 1.0, 1.0
+FP_ONE_32 real4 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+
 ONES_64 qword -1, -1, -1, -1
 ONES_32 dword -1, -1, -1, -1, -1, -1, -1, -1
 
@@ -62,161 +65,9 @@ DIV_3_64_SCALAR qword 5555555500000000h
 DIV_3_32_SCALAR dword 5555b700h
 
 .code
-; Calculates the cube root of one double-precision floating-point number.
-ocbrt_sd proc
-	start:
-		vmovq rax, xmm0
-		vpxor xmm2, xmm2, xmm2
-		vpand xmm0, xmm0, [WITHOUT_SIGN_64]
-		mov r9, 8000000000000000h
-		mov ecx, 4
-		and r9, rax
-		xor rax, r9
-		mov r8d, 32 			; omit this and the following 2 instructions, if you know that no subnormal numbers occur
-		test rax, [EXP_MASK_64]
-		cmovz ecx, r8d
-		mul [DIV_3_64_SCALAR]
-		add rdx, [EXP_MAGIC_ADDEND_64]
-		vpcmpeqq xmm4, xmm0, xmm2
-
-	newton_iterations:
-		vmovq xmm1, rdx
-		vmovsd xmm2, [TWO_THIRDS_64]
-		vmovsd xmm5, [FP_INFINITY_64]
-		vmulsd xmm0, xmm0, [ONE_THIRD_64]
-
-		it:
-			vmulsd xmm3, xmm1, xmm1
-			vdivsd xmm3, xmm0, xmm3
-			vfmadd213sd xmm1, xmm2, xmm3
-
-			dec ecx
-			jnz it
-
-		vmovq xmm3, r9
-		vandnpd xmm1, xmm4, xmm1
-		vcmpsd xmm2, xmm0, xmm5, 4h
-		vandpd xmm1, xmm1, xmm2
-		vandnpd xmm2, xmm2, xmm5
-		vorpd xmm1, xmm1, xmm2
-		vxorpd xmm0, xmm1, xmm3
-
-	ret
-ocbrt_sd endp
-
-; Calculates the cube root of four double-precision floating-point numbers.
-ocbrt_pd proc
-	start:
-		vpand ymm2, ymm0, [SIGN_64]
-		vpxor ymm0, ymm2, ymm0
-		vpsrlq ymm1, ymm0, 33
-		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
-		vpsllq ymm1, ymm1, 32
-		vpaddq ymm1, ymm1, [EXP_MAGIC_ADDEND_64]
-
-	newton_iterations:
-		vmovapd ymm4, [FP_INFINITY_64]
-		vmovapd ymm5, [TWO_THIRDS_64]
-		vmulpd ymm0, ymm0, [ONE_THIRD_64]
-		mov ecx, 4					; change to about 32, if you have to deal with denormal numbers (is much slower though)
-
-		it:
-			vmulpd ymm3, ymm1, ymm1
-			vdivpd ymm3, ymm0, ymm3
-			vfmadd213pd ymm1, ymm5, ymm3
-			dec ecx
-			jnz it
-
-		vcmppd ymm3, ymm0, ymm4, 4h
-		vandpd ymm1, ymm1, ymm3
-		vandnpd ymm3, ymm3, ymm4
-		vorpd ymm1, ymm1, ymm3
-		vpxor ymm4, ymm4, ymm4
-		vcmppd ymm3, ymm0, ymm4, 4h
-		vandpd ymm1, ymm1, ymm3
-		vxorpd ymm0, ymm1, ymm2
-
-	ret
-ocbrt_pd endp
-
-; Calculates the cube root of one single-precision floating-point number.
-ocbrt_ss proc
-	start:
-		vmovd eax, xmm0
-		vpxor xmm2, xmm2, xmm2
-		vpand xmm0, xmm0, [WITHOUT_SIGN_32]
-		mov r9d, 80000000h
-		and r9d, eax
-		xor eax, r9d
-		mov ecx, 3
-		mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
-		test eax, [EXP_MASK_32]
-		cmovz ecx, r8d
-		mul [DIV_3_32_SCALAR]
-		add edx, [EXP_MAGIC_ADDEND_32]
-		vpcmpeqd xmm4, xmm0, xmm2
-
-	newton_iterations:
-		vmovd xmm1, edx
-		vmovss xmm2, [TWO_THIRDS_32]
-		vmovss xmm5, [FP_INFINITY_32]
-		vmulss xmm0, xmm0, [ONE_THIRD_32]
-
-		it:
-			vmulss xmm3, xmm1, xmm1
-			vdivss xmm3, xmm0, xmm3
-			vfmadd213ss xmm1, xmm2, xmm3
-			dec ecx
-			jnz it
-
-		vmovd xmm3, r9d
-		vandnps xmm1, xmm4, xmm1
-		vcmpss xmm2, xmm0, xmm5, 4h
-		vandps xmm1, xmm1, xmm2
-		vandnps xmm2, xmm2, xmm5
-		vorps xmm1, xmm1, xmm2
-		vxorps xmm0, xmm1, xmm3
-		
-	ret
-ocbrt_ss endp
-
-; Calculates the cube root of eight single-precision floating-point numbers.
-ocbrt_ps proc
-	start:
-		vpand ymm2, ymm0, [SIGN_32]
-		vpxor ymm0, ymm2, ymm0
-		vpsrld ymm1, ymm0, 17
-		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
-		vpslld ymm1, ymm1, 16
-		vpaddd ymm1, ymm1, [EXP_MAGIC_ADDEND_32]
-
-	newton_iterations:
-		vmovaps ymm4, [FP_INFINITY_32]
-		vmovaps ymm5, [TWO_THIRDS_32]
-		vmulps ymm0, ymm0, [ONE_THIRD_32]
-		mov ecx, 4					; change to about 31, if you have to deal with denormal numbers (is much slower though)
-
-		it:
-			vmulps ymm3, ymm1, ymm1
-			vdivps ymm3, ymm0, ymm3
-			vfmadd213ps ymm1, ymm5, ymm3
-			dec ecx
-			jnz it
-
-		vcmpps ymm3, ymm0, ymm4, 4h
-		vandps ymm1, ymm1, ymm3
-		vandnps ymm3, ymm3, ymm4
-		vorps ymm1, ymm1, ymm3
-		vpxor ymm4, ymm4, ymm4
-		vcmpps ymm3, ymm0, ymm4, 4h
-		vandps ymm1, ymm1, ymm3
-		vxorps ymm0, ymm1, ymm2
-
-	ret
-ocbrt_ps endp
-
 ; Calculates the reciprocal value of the cube root of one double-precision floating-point number.
-orcbrt_sd proc
+; Use this macro to inline the code
+macro_orcbrt_sd macro
 	start:
 		vmovq rax, xmm0
 		mov r9, 8000000000000000h
@@ -256,12 +107,18 @@ orcbrt_sd proc
 		vandnpd xmm4, xmm3, xmm4
 		vorpd xmm1, xmm1, xmm4
 		vxorpd xmm0, xmm2, xmm1
+endm
+
+; Calculates the reciprocal value of the cube root of one double-precision floating-point number.
+orcbrt_sd proc
+	macro_orcbrt_sd
 
 	ret
 orcbrt_sd endp
 
 ; Calculates the reciprocal value of the cube root of one single-precision floating-point number.
-orcbrt_ss proc
+; Use this macro to inline the code
+macro_orcbrt_ss macro
 	start:
 		vmovd eax, xmm0
 		mov r9d, 80000000h
@@ -300,12 +157,18 @@ orcbrt_ss proc
 		cmovz ecx, eax
 		vmovd xmm1, ecx
 		vxorps xmm0, xmm2, xmm1
+endm
+
+; Calculates the reciprocal value of the cube root of one single-precision floating-point number.
+orcbrt_ss proc
+	macro_orcbrt_ss
 
 	ret
 orcbrt_ss endp
 
 ; Calculates the reciprocal value of the cube root of four double-precision floating-point numbers.
-orcbrt_pd proc
+; Use this macro to inline the code
+macro_orcbrt_pd macro
 	start:
 		vpand ymm5, ymm0, [SIGN_64]
 		vpxor ymm0, ymm0, ymm5
@@ -337,12 +200,18 @@ orcbrt_pd proc
 		vcmppd ymm2, ymm0, ymm4, 4h
 		vandpd ymm1, ymm1, ymm2
 		vxorpd ymm0, ymm1, ymm5
+endm
+
+; Calculates the reciprocal value of the cube root of four double-precision floating-point numbers.
+orcbrt_pd proc
+	macro_orcbrt_pd
 
 	ret
 orcbrt_pd endp
 
 ; Calculates the reciprocal value of the cube root of eight single-precision floating-point numbers.
-orcbrt_ps proc
+; Use this macro to inline the code
+macro_orcbrt_ps macro
 	start:
 		vpand ymm5, ymm0, [SIGN_32]
 		vpxor ymm0, ymm0, ymm5
@@ -374,9 +243,50 @@ orcbrt_ps proc
 		vcmpps ymm2, ymm0, ymm4, 4h
 		vandps ymm1, ymm1, ymm2
 		vxorps ymm0, ymm1, ymm5
+endm
+
+; Calculates the reciprocal value of the cube root of eight single-precision floating-point numbers.
+orcbrt_ps proc
+	macro_orcbrt_ps
 
 	ret
 orcbrt_ps endp
+
+; Calculates the cube root of one double-precision floating-point number.
+ocbrt_sd proc
+	macro_orcbrt_sd
+	vmovsd xmm1, [FP_ONE_64]
+	vdivsd xmm0, xmm1, xmm0
+
+	ret
+ocbrt_sd endp
+
+; Calculates the cube root of one single-precision floating-point number.
+ocbrt_ss proc
+	macro_orcbrt_ss
+	vmovss xmm1, [FP_ONE_32]
+	vdivss xmm0, xmm1, xmm0
+
+	ret
+ocbrt_ss endp
+
+; Calculates the cube root of four double-precision floating-point numbers.
+ocbrt_pd proc
+	macro_orcbrt_pd
+	vmovapd ymm1, [FP_ONE_64]
+	vdivpd ymm0, ymm1, ymm0
+
+	ret
+ocbrt_pd endp
+
+; Calculates the cube root of eight single-precision floating-point numbers.
+ocbrt_ps proc
+	macro_orcbrt_ps
+	vmovaps ymm1, [FP_ONE_32]
+	vdivps ymm0, ymm1, ymm0
+
+	ret
+ocbrt_ps endp
 
 ; Adapted from the famous FISR algorithm
 ; Use this macro to inline the code
@@ -394,6 +304,7 @@ macro_fast_invcbrt_ss macro
 	vmulss xmm0, xmm1, xmm4
 endm
 
+; Use this macro to inline the code
 macro_fast_cbrt_ss macro
 	macro_fast_invcbrt_ss
 	vrcpss xmm0, xmm0, xmm0
@@ -428,6 +339,7 @@ macro_fast_invcbrt_ps macro
 	vmulps ymm0, ymm1, ymm4
 endm
 
+; Use this macro to inline the code
 macro_fast_cbrt_ps macro
 	macro_fast_invcbrt_ps
 	vrcpps ymm0, ymm0
