@@ -84,9 +84,9 @@ macro_orcbrt_sd macro
 		vpand xmm0, xmm0, [WITHOUT_SIGN_64]
 
 	newton_iterations:
+		vmovq xmm1, rdx
 		vmovsd xmm2, [ONE_THIRD_64]
 		vmovsd xmm5, [FOUR_THIRDS_64]
-		vmovq xmm1, rdx
 		vmulsd xmm3, xmm0, xmm2
 
 		it:
@@ -103,10 +103,10 @@ macro_orcbrt_sd macro
 		vcmpsd xmm3, xmm0, xmm5, 4h
 		vandpd xmm1, xmm1, xmm2
 		vmovq xmm2, r9
-		vandpd xmm1, xmm1, xmm3
-		vandnpd xmm4, xmm3, xmm4
-		vorpd xmm1, xmm1, xmm4
-		vxorpd xmm0, xmm2, xmm1
+		vpand xmm1, xmm1, xmm3
+		vpandn xmm4, xmm3, xmm4
+		vpor xmm1, xmm1, xmm4
+		vpxor xmm0, xmm2, xmm1
 endm
 
 ; Calculates the reciprocal value of the cube root of one double-precision floating-point number.
@@ -123,16 +123,16 @@ macro_orcbrt_ss macro
 		vmovd eax, xmm0
 		mov r9d, 80000000h
 		mov r10d, [EXP_MASK_32]
+		mov ecx, 3
 		and r9d, eax
 		xor eax, r9d
-		mov ecx, 4
-		mov r8d, 31						; omit this and the following 2 instructions, if you know that no subnormal numbers occur
+		mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 		test eax, r10d
 		cmovz ecx, r8d
 		sub eax, [EXP_MAGIC_MINUEND_32]
 		not eax
-		mul [DIV_3_32_SCALAR]
-		vpand xmm0, xmm0, [WITHOUT_SIGN_32]
+		mul dword ptr [DIV_3_32_SCALAR]
+		vpand xmm0, xmm0,  dword ptr [WITHOUT_SIGN_32]
 
 	newton_iterations:
 		vmovd xmm1, edx
@@ -148,15 +148,16 @@ macro_orcbrt_ss macro
 			dec ecx
 			jnz it
 
+		vmovss xmm4, [FP_INFINITY_32]
+		vxorps xmm5, xmm5, xmm5
+		vcmpss xmm2, xmm0, xmm4, 4h
+		vcmpss xmm3, xmm0, xmm5, 4h
+		vandps xmm1, xmm1, xmm2
 		vmovd xmm2, r9d
-		vmovd eax, xmm0
-		vmovd ecx, xmm1
-		xor eax, 0
-		cmovz ecx, [FP_INFINITY_32]
-		xor eax, r10d
-		cmovz ecx, eax
-		vmovd xmm1, ecx
-		vxorps xmm0, xmm2, xmm1
+		vpand xmm1, xmm1, xmm3
+		vpandn xmm4, xmm3, xmm4
+		vpor xmm1, xmm1, xmm4
+		vpxor xmm0, xmm2, xmm1
 endm
 
 ; Calculates the reciprocal value of the cube root of one single-precision floating-point number.
@@ -224,7 +225,7 @@ macro_orcbrt_ps macro
 	newton_iterations:
 		vmovaps ymm2, [ONE_THIRD_32]
 		vmulps ymm3, ymm0, ymm2
-		mov ecx, 4			; change to about 31, if you have to deal with denormal numbers (is much slower though)
+		mov ecx, 3			; change to about 30, if you have to deal with denormal numbers (is much slower though)
 
 		it:
 			vmulps ymm4, ymm3, ymm1
