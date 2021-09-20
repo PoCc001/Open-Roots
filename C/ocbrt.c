@@ -8,19 +8,23 @@
 #include "oroots.h"
 #include <stdbool.h>
 
+#define ONE_THIRD 0.333333333333333333
+#define TWO_THIRDS 0.666666666666666667
+#define FOUR_THIRDS 1.3333333333333333333
+
 double orcbrt(const double a) {
 	double_ull val;
 	val.d = a;
 
 	unsigned long long sign = val.ull & 0x8000000000000000ULL;
 
+	val.ull ^= sign;
+
 #if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0 || a == -0.0) {
+	if (val.ull == 0ULL) {
 		return 1.0 / a;
 	}
 #endif
-
-	val.ull ^= sign;
 
 	unsigned long long exponent = val.ull;
 	int iterations = 3;
@@ -112,13 +116,13 @@ float orcbrtf(const float a) {
 
 	unsigned long sign = val.ul & 0x80000000UL;
 
+	val.ul ^= sign;
+
 #if CHECK_SPECIAL_CASES != 0
-	if (a == 0.0f || a == -0.0f) {
+	if (val.ul == 0UL) {
 		return 1.0f / a;
 	}
 #endif
-
-	val.ul ^= sign;
 
 	unsigned long exponent = val.ul;
 	int iterations = 3;
