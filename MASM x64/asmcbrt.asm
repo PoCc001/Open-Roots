@@ -103,9 +103,7 @@ macro_orcbrt_sd macro
 		vcmpsd xmm3, xmm0, xmm5, 4h
 		vandpd xmm1, xmm1, xmm2
 		vmovq xmm2, r9
-		vpand xmm1, xmm1, xmm3
-		vpandn xmm4, xmm3, xmm4
-		vpor xmm1, xmm1, xmm4
+		vblendvpd xmm1, xmm4, xmm1, xmm3
 		vpxor xmm0, xmm2, xmm1
 endm
 
@@ -154,9 +152,7 @@ macro_orcbrt_ss macro
 		vcmpss xmm3, xmm0, xmm5, 4h
 		vandps xmm1, xmm1, xmm2
 		vmovd xmm2, r9d
-		vpand xmm1, xmm1, xmm3
-		vpandn xmm4, xmm3, xmm4
-		vpor xmm1, xmm1, xmm4
+		vblendvps xmm1, xmm4, xmm1, xmm3
 		vpxor xmm0, xmm2, xmm1
 endm
 
