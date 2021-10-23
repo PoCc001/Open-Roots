@@ -23,43 +23,43 @@
 
 ; These are important values stored in memory that the following procedures will operate with (for scalar and packed instructions)
 .data
-SIGN_64 qword 8000000000000000h, 8000000000000000h, 8000000000000000h, 8000000000000000h
-SIGN_32 dword 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h, 80000000h
+SIGN_64 qword 4 dup(8000000000000000h)
+SIGN_32 dword 8 dup(80000000h)
 
-WITHOUT_SIGN_64 qword 7fffffffffffffffh, 7fffffffffffffffh, 7fffffffffffffffh, 7fffffffffffffffh
-WITHOUT_SIGN_32 dword 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh, 7fffffffh
-
-; There might be better "magical" numbers, but these ones already do a good job.
-EXP_MAGIC_ADDEND_64 qword 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h, 2a9f5cc62cb0f9e1h
-EXP_MAGIC_ADDEND_32 dword 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh, 2a501a5bh
-
-DIV_3_64 qword 2863311531, 2863311531, 2863311531, 2863311531
-DIV_3_32 dword 43691, 43691, 43691, 43691, 43691, 43691, 43691, 43691
-
-ONE_THIRD_64 qword 3fd5555555555555h, 3fd5555555555555h, 3fd5555555555555h, 3fd5555555555555h
-ONE_THIRD_32 dword 3eaaaaabh, 3eaaaaabh, 3eaaaaabh, 3eaaaaabh, 3eaaaaabh, 3eaaaaabh, 3eaaaaabh, 3eaaaaabh
-
-TWO_THIRDS_64 qword 3fe5555555555555h, 3fe5555555555555h, 3fe5555555555555h, 3fe5555555555555h
-TWO_THIRDS_32 dword 3f2aaaabh, 3f2aaaabh, 3f2aaaabh, 3f2aaaabh, 3f2aaaabh, 3f2aaaabh, 3f2aaaabh, 3f2aaaabh
-
-FOUR_THIRDS_64 qword 3ff5555555555555h, 3ff5555555555555h, 3ff5555555555555h, 3ff5555555555555h
-FOUR_THIRDS_32 dword 3faaaaabh, 3faaaaabh, 3faaaaabh, 3faaaaabh, 3faaaaabh, 3faaaaabh, 3faaaaabh, 3faaaaabh
-
-EXP_MASK_64 qword 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h
-EXP_MASK_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h
+WITHOUT_SIGN_64 qword 4 dup(7fffffffffffffffh)
+WITHOUT_SIGN_32 dword 8 dup(7fffffffh)
 
 ; There might be better "magical" numbers, but these ones already do a good job.
-EXP_MAGIC_MINUEND_64 qword -19178652474277888, -19178652474277888, -19178652474277888, -19178652474277888
-EXP_MAGIC_MINUEND_32 dword 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641, 4259184641
+EXP_MAGIC_ADDEND_64 qword 4 dup(2a9f5cc62cb0f9e1h)
+EXP_MAGIC_ADDEND_32 dword 8 dup(2a501a5bh)
 
-FP_INFINITY_64 qword 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h, 7ff0000000000000h
-FP_INFINITY_32 dword 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h, 7f800000h
+DIV_3_64 qword 4 dup(2863311531)
+DIV_3_32 dword 8 dup(43691)
 
-FP_ONE_64 real8 1.0, 1.0, 1.0, 1.0
-FP_ONE_32 real4 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+ONE_THIRD_64 qword 4 dup(3fd5555555555555h)
+ONE_THIRD_32 dword 8 dup(3eaaaaabh)
 
-ONES_64 qword -1, -1, -1, -1
-ONES_32 dword -1, -1, -1, -1, -1, -1, -1, -1
+TWO_THIRDS_64 qword 4 dup(3fe5555555555555h)
+TWO_THIRDS_32 dword 8 dup(3f2aaaabh)
+
+FOUR_THIRDS_64 qword 4 dup(3ff5555555555555h)
+FOUR_THIRDS_32 dword 8 dup(3faaaaabh)
+
+EXP_MASK_64 qword 4 dup(7ff0000000000000h)
+EXP_MASK_32 dword 8 dup(7f800000h)
+
+; There might be better "magical" numbers, but these ones already do a good job.
+EXP_MAGIC_MINUEND_64 qword 4 dup(-19178652474277888)
+EXP_MAGIC_MINUEND_32 dword 8 dup(4259184641)
+
+FP_INFINITY_64 qword 4 dup(7ff0000000000000h)
+FP_INFINITY_32 dword 8 dup(7f800000h)
+
+FP_ONE_64 real8 4 dup(1.0)
+FP_ONE_32 real4 8 dup(1.0)
+
+ONES_64 qword 4 dup(18446744073709551615)
+ONES_32 dword 8 dup(4294967295)
 
 DIV_3_64_SCALAR qword 5555555500000000h
 DIV_3_32_SCALAR dword 5555b700h
@@ -130,7 +130,7 @@ macro_orcbrt_ss macro
 		sub eax, [EXP_MAGIC_MINUEND_32]
 		not eax
 		mul dword ptr [DIV_3_32_SCALAR]
-		vpand xmm0, xmm0,  dword ptr [WITHOUT_SIGN_32]
+		vpand xmm0, xmm0, dword ptr [WITHOUT_SIGN_32]
 
 	newton_iterations:
 		vmovd xmm1, edx
@@ -176,8 +176,7 @@ macro_orcbrt_pd macro
 		vpsllq ymm1, ymm1, 32
 
 	newton_iterations:
-		vmovapd ymm2, [ONE_THIRD_64]
-		vmulpd ymm3, ymm0, ymm2
+		vmulpd ymm3, ymm0, [ONE_THIRD_64]
 		mov ecx, 5				; change to about 32, if you have to deal with denormal numbers (is much slower though)
 
 		it:
@@ -190,10 +189,8 @@ macro_orcbrt_pd macro
 
 		vxorpd ymm4, ymm4, ymm4
 		vcmppd ymm3, ymm0, ymm4, 4h
-		vandpd ymm1, ymm1, ymm3
 		vmovapd ymm4, [FP_INFINITY_64]
-		vandnpd ymm2, ymm3, ymm4
-		vorpd ymm1, ymm1, ymm2
+		vblendvpd ymm1, ymm4, ymm1, ymm3
 		vcmppd ymm2, ymm0, ymm4, 4h
 		vandpd ymm1, ymm1, ymm2
 		vxorpd ymm0, ymm1, ymm5
@@ -219,8 +216,7 @@ macro_orcbrt_ps macro
 		vpslld ymm1, ymm1, 16
 
 	newton_iterations:
-		vmovaps ymm2, [ONE_THIRD_32]
-		vmulps ymm3, ymm0, ymm2
+		vmulps ymm3, ymm0, [ONE_THIRD_32]
 		mov ecx, 3			; change to about 30, if you have to deal with denormal numbers (is much slower though)
 
 		it:
@@ -233,10 +229,8 @@ macro_orcbrt_ps macro
 
 		vxorps ymm4, ymm4, ymm4
 		vcmpps ymm3, ymm0, ymm4, 4h
-		vandps ymm1, ymm1, ymm3
 		vmovaps ymm4, [FP_INFINITY_32]
-		vandnps ymm2, ymm3, ymm4
-		vorps ymm1, ymm1, ymm2
+		vblendvps ymm1, ymm4, ymm1, ymm3
 		vcmpps ymm2, ymm0, ymm4, 4h
 		vandps ymm1, ymm1, ymm2
 		vxorps ymm0, ymm1, ymm5
@@ -288,13 +282,12 @@ ocbrt_ps endp
 ; Adapted from the famous FISR algorithm
 ; Use this macro to inline the code
 macro_fast_invcbrt_ss macro
-	vmovd xmm2, [ONE_THIRD_32]
 	vpsubd xmm1, xmm0, [EXP_MAGIC_MINUEND_32]
 	vpxor xmm1, xmm1, [ONES_32]
 	vpsrld xmm1, xmm1, 17
 	vpmulhuw xmm1, xmm1, xmmword ptr [DIV_3_32]
 	vpslld xmm1, xmm1, 16
-	vmulss xmm3, xmm0, xmm2
+	vmulss xmm3, xmm0, [ONE_THIRD_32]
 	vmulss xmm4, xmm3, xmm1
 	vmulss xmm2, xmm1, xmm1
 	vfnmadd213ss xmm4, xmm2, [FOUR_THIRDS_32]
@@ -323,13 +316,12 @@ fast_cbrt_ss endp
 ; Adapted from the famous FISR algorithm
 ; Use this macro to inline the code
 macro_fast_invcbrt_ps macro
-	vmovaps ymm2, [ONE_THIRD_32]
 	vpsubd ymm1, ymm0, [EXP_MAGIC_MINUEND_32]
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
 	vpslld ymm1, ymm1, 16
-	vmulps ymm3, ymm0, ymm2
+	vmulps ymm3, ymm0, [ONE_THIRD_32]
 	vmulps ymm4, ymm3, ymm1
 	vmulps ymm2, ymm1, ymm1
 	vfnmadd213ps ymm4, ymm2, [FOUR_THIRDS_32]
