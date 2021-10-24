@@ -1,5 +1,5 @@
 /**
-* Copyright Johannes Kloimböck 2020 - 2021.
+* Copyright Johannes KloimbÃ¶ck 2020 - 2021.
 * Distributed under the Boost Software License, Version 1.0.
 * (See accompanying file LICENSE or copy at
 * https://www.boost.org/LICENSE_1_0.txt)
@@ -10,7 +10,7 @@ package at.kloimboeck.johannes.oroots;
 public class OSqrt {	
 	public static double rsqrt(final double a) {
 		if (a == 0.0d) {
-			return a == -0.0 ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+			return Double.longBitsToDouble(Double.doubleToRawLongBits(a) | 0x7ff0000000000000L);
 		}
 		
 		long longValue = Double.doubleToRawLongBits(a);
@@ -68,7 +68,7 @@ public class OSqrt {
 	
 	public static float rsqrt(final float a) {
 		if (a == 0.0f) {
-			return a == -0.0f ? Float.NEGATIVE_INFINITY : Float.POSITIVE_INFINITY;
+			return Float.intBitsToFloat(Float.floatToRawIntBits(a) | 0x7f800000);
 		}
 		
 		int intValue = Float.floatToRawIntBits(a);
