@@ -85,9 +85,8 @@ macro_orcbrt_sd macro
 
 	newton_iterations:
 		vmovq xmm1, rdx
-		vmovsd xmm2, [ONE_THIRD_64]
 		vmovsd xmm5, [FOUR_THIRDS_64]
-		vmulsd xmm3, xmm0, xmm2
+		vmulsd xmm3, xmm0, [ONE_THIRD_64]
 
 		it:
 			vmulsd xmm4, xmm3, xmm1
@@ -134,9 +133,8 @@ macro_orcbrt_ss macro
 
 	newton_iterations:
 		vmovd xmm1, edx
-		vmovss xmm2, [ONE_THIRD_32]
 		vmovss xmm5, [FOUR_THIRDS_32]
-		vmulss xmm3, xmm0, xmm2
+		vmulss xmm3, xmm0, [ONE_THIRD_32]
 
 		it:
 			vmulss xmm4, xmm3, xmm1
