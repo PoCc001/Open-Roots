@@ -45,14 +45,14 @@ double orcbrt(const double a) {
 	double_ull guess;
 	guess.ull = exponent;
 
-	double thirdA = a * ONE_THIRD;
+	double thirdA = val.d * ONE_THIRD;
 
 	for (int i = 0; i < iterations; ++i) {
 		guess.d *= (FOUR_THIRDS - (thirdA * guess.d) * (guess.d * guess.d));
 	}
 
 	corr_t g = (corr_t)(guess.d);
-	g *= ((corr_t)(FOUR_THIRDS) - ((corr_t)(a) * ONE_THIRD) * (g * g) * g);
+	g *= ((corr_t)(FOUR_THIRDS) - ((corr_t)(val.d) * ONE_THIRD) * (g * g) * g);
 	guess.d = (double)(g);
 
 	guess.ull = val.ull == DOUBLE_INF ? 0ULL : guess.ull;
@@ -143,14 +143,14 @@ float orcbrtf(const float a) {
 	float_ul guess;
 	guess.ul = exponent;
 
-	float thirdA = a * (float)(ONE_THIRD);
+	float thirdA = val.f * (float)(ONE_THIRD);
 
 	for (int i = 0; i < iterations; ++i) {
 		guess.f *= ((float)(FOUR_THIRDS) - thirdA * guess.f * guess.f * guess.f);
 	}
 
 	corrf_t g = (corrf_t)(guess.f);
-	g *= ((corrf_t)(FOUR_THIRDS) - ((corrf_t)(a) * ONE_THIRD) * (g * g) * g);
+	g *= ((corrf_t)(FOUR_THIRDS) - ((corrf_t)(val.f) * ONE_THIRD) * (g * g) * g);
 	guess.f = (float)(g);
 
 	guess.ul = val.ul == FLOAT_INF ? 0UL : guess.ul;
