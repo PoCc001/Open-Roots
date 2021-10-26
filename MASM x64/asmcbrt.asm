@@ -104,6 +104,8 @@ macro_orcbrt_sd macro
 		vmovq xmm2, r9
 		vblendvpd xmm1, xmm4, xmm1, xmm3
 		vpxor xmm0, xmm2, xmm1
+	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
+							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
 
 ; Calculates the reciprocal value of the cube root of one double-precision floating-point number.
@@ -152,6 +154,8 @@ macro_orcbrt_ss macro
 		vmovd xmm2, r9d
 		vblendvps xmm1, xmm4, xmm1, xmm3
 		vpxor xmm0, xmm2, xmm1
+	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
+							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
 
 ; Calculates the reciprocal value of the cube root of one single-precision floating-point number.
