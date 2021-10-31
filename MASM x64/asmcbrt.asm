@@ -65,45 +65,215 @@ DIV_3_64_SCALAR qword 5555555500000000h
 DIV_3_32_SCALAR dword 5555b700h
 
 .code
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                                  INTERNAL MACROS                                                           ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+macro_orcbrt_sd_calc macro
+	vmovq rax, xmm0
+	mov r9, 8000000000000000h
+	mov r10, [EXP_MASK_64]
+	mov ecx, 4
+	and r9, rax
+	xor rax, r9
+	mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
+	test rax, r10
+	cmovz ecx, r8d
+	sub rax, [EXP_MAGIC_MINUEND_64]
+	not rax
+	mul [DIV_3_64_SCALAR]
+	vpand xmm0, xmm0, [WITHOUT_SIGN_64]
+	vmovq xmm1, rdx
+	vmovsd xmm5, [FOUR_THIRDS_64]
+	vmulsd xmm3, xmm0, [ONE_THIRD_64]
+	it:
+		vmulsd xmm4, xmm3, xmm1
+		vmulsd xmm2, xmm1, xmm1
+		vfnmadd213sd xmm4, xmm2, xmm5
+		vmulsd xmm1, xmm1, xmm4
+		dec ecx
+		jnz it
+endm
+
+macro_orcbrt_sd_special_cases macro
+	vmovsd xmm4, [FP_INFINITY_64]
+	vxorpd xmm5, xmm5, xmm5
+	vcmpsd xmm2, xmm0, xmm4, 4h
+	vcmpsd xmm3, xmm0, xmm5, 4h
+	vandpd xmm1, xmm1, xmm2
+	vmovq xmm2, r9
+	vblendvpd xmm1, xmm4, xmm1, xmm3
+	vpxor xmm0, xmm2, xmm1
+endm
+
+
+macro_orcbrt_ss_calc macro
+	vmovd eax, xmm0
+	mov r9d, 80000000h
+	mov r10d, [EXP_MASK_32]
+	mov ecx, 3
+	and r9d, eax
+	xor eax, r9d
+	mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
+	test eax, r10d
+	cmovz ecx, r8d
+	sub eax, [EXP_MAGIC_MINUEND_32]
+	not eax
+	mul dword ptr [DIV_3_32_SCALAR]
+	vpand xmm0, xmm0, dword ptr [WITHOUT_SIGN_32]
+	vmovd xmm1, edx
+	vmovss xmm5, [FOUR_THIRDS_32]
+	vmulss xmm3, xmm0, [ONE_THIRD_32]
+	it:
+		vmulss xmm4, xmm3, xmm1
+		vmulss xmm2, xmm1, xmm1
+		vfnmadd213ss xmm4, xmm2, xmm5
+		vmulss xmm1, xmm1, xmm4
+		dec ecx
+		jnz it
+endm
+
+macro_orcbrt_ss_special_cases macro
+	vmovss xmm4, [FP_INFINITY_32]
+	vxorps xmm5, xmm5, xmm5
+	vcmpss xmm2, xmm0, xmm4, 4h
+	vcmpss xmm3, xmm0, xmm5, 4h
+	vandps xmm1, xmm1, xmm2
+	vmovd xmm2, r9d
+	vblendvps xmm1, xmm4, xmm1, xmm3
+	vpxor xmm0, xmm2, xmm1
+endm
+
+
+macro_orcbrt_pd_calc macro
+	vpand ymm5, ymm0, [SIGN_64]
+	vpxor ymm0, ymm0, ymm5
+	vpsubq ymm1, ymm0, [EXP_MAGIC_MINUEND_64]
+	vpxor ymm1, ymm1, [ONES_64]
+	vpsrlq ymm1, ymm1, 33
+	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
+	vpsllq ymm1, ymm1, 32
+	vmulpd ymm3, ymm0, [ONE_THIRD_64]
+	mov ecx, 5				; change to about 32, if you have to deal with denormal numbers (is much slower though)
+	it:
+		vmulpd ymm4, ymm3, ymm1
+		vmulpd ymm2, ymm1, ymm1
+		vfnmadd213pd ymm4, ymm2, [FOUR_THIRDS_64]
+		vmulpd ymm1, ymm1, ymm4
+		dec ecx
+		jnz it
+endm
+
+macro_orcbrt_pd_special_cases macro
+	vxorpd ymm4, ymm4, ymm4
+	vcmppd ymm3, ymm0, ymm4, 4h
+	vmovapd ymm4, [FP_INFINITY_64]
+	vblendvpd ymm1, ymm4, ymm1, ymm3
+	vcmppd ymm2, ymm0, ymm4, 4h
+	vandpd ymm1, ymm1, ymm2
+	vxorpd ymm0, ymm1, ymm5
+endm
+
+
+macro_orcbrt_ps_calc macro
+	vpand ymm5, ymm0, [SIGN_32]
+	vpxor ymm0, ymm0, ymm5
+	vpsubd ymm1, ymm0, [EXP_MAGIC_MINUEND_32]
+	vpxor ymm1, ymm1, [ONES_32]
+	vpsrld ymm1, ymm1, 17
+	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
+	vpslld ymm1, ymm1, 16
+	vmulps ymm3, ymm0, [ONE_THIRD_32]
+	mov ecx, 3			; change to about 30, if you have to deal with denormal numbers (is much slower though)
+	it:
+		vmulps ymm4, ymm3, ymm1
+		vmulps ymm2, ymm1, ymm1
+		vfnmadd213ps ymm4, ymm2, [FOUR_THIRDS_32]
+		vmulps ymm1, ymm1, ymm4
+		dec ecx
+		jnz it
+endm
+
+macro_orcbrt_ps_special_cases macro
+	vxorps ymm4, ymm4, ymm4
+	vcmpps ymm3, ymm0, ymm4, 4h
+	vmovaps ymm4, [FP_INFINITY_32]
+	vblendvps ymm1, ymm4, ymm1, ymm3
+	vcmpps ymm2, ymm0, ymm4, 4h
+	vandps ymm1, ymm1, ymm2
+	vxorps ymm0, ymm1, ymm5
+endm
+
+
+macro_ocbrt_sd_mul macro
+	macro_orcbrt_sd_calc
+	vmovq xmm2, r9
+	vmulsd xmm1, xmm1, xmm1
+	vmulsd xmm0, xmm1, xmm0
+	vxorpd xmm0, xmm0, xmm2
+endm
+
+macro_ocbrt_sd_div macro
+	macro_orcbrt_sd_calc
+	macro_orcbrt_sd_special_cases
+	vmovsd xmm1, [FP_ONE_64]
+	vdivsd xmm0, xmm1, xmm0
+endm
+
+macro_ocbrt_ss_mul macro
+	macro_orcbrt_ss_calc
+	vmovd xmm2, r9d
+	vmulss xmm1, xmm1, xmm1
+	vmulss xmm0, xmm1, xmm0
+	vxorps xmm0, xmm0, xmm2
+endm
+
+macro_ocbrt_ss_div macro
+	macro_orcbrt_ss_calc
+	macro_orcbrt_ss_special_cases
+	vmovss xmm1, [FP_ONE_32]
+	vdivss xmm0, xmm1, xmm0
+endm
+
+
+macro_ocbrt_pd_mul macro
+	macro_orcbrt_pd_calc
+	vmulpd ymm1, ymm1, ymm1
+	vmulpd ymm0, ymm1, ymm0
+	vxorpd ymm0, ymm0, ymm5
+endm
+
+macro_ocbrt_pd_div macro
+	macro_orcbrt_pd_calc
+	macro_orcbrt_pd_special_cases
+	vmovapd ymm1, [FP_ONE_64]
+	vdivpd ymm0, ymm1, ymm0
+endm
+
+
+macro_ocbrt_ps_mul macro
+	macro_orcbrt_ps_calc
+	vmulps ymm1, ymm1, ymm1
+	vmulps ymm0, ymm1, ymm0
+	vxorps ymm0, ymm0, ymm5
+endm
+
+macro_ocbrt_ps_div macro
+	macro_orcbrt_ps_calc
+	macro_orcbrt_ps_special_cases
+	vmovaps ymm1, [FP_ONE_32]
+	vdivps ymm0, ymm1, ymm0
+endm
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                           API MACROS AND PROCEDURES                                                        ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; Calculates the reciprocal value of the cube root of one double-precision floating-point number.
 ; Use this macro to inline the code
 macro_orcbrt_sd macro
-	start:
-		vmovq rax, xmm0
-		mov r9, 8000000000000000h
-		mov r10, [EXP_MASK_64]
-		mov ecx, 4
-		and r9, rax
-		xor rax, r9
-		mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
-		test rax, r10
-		cmovz ecx, r8d
-		sub rax, [EXP_MAGIC_MINUEND_64]
-		not rax
-		mul [DIV_3_64_SCALAR]
-		vpand xmm0, xmm0, [WITHOUT_SIGN_64]
-
-	newton_iterations:
-		vmovq xmm1, rdx
-		vmovsd xmm5, [FOUR_THIRDS_64]
-		vmulsd xmm3, xmm0, [ONE_THIRD_64]
-
-		it:
-			vmulsd xmm4, xmm3, xmm1
-			vmulsd xmm2, xmm1, xmm1
-			vfnmadd213sd xmm4, xmm2, xmm5
-			vmulsd xmm1, xmm1, xmm4
-			dec ecx
-			jnz it
-
-		vmovsd xmm4, [FP_INFINITY_64]
-		vxorpd xmm5, xmm5, xmm5
-		vcmpsd xmm2, xmm0, xmm4, 4h
-		vcmpsd xmm3, xmm0, xmm5, 4h
-		vandpd xmm1, xmm1, xmm2
-		vmovq xmm2, r9
-		vblendvpd xmm1, xmm4, xmm1, xmm3
-		vpxor xmm0, xmm2, xmm1
+	macro_orcbrt_sd_calc
+	macro_orcbrt_sd_special_cases
 	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
 							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
@@ -115,45 +285,12 @@ orcbrt_sd proc
 	ret
 orcbrt_sd endp
 
+
 ; Calculates the reciprocal value of the cube root of one single-precision floating-point number.
 ; Use this macro to inline the code
 macro_orcbrt_ss macro
-	start:
-		vmovd eax, xmm0
-		mov r9d, 80000000h
-		mov r10d, [EXP_MASK_32]
-		mov ecx, 3
-		and r9d, eax
-		xor eax, r9d
-		mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
-		test eax, r10d
-		cmovz ecx, r8d
-		sub eax, [EXP_MAGIC_MINUEND_32]
-		not eax
-		mul dword ptr [DIV_3_32_SCALAR]
-		vpand xmm0, xmm0, dword ptr [WITHOUT_SIGN_32]
-
-	newton_iterations:
-		vmovd xmm1, edx
-		vmovss xmm5, [FOUR_THIRDS_32]
-		vmulss xmm3, xmm0, [ONE_THIRD_32]
-
-		it:
-			vmulss xmm4, xmm3, xmm1
-			vmulss xmm2, xmm1, xmm1
-			vfnmadd213ss xmm4, xmm2, xmm5
-			vmulss xmm1, xmm1, xmm4
-			dec ecx
-			jnz it
-
-		vmovss xmm4, [FP_INFINITY_32]
-		vxorps xmm5, xmm5, xmm5
-		vcmpss xmm2, xmm0, xmm4, 4h
-		vcmpss xmm3, xmm0, xmm5, 4h
-		vandps xmm1, xmm1, xmm2
-		vmovd xmm2, r9d
-		vblendvps xmm1, xmm4, xmm1, xmm3
-		vpxor xmm0, xmm2, xmm1
+	macro_orcbrt_ss_calc
+	macro_orcbrt_ss_special_cases
 	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
 							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
@@ -165,37 +302,12 @@ orcbrt_ss proc
 	ret
 orcbrt_ss endp
 
+
 ; Calculates the reciprocal value of the cube root of four double-precision floating-point numbers.
 ; Use this macro to inline the code
 macro_orcbrt_pd macro
-	start:
-		vpand ymm5, ymm0, [SIGN_64]
-		vpxor ymm0, ymm0, ymm5
-		vpsubq ymm1, ymm0, [EXP_MAGIC_MINUEND_64]
-		vpxor ymm1, ymm1, [ONES_64]
-		vpsrlq ymm1, ymm1, 33
-		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
-		vpsllq ymm1, ymm1, 32
-
-	newton_iterations:
-		vmulpd ymm3, ymm0, [ONE_THIRD_64]
-		mov ecx, 5				; change to about 32, if you have to deal with denormal numbers (is much slower though)
-
-		it:
-			vmulpd ymm4, ymm3, ymm1
-			vmulpd ymm2, ymm1, ymm1
-			vfnmadd213pd ymm4, ymm2, [FOUR_THIRDS_64]
-			vmulpd ymm1, ymm1, ymm4
-			dec ecx
-			jnz it
-
-		vxorpd ymm4, ymm4, ymm4
-		vcmppd ymm3, ymm0, ymm4, 4h
-		vmovapd ymm4, [FP_INFINITY_64]
-		vblendvpd ymm1, ymm4, ymm1, ymm3
-		vcmppd ymm2, ymm0, ymm4, 4h
-		vandpd ymm1, ymm1, ymm2
-		vxorpd ymm0, ymm1, ymm5
+	macro_orcbrt_pd_calc
+	macro_orcbrt_pd_special_cases
 endm
 
 ; Calculates the reciprocal value of the cube root of four double-precision floating-point numbers.
@@ -205,37 +317,12 @@ orcbrt_pd proc
 	ret
 orcbrt_pd endp
 
+
 ; Calculates the reciprocal value of the cube root of eight single-precision floating-point numbers.
 ; Use this macro to inline the code
 macro_orcbrt_ps macro
-	start:
-		vpand ymm5, ymm0, [SIGN_32]
-		vpxor ymm0, ymm0, ymm5
-		vpsubd ymm1, ymm0, [EXP_MAGIC_MINUEND_32]
-		vpxor ymm1, ymm1, [ONES_32]
-		vpsrld ymm1, ymm1, 17
-		vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
-		vpslld ymm1, ymm1, 16
-
-	newton_iterations:
-		vmulps ymm3, ymm0, [ONE_THIRD_32]
-		mov ecx, 3			; change to about 30, if you have to deal with denormal numbers (is much slower though)
-
-		it:
-			vmulps ymm4, ymm3, ymm1
-			vmulps ymm2, ymm1, ymm1
-			vfnmadd213ps ymm4, ymm2, [FOUR_THIRDS_32]
-			vmulps ymm1, ymm1, ymm4
-			dec ecx
-			jnz it
-
-		vxorps ymm4, ymm4, ymm4
-		vcmpps ymm3, ymm0, ymm4, 4h
-		vmovaps ymm4, [FP_INFINITY_32]
-		vblendvps ymm1, ymm4, ymm1, ymm3
-		vcmpps ymm2, ymm0, ymm4, 4h
-		vandps ymm1, ymm1, ymm2
-		vxorps ymm0, ymm1, ymm5
+	macro_orcbrt_ps_calc
+	macro_orcbrt_ps_special_cases
 endm
 
 ; Calculates the reciprocal value of the cube root of eight single-precision floating-point numbers.
@@ -245,38 +332,62 @@ orcbrt_ps proc
 	ret
 orcbrt_ps endp
 
+
+; Calculates the cube root of one double-precision floating-point number.
+; Use this macro to inline the code
+macro_ocbrt_sd macro
+	macro_ocbrt_sd_div		; change to macro_ocbrt_sd_mul for better performance but more unprecise results
+	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
+							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
+endm
+
 ; Calculates the cube root of one double-precision floating-point number.
 ocbrt_sd proc
-	macro_orcbrt_sd
-	vmovsd xmm1, [FP_ONE_64]
-	vdivsd xmm0, xmm1, xmm0
+	macro_ocbrt_sd
 
 	ret
 ocbrt_sd endp
 
+
+; Calculates the cube root of one single-precision floating-point number.
+; Use this macro to inline the code
+macro_ocbrt_ss macro
+	macro_ocbrt_ss_div		; change to macro_ocbrt_ss_mul for better performance but more unprecise results
+	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
+							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
+endm
+
 ; Calculates the cube root of one single-precision floating-point number.
 ocbrt_ss proc
-	macro_orcbrt_ss
-	vmovss xmm1, [FP_ONE_32]
-	vdivss xmm0, xmm1, xmm0
+	macro_ocbrt_ss
 
 	ret
 ocbrt_ss endp
 
+
+; Calculates the cube root of four double-precision floating-point numbers.
+; Use this macro to inline the code
+macro_ocbrt_pd macro
+	macro_ocbrt_pd_div		; change to macro_ocbrt_pd_mul for better performance but more unprecise results
+endm
+
 ; Calculates the cube root of four double-precision floating-point numbers.
 ocbrt_pd proc
-	macro_orcbrt_pd
-	vmovapd ymm1, [FP_ONE_64]
-	vdivpd ymm0, ymm1, ymm0
+	macro_ocbrt_pd
 
 	ret
 ocbrt_pd endp
 
+
+; Calculates the cube root of one single-precision floating-point number.
+; Use this macro to inline the code
+macro_ocbrt_ps macro
+	macro_ocbrt_ps_div		; change to macro_ocbrt_ps_mul for better performance but more unprecise results
+endm
+
 ; Calculates the cube root of eight single-precision floating-point numbers.
 ocbrt_ps proc
-	macro_orcbrt_ps
-	vmovaps ymm1, [FP_ONE_32]
-	vdivps ymm0, ymm1, ymm0
+	macro_ocbrt_ps
 
 	ret
 ocbrt_ps endp
