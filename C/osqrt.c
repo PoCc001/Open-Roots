@@ -8,11 +8,15 @@
 #include "oroots.h"
 #include <stdbool.h>
 
-double orsqrt(const double a) {
-	double_ull val;
-	val.d = a;
+inline void orsqrt_special_cases(const double a, double_ull* val, double_ull* guess) {
+	guess->ull = a == 0.0 ? DOUBLE_INF : guess->ull;
+	guess->ull = val->ull == DOUBLE_INF ? 0ULL : guess->ull;
+}
 
-	unsigned long long manipulated_exp = val.ull;
+void orsqrt_calc(const double a, double_ull* val, double_ull* guess) {
+	val->d = a;
+
+	unsigned long long manipulated_exp = val->ull;
 
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !((manipulated_exp) & (0x7ff0000000000000ULL));
@@ -28,28 +32,30 @@ double orsqrt(const double a) {
 	}
 #endif
 
-	double_ull guess;
-	guess.ull = manipulated_exp;
+	guess->ull = manipulated_exp;
 	double half_a = a * 0.5;
 	
 	for (int i = 0; i < iterations; ++i) {
-		guess.d *= (1.5 - (half_a * guess.d * guess.d));
+		guess->d *= (1.5 - (half_a * guess->d * guess->d));
 	}
 
-	corr_t g = (corr_t)(guess.d);
+	corr_t g = (corr_t)(guess->d);
 	corr_t r = g * ((corr_t)(1.5) - ((corr_t)(a) * (corr_t)(0.5) * g * g));
 
-	guess.d = (double)(r);
+	guess->d = (double)(r);
 
 #if CHECK_SPECIAL_CASES != 0
-	guess.ull = a > 0.0 ? guess.ull : DOUBLE_NAN;
-	guess.ull = a == 0.0 ? DOUBLE_INF : guess.ull;
-	guess.ull = val.ull == DOUBLE_INF ? 0ULL : guess.ull;
+	guess->ull = a >= 0.0 ? guess->ull : DOUBLE_NAN;
+#endif
+}
+
+double orsqrt(const double a) {
+	double_ull val;
+	double_ull guess;
+	orsqrt_calc(a, &val, &guess);
+	orsqrt_special_cases(a, &val, &guess);
 
 	return guess.d;
-#else
-	return guess.d;
-#endif
 }
 
 #if ONLY_USE_RECIP_ROOTS == 0
@@ -96,15 +102,23 @@ double osqrt(const double a) {
 }
 #else
 inline double osqrt(const double a) {
-	return 1.0 / orsqrt(a);
+	double_ull val;
+	double_ull guess;
+	orsqrt_calc(a, &val, &guess);
+
+	return a * guess.d;
 }
 #endif
 
-float orsqrtf(const float a) {
-	float_ul val;
-	val.f = a;
+inline void orsqrtf_special_cases(const float a, float_ul* val, float_ul* guess) {
+	guess->ul = a == 0.0f ? FLOAT_INF : guess->ul;
+	guess->ul = val->ul == FLOAT_INF ? 0ULL : guess->ul;
+}
 
-	unsigned long manipulated_exp = val.ul;
+inline void orsqrtf_calc(const float a, float_ul* val, float_ul* guess) {
+	val->f = a;
+
+	unsigned long manipulated_exp = val->ul;
 
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !((manipulated_exp) & (0x7f800000UL));
@@ -120,28 +134,30 @@ float orsqrtf(const float a) {
 	}
 #endif
 
-	float_ul guess;
-	guess.ul = manipulated_exp;
+	guess->ul = manipulated_exp;
 	float half_a = a * 0.5f;
 
 	for (int i = 0; i < iterations; ++i) {
-		guess.f *= (1.5f - (half_a * guess.f * guess.f));
+		guess->f *= (1.5f - (half_a * guess->f * guess->f));
 	}
 
-	corrf_t g = (corrf_t)(guess.f);
+	corrf_t g = (corrf_t)(guess->f);
 	corrf_t r = g * ((corrf_t)(1.5) - ((corrf_t)(a) * (corrf_t)(0.5) * g * g));
 
-	guess.f = (float)(r);
+	guess->f = (float)(r);
 
 #if CHECK_SPECIAL_CASES != 0
-	guess.ul = a > 0.0f ? guess.ul : FLOAT_NAN;
-	guess.ul = a == 0.0f ? FLOAT_INF : guess.ul;
-	guess.ul = val.ul == FLOAT_INF ? 0UL : guess.ul;
+	guess->ul = a >= 0.0f ? guess->ul : FLOAT_NAN;
+#endif
+}
+
+float orsqrtf(const float a) {
+	float_ul val;
+	float_ul guess;
+	orsqrtf_calc(a, &val, &guess);
+	orsqrtf_special_cases(a, &val, &guess);
 
 	return guess.f;
-#else
-	return guess.f;
-#endif
 }
 
 #if ONLY_USE_RECIP_ROOTS == 0
@@ -188,6 +204,10 @@ float osqrtf(const float a) {
 }
 #else
 inline float osqrtf(const float a) {
-	return 1.0f / orsqrtf(a);
+	float_ul val;
+	float_ul guess;
+	orsqrtf_calc(a, &val, &guess);
+
+	return a * guess.f;
 }
 #endif
