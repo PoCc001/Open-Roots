@@ -45,8 +45,6 @@ TWO_THIRDS_32 dword 8 dup(3f2aaaabh)
 FOUR_THIRDS_64 qword 4 dup(3ff5555555555555h)
 FOUR_THIRDS_32 dword 8 dup(3faaaaabh)
 
-EXP_MASK_64 qword 4 dup(7ff0000000000000h)
-
 ; There might be better "magical" numbers, but these ones already do a good job.
 EXP_MAGIC_MINUEND_64 qword 4 dup(-19178652474277888)
 EXP_MAGIC_MINUEND_32 dword 8 dup(4259184641)
@@ -71,11 +69,11 @@ DIV_3_32_SCALAR dword 5555b700h
 macro_orcbrt_sd_calc macro
 	vmovq rax, xmm0
 	mov r9, 8000000000000000h
-	mov r10, [EXP_MASK_64]
 	mov ecx, 4
 	and r9, rax
 	xor rax, r9
-	mov r8d, 32					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
+	mov r8d, 32					; omit this and the following 3 instructions, if you know that no subnormal numbers occur
+	mov r10, 7ff0000000000000h
 	test rax, r10
 	cmovz ecx, r8d
 	sub rax, [EXP_MAGIC_MINUEND_64]
