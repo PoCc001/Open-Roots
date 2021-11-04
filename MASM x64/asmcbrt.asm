@@ -113,7 +113,7 @@ macro_orcbrt_ss_calc macro
 	mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
 	test eax, 7f800000h
 	cmovz ecx, r8d
-	sub eax, [EXP_MAGIC_MINUEND_32]
+	sub eax, 4259184641
 	not eax
 	mul dword ptr [DIV_3_32_SCALAR]
 	vpand xmm0, xmm0, dword ptr [WITHOUT_SIGN_32]
