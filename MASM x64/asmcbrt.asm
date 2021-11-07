@@ -29,10 +29,6 @@ SIGN_32 dword 8 dup(80000000h)
 WITHOUT_SIGN_64 qword 4 dup(7fffffffffffffffh)
 WITHOUT_SIGN_32 dword 8 dup(7fffffffh)
 
-; There might be better "magical" numbers, but these ones already do a good job.
-EXP_MAGIC_ADDEND_64 qword 4 dup(2a9f5cc62cb0f9e1h)
-EXP_MAGIC_ADDEND_32 dword 8 dup(2a501a5bh)
-
 DIV_3_64 qword 4 dup(2863311531)
 DIV_3_32 dword 8 dup(43691)
 
