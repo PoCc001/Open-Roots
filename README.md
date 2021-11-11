@@ -17,7 +17,7 @@ The square root and cube root functions can be called in three different ways:
     - ORoots.sqrt(x)
     - ORoots.root(x, 2)
 The general root of degree n can be computed with ORoots.root(x, n).
-All the necessary files are located in Java/oroots directory.
+All the necessary files are located in Java/at/kloimboeck/johannes/oroots directory.
 
 ### C
 Include the oroots.h file which can be found in the "C" directory. The functions are called osqrt, ocbrt and oroot.
