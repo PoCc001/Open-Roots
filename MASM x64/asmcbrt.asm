@@ -23,6 +23,7 @@
 
 ; These are important values stored in memory that the following procedures will operate with (for scalar and packed instructions)
 .data
+helper_constants SEGMENT READONLY ALIGN(32)
 SIGN_64 qword 4 dup(8000000000000000h)
 SIGN_32 dword 8 dup(80000000h)
 
@@ -56,7 +57,7 @@ ONES_32 dword 8 dup(4294967295)
 
 DIV_3_64_SCALAR qword 5555555500000000h
 DIV_3_32_SCALAR dword 5555b700h
-
+helper_constants ENDS
 .code
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
