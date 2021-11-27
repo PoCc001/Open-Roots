@@ -45,7 +45,8 @@ Setting *ONLY_USE_RECIP_ROOTS* to 1 may allow for faster calculation of osqrt(f)
 **Note:** x is a variable of the primitive datatype *double* or *float* in Java and C/C++.
 
 ### x64 Assembly
-Assemble the asmcbrt.asm file in Visual Studio using the Macro Asssembler on an AVX2- and FMA-capable machine. For maximum
-performance, one could consider optimizing the code for a specific processor model. There are only procedures for calculating
-the cube root and its reciprocal, as the square root can be computed via a single assembly instruction. Maybe, the generic root
-function will be available in the future. Currently, no AVX-512 instructions are used.
+Assemble the asmcbrt_avx2.asm file in Visual Studio using the Macro Asssembler on an AVX2- and FMA-capable machine. For maximum
+performance, one could consider optimizing the code for a specific processor model. If you use an older CPU, maybe asmcbrt_sse.asm
+will work for you instead. Its procedures require at most SSE4.1. There are only procedures for calculating the cube root and its
+reciprocal, as the square root can be computed via a single assembly instruction. Maybe, the generic root function will be available
+in the future. Currently, no AVX-512 instructions are used.
