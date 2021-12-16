@@ -149,19 +149,19 @@ endm
 
 
 macro_vorcbrt_pd_calc macro
-	vpand ymm5, ymm0, [SIGN_64]
-	vpxor ymm2, ymm0, ymm5
+	vpand ymm2, ymm0, [WITHOUT_SIGN_64]
 	vpsubq ymm1, ymm2, [EXP_MAGIC_MINUEND_64]
 	vpxor ymm1, ymm1, [ONES_64]
 	vpsrlq ymm1, ymm1, 33
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
 	vpsllq ymm1, ymm1, 32
 	vmulpd ymm3, ymm2, [ONE_THIRD_64]
+	vmovapd ymm5, [FOUR_THIRDS_64]
 	mov ecx, 5				; change to about 32, if you have to deal with denormal numbers (is much slower though)
 	it:
 		vmulpd ymm4, ymm3, ymm1
 		vmulpd ymm2, ymm1, ymm1
-		vfnmadd213pd ymm4, ymm2, [FOUR_THIRDS_64]
+		vfnmadd213pd ymm4, ymm2, ymm5
 		vmulpd ymm1, ymm1, ymm4
 		dec ecx
 		jnz it
@@ -169,6 +169,7 @@ endm
 
 macro_vorcbrt_pd_special_cases macro
 	vmovapd ymm2, [FP_INFINITY_64]
+	vpand ymm5, ymm0, [SIGN_64]
 	vxorpd ymm4, ymm4, ymm4
 	vcmppd ymm3, ymm0, ymm4, 4h
 	vblendvpd ymm1, ymm2, ymm1, ymm3
@@ -179,19 +180,19 @@ endm
 
 
 macro_vorcbrt_ps_calc macro
-	vpand ymm5, ymm0, [SIGN_32]
-	vpxor ymm2, ymm0, ymm5
+	vpand ymm2, ymm0, [WITHOUT_SIGN_32]
 	vpsubd ymm1, ymm2, [EXP_MAGIC_MINUEND_32]
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
 	vpslld ymm1, ymm1, 16
 	vmulps ymm3, ymm2, [ONE_THIRD_32]
+	vmovaps ymm5, [FOUR_THIRDS_32]
 	mov ecx, 3			; change to about 30, if you have to deal with denormal numbers (is much slower though)
 	it:
 		vmulps ymm4, ymm3, ymm1
 		vmulps ymm2, ymm1, ymm1
-		vfnmadd213ps ymm4, ymm2, [FOUR_THIRDS_32]
+		vfnmadd213ps ymm4, ymm2, ymm5
 		vmulps ymm1, ymm1, ymm4
 		dec ecx
 		jnz it
@@ -199,6 +200,7 @@ endm
 
 macro_vorcbrt_ps_special_cases macro
 	vmovaps ymm2, [FP_INFINITY_32]
+	vpand ymm5, ymm0, [SIGN_32]
 	vxorps ymm4, ymm4, ymm4
 	vcmpps ymm3, ymm0, ymm4, 4h
 	vblendvps ymm1, ymm2, ymm1, ymm3
@@ -333,7 +335,7 @@ vorcbrt_ps endp
 ; Calculates the cube root of one double-precision floating-point number.
 ; Use this macro to inline the code
 macro_vocbrt_sd macro
-	macro_vocbrt_sd_mul		; change to macro_vocbrt_sd_mul for better performance but more unprecise results
+	macro_vocbrt_sd_div		; change to macro_vocbrt_sd_mul for better performance but more unprecise results
 	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
 							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
@@ -349,7 +351,7 @@ vocbrt_sd endp
 ; Calculates the cube root of one single-precision floating-point number.
 ; Use this macro to inline the code
 macro_vocbrt_ss macro
-	macro_vocbrt_ss_mul		; change to macro_vocbrt_ss_mul for better performance but more unprecise results
+	macro_vocbrt_ss_div		; change to macro_vocbrt_ss_mul for better performance but more unprecise results
 	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
 							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
