@@ -5,7 +5,7 @@
 
 #pragma warning(disable : 4996)
 
-constexpr unsigned int array_length = 1000000;
+constexpr unsigned int array_length = 10'000'000;
 
 int bench64() {
 	std::cout << "64-BIT TEST" << std::endl;
@@ -195,16 +195,29 @@ int bench64() {
 	fclose(oroots_bench_txt);
 
 	unsigned int counter = 0;
-
+	unsigned long long max_diff = 0;
+	double signed_avg_diff = 0.0;
+	double unsigned_avg_diff = 0.0;
 	for (unsigned int i = 0; i < array_length; ++i) {
 		if (diff_array[i] != 0) {
+			if (max_diff < std::abs(diff_array[i])) {
+				max_diff = std::abs(diff_array[i]);
+			}
+			signed_avg_diff += (double)(diff_array[i]);
+			unsigned_avg_diff += abs((double)(diff_array[i]));
 			counter++;
 		}
 	}
 
+	signed_avg_diff /= (double)(array_length);
+	unsigned_avg_diff /= (double)(array_length);
+
 	double ratio = 100.0 * counter / array_length;
 
 	std::cout << ratio << "% of computed roots don't exactly match." << std::endl;
+	std::cout << "Greatest bit difference: " << max_diff << " bits" << std::endl;
+	std::cout << "Average bit difference: " << signed_avg_diff << " bits" << std::endl;
+	std::cout << "Average absolute bit difference: " << unsigned_avg_diff << " bits" << std::endl;
 
 	std::printf("\n");
 
@@ -405,16 +418,30 @@ int bench32() {
 	fclose(oroots_bench_txt);
 
 	unsigned int counter = 0;
+	unsigned long max_diff = 0;
+	double signed_avg_diff = 0.0;
+	double unsigned_avg_diff = 0.0;
 
 	for (unsigned int i = 0; i < array_length; ++i) {
 		if (diff_array[i] != 0) {
+			if (max_diff < std::abs(diff_array[i])) {
+				max_diff = std::abs(diff_array[i]);
+			}
+			signed_avg_diff += (double)(diff_array[i]);
+			unsigned_avg_diff += abs((double)(diff_array[i]));
 			counter++;
 		}
 	}
+	
+	signed_avg_diff /= (double)(array_length);
+	unsigned_avg_diff /= (double)(array_length);
 
-	double ratio = 100.0 * counter / array_length;
+	double ratio = 100.0 * counter / (double)(array_length);
 
 	std::cout << ratio << "% of computed roots don't exactly match." << std::endl;
+	std::cout << "Greatest bit difference: " << max_diff << " bits" << std::endl;
+	std::cout << "Average bit difference: " << signed_avg_diff << " bits" << std::endl;
+	std::cout << "Average absolute bit difference: " << unsigned_avg_diff << " bits" << std::endl;
 
 	std::printf("\n");
 
