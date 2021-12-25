@@ -271,7 +271,7 @@ endm
 macro_ocbrt_pd_mul macro
 	macro_orcbrt_pd_calc
 	mulpd xmm1, xmm1
-	vmulpd xmm0, xmm1
+	mulpd xmm0, xmm1
 	xorpd xmm0, xmm5
 endm
 
