@@ -16,7 +16,7 @@ inline void orsqrt_special_cases(const double a, double_ull* val, double_ull* gu
 void orsqrt_calc(const double a, double_ull* val, double_ull* guess) {
 	val->d = a;
 
-	unsigned long long manipulated_exp = val->ull;
+	uint64_t manipulated_exp = val->ull;
 
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !((manipulated_exp) & (0x7ff0000000000000ULL));
@@ -63,7 +63,7 @@ double osqrt(const double a) {
 	double_ull val;
 	val.d = a;
 
-	unsigned long long manipulated_exp = val.ull;
+	uint64_t manipulated_exp = val.ull;
 	int iterations = 2;
 
 #if SUBNORMAL_NUMBERS != 0
@@ -118,7 +118,7 @@ inline void orsqrtf_special_cases(const float a, float_ul* val, float_ul* guess)
 inline void orsqrtf_calc(const float a, float_ul* val, float_ul* guess) {
 	val->f = a;
 
-	unsigned long manipulated_exp = val->ul;
+	uint32_t manipulated_exp = val->ul;
 
 #if SUBNORMAL_NUMBERS != 0
 	bool is_sub_normal = !((manipulated_exp) & (0x7f800000UL));
@@ -165,7 +165,7 @@ float osqrtf(const float a) {
 	float_ul val;
 	val.f = a;
 
-	unsigned long manipulated_exp = val.ul;
+	uint32_t manipulated_exp = val.ul;
 	int iterations = 1;
 
 #if SUBNORMAL_NUMBERS != 0
