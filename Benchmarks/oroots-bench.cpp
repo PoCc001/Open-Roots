@@ -5,7 +5,7 @@
 
 #pragma warning(disable : 4996)
 
-constexpr unsigned int array_length = 10'000'000;
+constexpr std::size_t array_length = 10'000'000;
 
 int bench64() {
 	std::cout << "64-BIT TEST" << std::endl;
@@ -48,14 +48,14 @@ int bench64() {
 		std::printf("\n");
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_oroots[i] = oroots::sqrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
 
 		begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_std[i] = std::sqrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
@@ -83,14 +83,14 @@ int bench64() {
 		std::printf("\n");
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_oroots[i] = oroots::cbrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
 
 		begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_std[i] = std::cbrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
@@ -136,7 +136,7 @@ int bench64() {
 		std::printf("\n");
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_oroots[i] = oroots::root(rand_array[i], degree);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -145,7 +145,7 @@ int bench64() {
 		double exponent = 1.0 / degree;
 
 		begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_std[i] = std::pow(rand_array[i], exponent);
 		}
 		end = std::chrono::steady_clock::now();
@@ -182,23 +182,23 @@ int bench64() {
 	long long* diff_array = new long long[array_length];
 	double_ull std;
 	double_ull oroots;
-	for (unsigned int i = 0; i < array_length; ++i) {
+	for (std::size_t i = 0; i < array_length; ++i) {
 		std.d = root_array_std[i];
 		oroots.d = root_array_oroots[i];
 		diff_array[i] = (long long)(std.ull) - (long long)(oroots.ull);
 	}
 
-	for (unsigned int i = 0; i < array_length; ++i) {
+	for (std::size_t i = 0; i < array_length; ++i) {
 		std::fprintf(oroots_bench_txt, "%s(%.1f):\t|\t%20.16g\t|\t%20.16g\t|\t%lli\n", rootString.c_str(), rand_array[i], root_array_std[i], root_array_oroots[i], diff_array[i]);
 	}
 
 	fclose(oroots_bench_txt);
 
-	unsigned int counter = 0;
+	std::size_t counter = 0;
 	unsigned long long max_diff = 0;
 	double signed_avg_diff = 0.0;
 	double unsigned_avg_diff = 0.0;
-	for (unsigned int i = 0; i < array_length; ++i) {
+	for (std::size_t i = 0; i < array_length; ++i) {
 		if (diff_array[i] != 0) {
 			if (max_diff < std::abs(diff_array[i])) {
 				max_diff = std::abs(diff_array[i]);
@@ -253,7 +253,7 @@ int bench32() {
 
 	std::printf("\n");
 	std::cout << "Generating random numbers..." << std::endl;
-	for (unsigned int i = 0; i < array_length; ++i) {
+	for (std::size_t i = 0; i < array_length; ++i) {
 		rand_array[i] = (float)(rand());
 
 		if (i % 1000 == 0) {
@@ -271,14 +271,14 @@ int bench32() {
 		std::printf("\n");
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_oroots[i] = oroots::sqrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
 
 		begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_std[i] = std::sqrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
@@ -306,14 +306,14 @@ int bench32() {
 		std::printf("\n");
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_oroots[i] = oroots::cbrt(rand_array[i]);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 		double time1 = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() / 1E9;
 
 		begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_std[i] = std::cbrt(rand_array[i]);
 		}
 		end = std::chrono::steady_clock::now();
@@ -359,7 +359,7 @@ int bench32() {
 		std::printf("\n");
 
 		std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_oroots[i] = oroots::root(rand_array[i], degree);
 		}
 		std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -368,7 +368,7 @@ int bench32() {
 		float exponent = 1.0f / degree;
 
 		begin = std::chrono::steady_clock::now();
-		for (unsigned int i = 0; i < array_length; ++i) {
+		for (std::size_t i = 0; i < array_length; ++i) {
 			root_array_std[i] = std::pow(rand_array[i], exponent);
 		}
 		end = std::chrono::steady_clock::now();
@@ -405,24 +405,24 @@ int bench32() {
 	long* diff_array = new long[array_length];
 	float_ul std;
 	float_ul oroots;
-	for (unsigned int i = 0; i < array_length; ++i) {
+	for (std::size_t i = 0; i < array_length; ++i) {
 		std.f = root_array_std[i];
 		oroots.f = root_array_oroots[i];
 		diff_array[i] = (long)(std.ul) - (long)(oroots.ul);
 	}
 
-	for (unsigned int i = 0; i < array_length; ++i) {
+	for (std::size_t i = 0; i < array_length; ++i) {
 		std::fprintf(oroots_bench_txt, "%s(%.1f):\t|%15.7g\t|%15.7g\t|\t%li\n", rootString.c_str(), rand_array[i], root_array_std[i], root_array_oroots[i], diff_array[i]);
 	}
 
 	fclose(oroots_bench_txt);
 
-	unsigned int counter = 0;
+	std::size_t counter = 0;
 	unsigned long max_diff = 0;
 	double signed_avg_diff = 0.0;
 	double unsigned_avg_diff = 0.0;
 
-	for (unsigned int i = 0; i < array_length; ++i) {
+	for (std::size_t i = 0; i < array_length; ++i) {
 		if (diff_array[i] != 0) {
 			if (max_diff < std::abs(diff_array[i])) {
 				max_diff = std::abs(diff_array[i]);
