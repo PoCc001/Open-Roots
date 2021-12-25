@@ -115,6 +115,7 @@ double oroot(double a, int n) {
 			return nan.d;
 		}
 		r = a == (1.0E300 * 1.0E300) ? 0.0 : (a == (-1.0E300 * 1.0E300) ? -0.0 : r);
+		return r;
 	}
 	else {
 		return (a < 1.0 || a > -1.0 ? 0.0 : (1.0E300 * 1.0E300)) * a;
