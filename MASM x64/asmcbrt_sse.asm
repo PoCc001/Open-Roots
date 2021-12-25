@@ -233,7 +233,7 @@ macro_orcbrt_ps_special_cases macro
 	blendvps xmm2, xmm1, xmm0
 	movaps xmm0, [FP_INFINITY_32]
 	cmpps xmm0, xmm3, 4h
-	andps xmm0, xmm1
+	andps xmm0, xmm2
 	xorps xmm0, xmm5
 endm
 
