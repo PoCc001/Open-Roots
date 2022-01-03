@@ -65,6 +65,13 @@ helper_constants ENDS
 ;;                                                  INTERNAL MACROS                                                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+macro_vorcbrt_sd_itcnt macro
+	mov r8d, 32
+	mov r10, 7ff0000000000000h
+	test rax, r10
+	cmovz ecx, r8d
+endm
+
 macro_orcbrt_sd_calc macro
 	movq rax, xmm0
 	movsd xmm3, xmm0
@@ -72,10 +79,7 @@ macro_orcbrt_sd_calc macro
 	mov ecx, 4
 	and r9, rax
 	xor rax, r9
-	mov r8d, 32					; omit this and the following 3 instructions, if you know that no subnormal numbers occur
-	mov r10, 7ff0000000000000h
-	test rax, r10
-	cmovz ecx, r8d
+	macro_vorcbrt_sd_itcnt			; omit this macro, if you know that no subnormal numbers occur
 	sub rax, [EXP_MAGIC_MINUEND_64]
 	not rax
 	mul [DIV_3_64_SCALAR]
@@ -109,6 +113,12 @@ macro_orcbrt_sd_special_cases macro
 endm
 
 
+macro_vorcbrt_ss_itcnt macro
+	mov r8d, 30
+	test rax, 7f800000h
+	cmovz ecx, r8d
+endm
+
 macro_orcbrt_ss_calc macro
 	movd eax, xmm0
 	movss xmm3, xmm0
@@ -116,9 +126,7 @@ macro_orcbrt_ss_calc macro
 	mov ecx, 3
 	and r9d, eax
 	xor eax, r9d
-	mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
-	test eax, 7f800000h
-	cmovz ecx, r8d
+	macro_vorcbrt_ss_itcnt			; omit this macro, if you know that no subnormal numbers occur
 	sub eax, 4259184641
 	not eax
 	mul dword ptr [DIV_3_32_SCALAR]
@@ -225,7 +233,7 @@ macro_orcbrt_ps_special_cases macro
 	blendvps xmm2, xmm1, xmm0
 	movaps xmm0, [FP_INFINITY_32]
 	cmpps xmm0, xmm3, 4h
-	andps xmm0, xmm1
+	andps xmm0, xmm2
 	xorps xmm0, xmm5
 endm
 
@@ -263,7 +271,7 @@ endm
 macro_ocbrt_pd_mul macro
 	macro_orcbrt_pd_calc
 	mulpd xmm1, xmm1
-	vmulpd xmm0, xmm1
+	mulpd xmm0, xmm1
 	xorpd xmm0, xmm5
 endm
 

@@ -65,16 +65,20 @@ helper_constants ENDS
 ;;                                                  INTERNAL MACROS                                                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+macro_vorcbrt_sd_itcnt macro
+	mov r8d, 32
+	mov r10, 7ff0000000000000h
+	test rax, r10
+	cmovz ecx, r8d
+endm
+
 macro_vorcbrt_sd_calc macro
 	vmovq rax, xmm0
 	mov r9, 8000000000000000h
 	mov ecx, 4
+	macro_vorcbrt_sd_itcnt		; omit this macro, if you know that no subnormal numbers occur
 	and r9, rax
 	xor rax, r9
-	mov r8d, 32					; omit this and the following 3 instructions, if you know that no subnormal numbers occur
-	mov r10, 7ff0000000000000h
-	test rax, r10
-	cmovz ecx, r8d
 	sub rax, [EXP_MAGIC_MINUEND_64]
 	not rax
 	mul [DIV_3_64_SCALAR]
@@ -99,19 +103,23 @@ macro_vorcbrt_sd_special_cases macro
 	vandpd xmm1, xmm1, xmm2
 	vmovq xmm2, r9
 	vblendvpd xmm1, xmm4, xmm1, xmm3
-	vpxor xmm0, xmm2, xmm1
+	vxorpd xmm0, xmm1, xmm2
 endm
 
+
+macro_vorcbrt_ss_itcnt macro
+	mov r8d, 30
+	test rax, 7f800000h
+	cmovz ecx, r8d
+endm
 
 macro_vorcbrt_ss_calc macro
 	vmovd eax, xmm0
 	mov r9d, 80000000h
 	mov ecx, 3
+	macro_vorcbrt_ss_itcnt		; omit this macro, if you know that no subnormal numbers occur
 	and r9d, eax
 	xor eax, r9d
-	mov r8d, 30					; omit this and the following 2 instructions, if you know that no subnormal numbers occur
-	test eax, 7f800000h
-	cmovz ecx, r8d
 	sub eax, 4259184641
 	not eax
 	mul dword ptr [DIV_3_32_SCALAR]
@@ -136,24 +144,24 @@ macro_vorcbrt_ss_special_cases macro
 	vandps xmm1, xmm1, xmm2
 	vmovd xmm2, r9d
 	vblendvps xmm1, xmm4, xmm1, xmm3
-	vpxor xmm0, xmm2, xmm1
+	vxorps xmm0, xmm1, xmm2
 endm
 
 
 macro_vorcbrt_pd_calc macro
-	vpand ymm5, ymm0, [SIGN_64]
-	vpxor ymm2, ymm0, ymm5
+	vpand ymm2, ymm0, [WITHOUT_SIGN_64]
 	vpsubq ymm1, ymm2, [EXP_MAGIC_MINUEND_64]
 	vpxor ymm1, ymm1, [ONES_64]
 	vpsrlq ymm1, ymm1, 33
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
 	vpsllq ymm1, ymm1, 32
 	vmulpd ymm3, ymm2, [ONE_THIRD_64]
+	vmovapd ymm5, [FOUR_THIRDS_64]
 	mov ecx, 5				; change to about 32, if you have to deal with denormal numbers (is much slower though)
 	it:
 		vmulpd ymm4, ymm3, ymm1
 		vmulpd ymm2, ymm1, ymm1
-		vfnmadd213pd ymm4, ymm2, [FOUR_THIRDS_64]
+		vfnmadd213pd ymm4, ymm2, ymm5
 		vmulpd ymm1, ymm1, ymm4
 		dec ecx
 		jnz it
@@ -161,6 +169,7 @@ endm
 
 macro_vorcbrt_pd_special_cases macro
 	vmovapd ymm2, [FP_INFINITY_64]
+	vpand ymm5, ymm0, [SIGN_64]
 	vxorpd ymm4, ymm4, ymm4
 	vcmppd ymm3, ymm0, ymm4, 4h
 	vblendvpd ymm1, ymm2, ymm1, ymm3
@@ -171,19 +180,19 @@ endm
 
 
 macro_vorcbrt_ps_calc macro
-	vpand ymm5, ymm0, [SIGN_32]
-	vpxor ymm2, ymm0, ymm5
+	vpand ymm2, ymm0, [WITHOUT_SIGN_32]
 	vpsubd ymm1, ymm2, [EXP_MAGIC_MINUEND_32]
 	vpxor ymm1, ymm1, [ONES_32]
 	vpsrld ymm1, ymm1, 17
 	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
 	vpslld ymm1, ymm1, 16
 	vmulps ymm3, ymm2, [ONE_THIRD_32]
+	vmovaps ymm5, [FOUR_THIRDS_32]
 	mov ecx, 3			; change to about 30, if you have to deal with denormal numbers (is much slower though)
 	it:
 		vmulps ymm4, ymm3, ymm1
 		vmulps ymm2, ymm1, ymm1
-		vfnmadd213ps ymm4, ymm2, [FOUR_THIRDS_32]
+		vfnmadd213ps ymm4, ymm2, ymm5
 		vmulps ymm1, ymm1, ymm4
 		dec ecx
 		jnz it
@@ -191,6 +200,7 @@ endm
 
 macro_vorcbrt_ps_special_cases macro
 	vmovaps ymm2, [FP_INFINITY_32]
+	vpand ymm5, ymm0, [SIGN_32]
 	vxorps ymm4, ymm4, ymm4
 	vcmpps ymm3, ymm0, ymm4, 4h
 	vblendvps ymm1, ymm2, ymm1, ymm3

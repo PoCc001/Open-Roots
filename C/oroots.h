@@ -10,6 +10,7 @@
 
 #include "osqrt.h"
 #include "ocbrt.h"
+#include <stdint.h>
 
 #ifndef STRICT
 #define STRICT 1
@@ -39,12 +40,12 @@ typedef double corrf_t;
 
 typedef union {
 	double d;
-	unsigned long long ull;
+	uint64_t ull;
 } double_ull;
 
 typedef union {
 	float f;
-	unsigned long ul;
+	uint32_t ul;
 } float_ul;
 
 #define DOUBLE_EXP_MASK_1 0b10000000000

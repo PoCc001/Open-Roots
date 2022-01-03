@@ -54,12 +54,12 @@ inline void invroot(double *root, const double *a, const int *n) {
 	double_ull val;
 	val.d = *a;
 
-	unsigned long long sign = val.ull & 0x8000000000000000ULL;
+	uint64_t sign = val.ull & 0x8000000000000000ULL;
 	val.ull ^= sign;
 
-	unsigned long long exp = val.ull;
+	uint64_t exp = val.ull;
 	exp -= (1023ULL << 52);
-	exp /= (long long)(*n);
+	exp /= (int64_t)(*n);
 	exp += (1023ULL << 52);
 
 	double_ull guess;
@@ -115,6 +115,7 @@ double oroot(double a, int n) {
 			return nan.d;
 		}
 		r = a == (1.0E300 * 1.0E300) ? 0.0 : (a == (-1.0E300 * 1.0E300) ? -0.0 : r);
+		return r;
 	}
 	else {
 		return (a < 1.0 || a > -1.0 ? 0.0 : (1.0E300 * 1.0E300)) * a;

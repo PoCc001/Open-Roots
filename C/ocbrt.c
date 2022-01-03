@@ -16,7 +16,7 @@ double orcbrt(const double a) {
 	double_ull val;
 	val.d = a;
 
-	unsigned long long sign = val.ull & 0x8000000000000000ULL;
+	uint64_t sign = val.ull & 0x8000000000000000ULL;
 
 	val.ull ^= sign;
 
@@ -26,7 +26,7 @@ double orcbrt(const double a) {
 	}
 #endif
 
-	unsigned long long exponent = val.ull;
+	uint64_t exponent = val.ull;
 	int iterations = 3;
 
 #if SUBNORMAL_NUMBERS != 0
@@ -66,7 +66,7 @@ double ocbrt(const double a) {
 	double_ull val;
 	val.d = a;
 
-	unsigned long long sign = val.ull & 0x8000000000000000ULL;
+	uint64_t sign = val.ull & 0x8000000000000000ULL;
 
 	val.ull ^= sign;
 
@@ -76,7 +76,7 @@ double ocbrt(const double a) {
 	}
 #endif
 
-	unsigned long long exponent = val.ull;
+	uint64_t exponent = val.ull;
 
 	int iterations = 3;
 #if SUBNORMAL_NUMBERS != 0
@@ -114,7 +114,7 @@ float orcbrtf(const float a) {
 	float_ul val;
 	val.f = a;
 
-	unsigned long sign = val.ul & 0x80000000UL;
+	uint32_t sign = val.ul & 0x80000000UL;
 
 	val.ul ^= sign;
 
@@ -124,7 +124,7 @@ float orcbrtf(const float a) {
 	}
 #endif
 
-	unsigned long exponent = val.ul;
+	uint32_t exponent = val.ul;
 	int iterations = 3;
 
 #if SUBNORMAL_NUMBERS != 0
@@ -174,7 +174,7 @@ float ocbrtf(const float a) {
 	}
 #endif
 
-	unsigned long exponent = val.ul;
+	uint32_t exponent = val.ul;
 	int iterations = 2;
 
 #if SUBNORMAL_NUMBERS != 0
