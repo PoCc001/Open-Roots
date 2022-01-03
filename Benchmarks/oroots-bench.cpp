@@ -178,6 +178,17 @@ int bench64() {
 
 	std::cout << "Writing roots and other info to file \"oroots-bench_64.txt\"" << std::endl;
 	FILE *oroots_bench_txt = fopen("oroots-bench_64.txt", "w");
+	
+	if (oroots_bench_txt == nullptr) {
+		std::cout << "Cannot create/open file!" << std::endl;
+		std::cout << "Aborting..." << std::endl;
+		delete[] rand_array;
+		delete[] root_array_oroots;
+		delete[] root_array_std;
+		std::system("PAUSE");
+		return EXIT_SUCCESS;
+	}
+	
 	std::fprintf(oroots_bench_txt, "input\t\t|\t\tstd\t\t|\t\toroots\t\t|\tdifference (bits)\n");
 	long long* diff_array = new long long[array_length];
 	double_ull std;
@@ -401,6 +412,17 @@ int bench32() {
 
 	std::cout << "Writing roots and other info to file \"oroots-bench_32.txt\"" << std::endl;
 	FILE* oroots_bench_txt = fopen("oroots-bench_32.txt", "w");
+	
+	if (oroots_bench_txt == nullptr) {
+		std::cout << "Cannot create/open file!" << std::endl;
+		std::cout << "Aborting..." << std::endl;
+		delete[] rand_array;
+		delete[] root_array_oroots;
+		delete[] root_array_std;
+		std::system("PAUSE");
+		return EXIT_SUCCESS;
+	}
+	
 	std::fprintf(oroots_bench_txt, "input\t\t|\tstd\t\t|\toroots\t\t|\tdifference (bits)\n");
 	long* diff_array = new long[array_length];
 	float_ul std;
