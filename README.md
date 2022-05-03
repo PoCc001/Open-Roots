@@ -29,6 +29,8 @@ of checking for them at compile time. Doing so will most likely increase the per
 This can be done by defining the macro(s) *CHECK_SPECIAL_CASES* and/or *SUBNORMAL_NUMBERS* as 0.
 YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
 Setting *ONLY_USE_RECIP_ROOTS* to 1 may allow for faster calculation of osqrt(f) and ocbrt(f) at the cost of less accuracy.
+Using lookup tables to require less computation by defining *USE_TABLES_FOR_FLOAT* to 1 might also increase performance. This only
+works for 4 byte floats and only for the (r)sqrtf and (r)cbrtf functions.
 
 ### C++
 Include the oroots.hpp file which can be found in the "C" directory. The functions are called the same. However, the namespace
@@ -41,6 +43,8 @@ of checking for them at compile time. Doing so will most likely increase the per
 This can be done by defining the macro(s) *CHECK_SPECIAL_CASES* and/or *SUBNORMAL_NUMBERS* as 0.
 YOU SHOULD ONLY DO SO IF YOU REALLY KNOW WHAT YOU ARE DOING!
 Setting *ONLY_USE_RECIP_ROOTS* to 1 may allow for faster calculation of osqrt(f) and ocbrt(f) at the cost of less accuracy.
+Using lookup tables to require less computation by defining *USE_TABLES_FOR_FLOAT* to 1 might also increase performance. This only
+works for 4 byte floats and only for the (r)sqrtf and (r)cbrtf functions.
 
 **Note:** x is a variable of the primitive datatype *double* or *float* in Java and C/C++.
 
