@@ -12,21 +12,25 @@
 #define TWO_THIRDS 0.666666666666666667
 #define FOUR_THIRDS 1.3333333333333333333
 
-double orcbrt(const double a) {
-	double_ull val;
-	val.d = a;
+void orcbrt_special_cases(const double a, double_ull* val, double_ull* guess, uint64_t sign) {
+	guess->ull = val->ull == DOUBLE_INF ? 0ULL : guess->ull;
+	guess->ull |= sign;
+}
 
-	uint64_t sign = val.ull & 0x8000000000000000ULL;
+uint64_t orcbrt_calc(const double a, double_ull* val, double_ull* guess) {
+	val->d = a;
 
-	val.ull ^= sign;
+	uint64_t sign = val->ull & 0x8000000000000000ULL;
+
+	val->ull ^= sign;
 
 #if CHECK_SPECIAL_CASES != 0
-	if (val.ull == 0ULL) {
+	if (val->ull == 0ULL) {
 		return 1.0 / a;
 	}
 #endif
 
-	uint64_t exponent = val.ull;
+	uint64_t exponent = val->ull;
 	int iterations = 3;
 
 #if SUBNORMAL_NUMBERS != 0
@@ -42,20 +46,26 @@ double orcbrt(const double a) {
 	}
 #endif
 
-	double_ull guess;
-	guess.ull = exponent;
+	guess->ull = exponent;
 
-	double thirdA = val.d * ONE_THIRD;
+	double thirdA = val->d * ONE_THIRD;
 
 	for (int i = 0; i < iterations; ++i) {
-		guess.d *= (FOUR_THIRDS - (thirdA * guess.d) * (guess.d * guess.d));
+		guess->d *= (FOUR_THIRDS - (thirdA * guess->d) * (guess->d * guess->d));
 	}
 
-	corr_t g = (corr_t)(guess.d);
-	g *= ((corr_t)(FOUR_THIRDS) - ((corr_t)(val.d) * ONE_THIRD) * (g * g) * g);
-	guess.d = (double)(g);
+	corr_t g = (corr_t)(guess->d);
+	g *= ((corr_t)(FOUR_THIRDS)-((corr_t)(val->d) * ONE_THIRD) * (g * g) * g);
+	guess->d = (double)(g);
 
-	guess.ull = val.ull == DOUBLE_INF ? 0ULL : guess.ull;
+	return sign;
+}
+
+double orcbrt(const double a) {
+	double_ull val;
+	double_ull guess;
+	uint64_t sign = orcbrt_calc(a, &val, &guess);
+
 	guess.ull |= sign;
 
 	return guess.d;
@@ -106,9 +116,15 @@ double ocbrt(const double a) {
 }
 #else
 inline double ocbrt(const double a) {
-	return 1.0 / orcbrt(a);
+	double_ull val;
+	double_ull guess;
+	orcbrt_calc(a, &val, &guess);
+	return guess.d * guess.d * a;
 }
 #endif
+
+
+#if !defined(USE_TABLES_FOR_FLOAT) || USE_TABLES_FOR_FLOAT == 0
 
 float orcbrtf(const float a) {
 	float_ul val;
@@ -164,7 +180,7 @@ float ocbrtf(const float a) {
 	float_ul val;
 	val.f = a;
 
-	unsigned long sign = val.ul & 0x80000000UL;
+	uint32_t sign = val.ul & 0x80000000UL;
 
 	val.ul ^= sign;
 
@@ -204,6 +220,8 @@ float ocbrtf(const float a) {
 }
 #else
 inline float ocbrtf(const float a) {
-	return 1.0f / orcbrtf(a);
+	return 1.0 / orcbrtf(a);
 }
+#endif
+
 #endif

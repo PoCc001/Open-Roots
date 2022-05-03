@@ -110,6 +110,9 @@ inline double osqrt(const double a) {
 }
 #endif
 
+
+#if !defined(USE_TABLES_FOR_FLOAT) || USE_TABLES_FOR_FLOAT == 0
+
 inline void orsqrtf_special_cases(const float a, float_ul* val, float_ul* guess) {
 	guess->ul = a == 0.0f ? FLOAT_INF : guess->ul;
 	guess->ul = val->ul == FLOAT_INF ? 0ULL : guess->ul;
@@ -210,4 +213,6 @@ inline float osqrtf(const float a) {
 
 	return a * guess.f;
 }
+#endif
+
 #endif
