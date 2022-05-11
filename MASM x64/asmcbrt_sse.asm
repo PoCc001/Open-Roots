@@ -1,10 +1,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The MIT License (MIT)                                                                         ;;
 ;;                                                                                               ;;
-;; Copyright © 2021 - 2022 Johannes Kloimbˆck                                                    ;;
+;; Copyright ¬© 2021 - 2022 Johannes Kloimb√∂ck                                                    ;;
 ;;                                                                                               ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy of this software ;;
-;; and associated documentation files (the ìSoftwareî), to deal in the Software without          ;;
+;; and associated documentation files (the ‚ÄúSoftware‚Äù), to deal in the Software without          ;;
 ;; restriction, including without limitation the rights to use, copy, modify, merge, publish,    ;;
 ;; distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the ;;
 ;; Software is furnished to do so, subject to the following conditions:                          ;;
@@ -12,7 +12,7 @@
 ;; The above copyright notice and this permission notice shall be included in all copies or      ;;
 ;; substantial portions of the Software.                                                         ;;
 ;;                                                                                               ;;
-;; THE SOFTWARE IS PROVIDED ìAS ISî, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING ;;
+;; THE SOFTWARE IS PROVIDED ‚ÄúAS IS‚Äù, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING ;;
 ;; BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND    ;;
 ;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,  ;;
 ;; DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,;;
@@ -65,7 +65,7 @@ helper_constants ENDS
 ;;                                                  INTERNAL MACROS                                                           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-macro_vorcbrt_sd_itcnt macro
+macro_orcbrt_sd_itcnt macro
 	mov r8d, 32
 	mov r10, 7ff0000000000000h
 	test rax, r10
@@ -79,7 +79,7 @@ macro_orcbrt_sd_calc macro
 	mov ecx, 4
 	and r9, rax
 	xor rax, r9
-	macro_vorcbrt_sd_itcnt			; omit this macro, if you know that no subnormal numbers occur
+	macro_orcbrt_sd_itcnt			; omit this macro, if you know that no subnormal numbers occur
 	sub rax, [EXP_MAGIC_MINUEND_64]
 	not rax
 	mul [DIV_3_64_SCALAR]
@@ -113,7 +113,7 @@ macro_orcbrt_sd_special_cases macro
 endm
 
 
-macro_vorcbrt_ss_itcnt macro
+macro_orcbrt_ss_itcnt macro
 	mov r8d, 30
 	test rax, 7f800000h
 	cmovz ecx, r8d
@@ -126,7 +126,7 @@ macro_orcbrt_ss_calc macro
 	mov ecx, 3
 	and r9d, eax
 	xor eax, r9d
-	macro_vorcbrt_ss_itcnt			; omit this macro, if you know that no subnormal numbers occur
+	macro_orcbrt_ss_itcnt			; omit this macro, if you know that no subnormal numbers occur
 	sub eax, 4259184641
 	not eax
 	mul dword ptr [DIV_3_32_SCALAR]
