@@ -598,7 +598,7 @@ float orcbrtf(const float x) {
 	return recip;
 }
 
-float ocbrtf(const float x) {
+inline float ocbrtf(const float x) {
 	float orcbrt = orcbrtf(x);
 	return orcbrt * orcbrt * x;
 }

@@ -609,7 +609,7 @@ float osqrtf(const float x) {
 	return exp == 255 ? x : (x < 1.175494e-38f ? osqrt_subnormal(&val) : osqrt_normal(&val, exp));
 }
 
-float orsqrtf(const float x) {
+inline float orsqrtf(const float x) {
 	return 1.0 / osqrtf(x);
 }
 
