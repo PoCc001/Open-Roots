@@ -450,7 +450,7 @@ vocbrt_sd endp
 ; Calculates the cube root of one single-precision floating-point number.
 ; Use this macro to inline the code
 macro_vocbrt_ss macro
-	macro_vocbrt_ss_mul
+	macro_vocbrt_ss_div		; change to macro_vocbrt_ss_mul for better performance but more unprecise results
 ;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
 						; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
@@ -466,7 +466,7 @@ vocbrt_ss endp
 ; Calculates the cube root of four double-precision floating-point numbers.
 ; Use this macro to inline the code
 macro_vocbrt_pd macro
-	macro_vocbrt_pd_mul		; change to macro_vocbrt_pd_mul for better performance but more unprecise results
+	macro_vocbrt_pd_div		; change to macro_vocbrt_pd_mul for better performance but more unprecise results
 endm
 
 ; Calculates the cube root of four double-precision floating-point numbers.
@@ -480,7 +480,7 @@ vocbrt_pd endp
 ; Calculates the cube root of eight single-precision floating-point numbers.
 ; Use this macro to inline the code
 macro_vocbrt_ps macro
-	macro_vocbrt_ps_mul		; change to macro_vocbrt_ps_mul for better performance but more unprecise results
+	macro_vocbrt_ps_div		; change to macro_vocbrt_ps_mul for better performance but more unprecise results
 endm
 
 ; Calculates the cube root of eight single-precision floating-point numbers.
