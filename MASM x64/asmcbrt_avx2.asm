@@ -1,7 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The MIT License (MIT)                                                                         ;;
 ;;                                                                                               ;;
-;; Copyright © 2021 - 2023 Johannes Kloimböck                                                    ;;
+;; Copyright © 2021 - 2025 Johannes Kloimböck                                                    ;;
 ;;                                                                                               ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy of this software ;;
 ;; and associated documentation files (the “Software”), to deal in the Software without          ;;
@@ -23,7 +23,8 @@
 
 ; These are important values stored in memory that the following procedures will operate with (for scalar and packed instructions)
 .data
-helper_constants_packed SEGMENT READONLY ALIGN(32)
+helper_constants SEGMENT READONLY ALIGN(32)
+;; CONSTANTS FOR mul AND div calculations
 SIGN_64 qword 4 dup(8000000000000000h)
 SIGN_32 dword 8 dup(80000000h)
 
@@ -63,28 +64,39 @@ ONES_32 dword 8 dup(4294967295)
 ; There might be better "magical" numbers, but these ones already do a good job.
 EXP_MAGIC_MINUEND_64 qword 4 dup(-19178652474277888)
 EXP_MAGIC_MINUEND_32 dword 8 dup(4259184641)
-helper_constants_packed ENDS
 
-helper_constants_scalar SEGMENT READONLY ALIGN(8)
-TWO_POW_54_64_SCALAR qword 4350000000000000h
-TWO_POW_0_64_SCALAR real8 1.0
-NEG_TWO_POW_54_64_SCALAR qword -4372995238176751616
-NEG_TWO_POW_0_64_SCALAR real8 -1.0
 
-TWO_POW_24_32_SCALAR dword 201326592
-TWO_POW_0_32_SCALAR real4 1.0
-NEG_TWO_POW_24_32_SCALAR dword 8c000000h
-NEG_TWO_POW_0_32_SCALAR real4 -1.0
 
-ONE_THIRD_64_SCALAR qword 4335555555555555h, 3fd5555555555555h, -4380501237555702443, -4623695617433709227
-ONE_THIRD_32_SCALAR dword 4aaaaaabh, 3eaaaaabh, 3400182443, 3198855851
+;; CONSTANTS FOR direct CALCULATIONS
+; 64 BIT
+TWO_POW_54_64_DIRECT qword 4350000000000000h
+TWO_POW_0_64_DIRECT real8 1.0
+NEG_TWO_POW_54_64_DIRECT qword -4372995238176751616
+NEG_TWO_POW_0_64_DIRECT real8 -1.0
 
-CORRECTION_64_SCALAR qword 4230000000000000h, 3ff0000000000000h, 4230000000000000h, 3ff0000000000000h
-CORRECTION_32_SCALAR dword 47800000h, 3f800000h, 47800000h, 3f800000h
+ONE_THIRD_64_DIRECT qword 4335555555555555h, 3fd5555555555555h, -4380501237555702443, -4623695617433709227
 
+CORRECTION_64_DIRECT qword 4230000000000000h, 3ff0000000000000h, 4230000000000000h, 3ff0000000000000h
+
+OFFSETS_64 dword 0, 1, 0, 1, 0, 1, 0, 1
+
+
+; 32 BIT
+TWO_POW_24_32_DIRECT dword 1266679808
+TWO_POW_0_32_DIRECT real4 1.0
+NEG_TWO_POW_24_32_DIRECT dword 3414163456
+NEG_TWO_POW_0_32_DIRECT real4 -1.0
+
+ONE_THIRD_32_DIRECT dword 4aaaaaabh, 3eaaaaabh, 3400182443, 3198855851
+
+CORRECTION_32_DIRECT dword 47800000h, 3f800000h, 47800000h, 3f800000h
+
+
+
+;; SCALAR CONSTANTS
 DIV_3_64_SCALAR qword 5555555555555556h
 DIV_3_32_SCALAR dword 5555b700h
-helper_constants_scalar ENDS
+helper_constants ENDS
 
 .code
 
@@ -119,7 +131,7 @@ endm
 macro_vorcbrt_sd_calc macro
 	vandpd xmm3, xmm0, [WITHOUT_SIGN_64]
 	macro_vorcbrt_sd_subnormal		; omit this macro, if you know that no subnormal numbers occur
-	vmovq rax, xmm4			; use xmm0, if you omitted the macro_vorcbrt_sd_subnormal macro
+	vmovq rax, xmm4				; use xmm0, if you omitted the macro_vorcbrt_sd_subnormal macro
 	mov ecx, 4
 	macro_vorcbrt_sd_save_sign		; substitute with the macro_vorcbrt_sd_remove_sign macro if you use macro_vocbrt_sd_mul to calculate the actual cbrt and not its reciprocal value.
 	sub rax, [EXP_MAGIC_MINUEND_64]
@@ -170,7 +182,7 @@ endm
 macro_vorcbrt_ss_calc macro
 	vandps xmm3, xmm0, dword ptr [WITHOUT_SIGN_32]
 	macro_vorcbrt_ss_subnormal		; omit this macro, if you know that no subnormal numbers occur
-	vmovd eax, xmm4			; use xmm0, if you omitted the macro_vorcbrt_ss_subnormal macro
+	vmovd eax, xmm4				; use xmm0, if you omitted the macro_vorcbrt_ss_subnormal macro
 	macro_vorcbrt_ss_save_sign		; substitute with the instruction "and eax, 7fffffffh" if you use macro_vocbrt_ss_mul to calculate the actual cbrt instead of its reciprocal value
 	sub eax, 4259184641
 	not eax
@@ -296,10 +308,10 @@ macro_vocbrt_sd_direct macro
 	vmovq r9, xmm0
 	shr r9, 62
 	vmovq xmm2, [EXP_MAGIC_MINUEND_64]
-	vmulsd xmm1, xmm0, [TWO_POW_54_64_SCALAR + r9 * 8]
-	vmulsd xmm5, xmm0, [ONE_THIRD_64_SCALAR + r9 * 8]
+	vmulsd xmm1, xmm0, [TWO_POW_54_64_DIRECT + r9 * 8]
+	vmulsd xmm5, xmm0, [ONE_THIRD_64_DIRECT + r9 * 8]
 	vpsubq xmm1, xmm2, xmm1
-	vmulsd xmm0, xmm0, [CORRECTION_64_SCALAR + r9 * 8]
+	vmulsd xmm0, xmm0, [CORRECTION_64_DIRECT + r9 * 8]
 	vpsrlq xmm1, xmm1, 32
 	vmovq xmm4, [FOUR_THIRDS_64]
 	vpmuludq xmm1, xmm1, xmmword ptr [DIV_3_64_SCALAR]
@@ -328,6 +340,38 @@ macro_vocbrt_ss_mul macro
 	vmulss xmm0, xmm1, xmm0
 endm
 
+macro_vocbrt_ss_direct macro
+	vmovd r9d, xmm0
+	shr r9d, 30
+	vmovd xmm2, [EXP_MAGIC_MINUEND_32]
+	vmulss xmm1, xmm0, [TWO_POW_24_32_DIRECT + r9 * 4]
+	vmulss xmm5, xmm0, [ONE_THIRD_32_DIRECT + r9 * 4]
+	vpsubd xmm1, xmm2, xmm1
+	vmulss xmm0, xmm0, [CORRECTION_32_DIRECT + r9 * 4]
+	vmovd rax, xmm1
+	vmovd xmm4, [FOUR_THIRDS_32]
+	mul dword ptr [DIV_3_32_SCALAR]
+	vmovd xmm1, edx
+
+	vmulss xmm3, xmm5, xmm1
+	vmulss xmm2, xmm1, xmm1
+	vfnmadd213ss xmm3, xmm2, xmm4
+	vmulss xmm1, xmm1, xmm3
+
+	vmulss xmm3, xmm5, xmm1
+	vmulss xmm2, xmm1, xmm1
+	vfnmadd213ss xmm3, xmm2, xmm4
+	vmulss xmm1, xmm1, xmm3
+
+	vmulss xmm3, xmm5, xmm1
+	vmulss xmm2, xmm1, xmm1
+	vfnmadd213ss xmm3, xmm2, xmm4
+	vmulss xmm1, xmm1, xmm3
+
+	vmulss xmm1, xmm1, xmm1
+	vmulss xmm0, xmm1, xmm0
+endm
+
 macro_vocbrt_ss_div macro
 	macro_vorcbrt_ss_calc
 	macro_vorcbrt_ss_special_cases
@@ -349,6 +393,55 @@ macro_vocbrt_pd_div macro
 	vdivpd ymm0, ymm1, ymm0
 endm
 
+macro_vocbrt_pd_direct macro
+	vpsrlq ymm1, ymm0, 62
+	vpshufd ymm1, ymm1, 10100000b
+	vpslld ymm1, ymm1, 1
+	vorps ymm1, ymm1, [OFFSETS_64]
+	vmovapd ymm3, [TWO_POW_54_64_DIRECT]
+	vmovapd ymm4, [ONE_THIRD_64_DIRECT]
+	vmovapd ymm5, [CORRECTION_64_DIRECT]
+	vmovapd ymm2, [EXP_MAGIC_MINUEND_64]
+	vpermps ymm3, ymm1, ymm3
+	vpermps ymm4, ymm1, ymm4
+	vpermps ymm5, ymm1, ymm5
+	vmulpd ymm1, ymm0, ymm3
+	vmulpd ymm3, ymm0, ymm4
+	vpsubq ymm1, ymm2, ymm1
+	vmulpd ymm0, ymm0, ymm5
+	vmovdqa ymm4, ymmword ptr [FOUR_THIRDS_64]
+	vpsrlq ymm1, ymm1, 33
+	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_64]
+	vpsllq ymm1, ymm1, 32
+
+	vmulpd ymm5, ymm3, ymm1
+	vmulpd ymm2, ymm1, ymm1
+	vfnmadd213pd ymm5, ymm2, ymm4
+	vmulpd ymm1, ymm1, ymm5
+
+	vmulpd ymm5, ymm3, ymm1
+	vmulpd ymm2, ymm1, ymm1
+	vfnmadd213pd ymm5, ymm2, ymm4
+	vmulpd ymm1, ymm1, ymm5
+
+	vmulpd ymm5, ymm3, ymm1
+	vmulpd ymm2, ymm1, ymm1
+	vfnmadd213pd ymm5, ymm2, ymm4
+	vmulpd ymm1, ymm1, ymm5
+
+	vmulpd ymm5, ymm3, ymm1
+	vmulpd ymm2, ymm1, ymm1
+	vfnmadd213pd ymm5, ymm2, ymm4
+	vmulpd ymm1, ymm1, ymm5
+
+	vmulpd ymm5, ymm3, ymm1
+	vmulpd ymm2, ymm1, ymm1
+	vfnmadd213pd ymm5, ymm2, ymm4
+	vmulpd ymm1, ymm1, ymm5
+
+	vmulpd ymm1, ymm1, ymm1
+	vmulpd ymm0, ymm1, ymm0
+endm
 
 macro_vocbrt_ps_mul macro
 	macro_vorcbrt_ps_calc
@@ -363,6 +456,43 @@ macro_vocbrt_ps_div macro
 	vdivps ymm0, ymm1, ymm0
 endm
 
+macro_vocbrt_ps_direct macro
+	vpsrld ymm1, ymm0, 30
+	vmovaps xmm3, [TWO_POW_24_32_DIRECT]
+	vmovaps xmm4, [ONE_THIRD_32_DIRECT]
+	vmovaps xmm5, [CORRECTION_32_DIRECT]
+	vmovaps ymm2, [EXP_MAGIC_MINUEND_32]
+	vpermps ymm3, ymm1, ymm3
+	vpermps ymm4, ymm1, ymm4
+	vpermps ymm5, ymm1, ymm5
+	vmulps ymm1, ymm0, ymm3
+	vmulps ymm3, ymm0, ymm4
+	vpsubd ymm1, ymm2, ymm1
+	vmulps ymm0, ymm0, ymm5
+	vmovdqa ymm4, ymmword ptr [FOUR_THIRDS_32]
+	vpsrld ymm1, ymm1, 17
+	vpmulhuw ymm1, ymm1, ymmword ptr [DIV_3_32]
+	vpslld ymm1, ymm1, 16
+
+	vmulps ymm5, ymm3, ymm1
+	vmulps ymm2, ymm1, ymm1
+	vfnmadd213ps ymm5, ymm2, ymm4
+	vmulps ymm1, ymm1, ymm5
+
+	vmulps ymm5, ymm3, ymm1
+	vmulps ymm2, ymm1, ymm1
+	vfnmadd213ps ymm5, ymm2, ymm4
+	vmulps ymm1, ymm1, ymm5
+
+	vmulps ymm5, ymm3, ymm1
+	vmulps ymm2, ymm1, ymm1
+	vfnmadd213ps ymm5, ymm2, ymm4
+	vmulps ymm1, ymm1, ymm5
+
+	vmulps ymm1, ymm1, ymm1
+	vmulps ymm0, ymm1, ymm0
+endm
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                           API MACROS AND PROCEDURES                                                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -372,8 +502,8 @@ endm
 macro_vorcbrt_sd macro
 	macro_vorcbrt_sd_calc
 	macro_vorcbrt_sd_special_cases
-	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
-							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
+	;	vzeroupper		; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
+					; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
 
 ; Calculates the reciprocal value of the cube root of one double-precision floating-point number.
@@ -389,8 +519,8 @@ vorcbrt_sd endp
 macro_vorcbrt_ss macro
 	macro_vorcbrt_ss_calc
 	macro_vorcbrt_ss_special_cases
-	;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
-							; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
+	;	vzeroupper		; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
+					; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
 
 ; Calculates the reciprocal value of the cube root of one single-precision floating-point number.
@@ -434,9 +564,10 @@ vorcbrt_ps endp
 ; Calculates the cube root of one double-precision floating-point number.
 ; Use this macro to inline the code
 macro_vocbrt_sd macro
-	macro_vocbrt_sd_direct
-;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
-						; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
+	macro_vocbrt_sd_div	; change to macro_vocbrt_ss_mul or macro_vocbrt_ss_direct for better performance and better handling of denormal numbers,
+				; but more unprecise results in general
+;	vzeroupper		; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
+				; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
 
 ; Calculates the cube root of one double-precision floating-point number.
@@ -450,9 +581,10 @@ vocbrt_sd endp
 ; Calculates the cube root of one single-precision floating-point number.
 ; Use this macro to inline the code
 macro_vocbrt_ss macro
-	macro_vocbrt_ss_div		; change to macro_vocbrt_ss_mul for better performance but more unprecise results
-;	vzeroupper			; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
-						; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
+	macro_vocbrt_ss_div	; change to macro_vocbrt_ss_mul or macro_vocbrt_ss_direct for better performance and better handling of denormal numbers,
+				; but more unprecise results in general
+;	vzeroupper		; Uncomment this instruction, if your software contains SSE instructions directly after this macro.
+				; If you're unsure, read through the disassembly and decide based on that or uncomment it anyway.
 endm
 
 ; Calculates the cube root of one single-precision floating-point number.
@@ -466,7 +598,8 @@ vocbrt_ss endp
 ; Calculates the cube root of four double-precision floating-point numbers.
 ; Use this macro to inline the code
 macro_vocbrt_pd macro
-	macro_vocbrt_pd_div		; change to macro_vocbrt_pd_mul for better performance but more unprecise results
+	macro_vocbrt_pd_div	; change to macro_vocbrt_pd_mul or macro_vocbrt_pd_direct for more unprecise results in general but better handling
+				; of denormal numbers.
 endm
 
 ; Calculates the cube root of four double-precision floating-point numbers.
@@ -480,7 +613,8 @@ vocbrt_pd endp
 ; Calculates the cube root of eight single-precision floating-point numbers.
 ; Use this macro to inline the code
 macro_vocbrt_ps macro
-	macro_vocbrt_ps_div		; change to macro_vocbrt_ps_mul for better performance but more unprecise results
+	macro_vocbrt_ps_div	; change to macro_vocbrt_pd_mul or macro_vocbrt_pd_direct for more unprecise results in general but better handling
+				; of denormal numbers.
 endm
 
 ; Calculates the cube root of eight single-precision floating-point numbers.
